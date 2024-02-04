@@ -6,6 +6,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Weapon.h"
 #include "EnhancedInputSubsystems.h"
 
 ASevenCharacter::ASevenCharacter()
@@ -47,7 +48,6 @@ ASevenCharacter::ASevenCharacter()
 
 void ASevenCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
 }
 
@@ -60,6 +60,14 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 {
 	StopJumping();
 }
+
+void ASevenCharacter::Fire(const FInputActionValue& Value)
+{
+	// Attack
+	//CreateProxyObjectForPlayMontage
+	PlayAnimMontage(LightAttack, 1.0f, "1");
+}
+
 
 void ASevenCharacter::Move(const FInputActionValue& Value)
 {
@@ -95,6 +103,13 @@ void ASevenCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void ASevenCharacter::PerformWeaponTrace()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->PerformTrace();
+	}
+}
 
 
 

@@ -8,6 +8,8 @@
 #include "InputActionValue.h"
 #include "SevenCharacter.generated.h"
 
+class UAnimMontage;
+class AWeapon;
 
 UCLASS(config=Game)
 class ASevenCharacter : public ACharacter, public IControllableInterface
@@ -21,35 +23,28 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-	
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction;
+	UPROPERTY()
+	AWeapon* EquippedWeapon;
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
-
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Animation Montages
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* LightAttack;
 
 public:
 	ASevenCharacter();
-	
+	UFUNCTION(BlueprintCallable)
+	void PerformWeaponTrace();
 
 protected:
 	// Controllable Int
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-	void Space(const FInputActionValue& Value);
-	void StopSpace(const FInputActionValue& Value);
+	virtual void Move(const FInputActionValue& Value) override;
+	virtual void Look(const FInputActionValue& Value) override;
+	virtual void Space(const FInputActionValue& Value) override;
+	virtual void Fire(const FInputActionValue& Value) override;
+	virtual void StopSpace(const FInputActionValue& Value) override;
 			
-
 protected:
 	// To add mapping context
 	virtual void BeginPlay();

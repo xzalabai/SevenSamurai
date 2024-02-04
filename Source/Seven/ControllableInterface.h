@@ -19,6 +19,7 @@ public:
 	virtual void Look(const FInputActionValue& Value) = 0;
 	virtual void Space(const FInputActionValue& Value) = 0;
 	virtual void StopSpace(const FInputActionValue& Value) = 0;
+	virtual void Fire(const FInputActionValue& Value) = 0;
 
 public:
 };
