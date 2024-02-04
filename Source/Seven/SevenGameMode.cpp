@@ -7,10 +7,18 @@
 ASevenGameMode::ASevenGameMode()
 {
 
-	// set default pawn class to our Blueprinted character
-	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"));
-	//if (PlayerPawnBPClass.Class != NULL)
-	//{
-	//	DefaultPawnClass = PlayerPawnBPClass.Class;
-	//}
 }
+
+/*
+TODOs:
+
+Refactor:
+Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate)
+
+
+
+
+
+
+
+*/
