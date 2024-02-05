@@ -13,8 +13,9 @@ ASevenGameMode::ASevenGameMode()
 TODOs:
 
 Refactor:
-Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate)
-
+High - Create View For 3rd person (so it's not controlled directly in Seven
+Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate) ... ALSO make it more readable ..
+Medium - Cache player who owns a camera
 
 
 

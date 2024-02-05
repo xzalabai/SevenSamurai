@@ -5,7 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
+#include "GodView.h"
 #include "SevenPlayerController.generated.h"
+
+
+class AGodView;
+
 
 UCLASS()
 class SEVEN_API ASevenPlayerController : public APlayerController
@@ -14,9 +19,6 @@ class SEVEN_API ASevenPlayerController : public APlayerController
 public:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-
-protected:
-	APawn* TryGetPawn();
 
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +49,8 @@ public:
 	void Switch(const FInputActionValue& Value);
 
 private:
-	bool bBirdView = true;
+	UPROPERTY()
+	AGodView* GodView;
+	bool bGodView = true;
 
 };
