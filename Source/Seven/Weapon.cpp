@@ -34,6 +34,13 @@ void AWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName)
+{
+	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, "RightHandSocket");
+	FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
+	SetActorTransform(SocketTransform);
+}
+
 void AWeapon::PerformTrace()
 {
 	FHitResult OutHit;
@@ -64,5 +71,4 @@ void AWeapon::PerformTrace()
 	//	AffectedActors.Add(OutHit.GetActor());
 	//}
 }
-
 

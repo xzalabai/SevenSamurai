@@ -24,8 +24,8 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	UPROPERTY()
-	AWeapon* EquippedWeapon;
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* EquippedWeapon;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
@@ -46,7 +46,6 @@ protected:
 	virtual void StopSpace(const FInputActionValue& Value) override;
 			
 protected:
-	// To add mapping context
 	virtual void BeginPlay();
 
 public:

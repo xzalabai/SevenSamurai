@@ -48,94 +48,43 @@ void ASevenPlayerController::SetupInputComponent()
 void ASevenPlayerController::Space(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] Space"));
-	if (bGodView)
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
-		if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GodView))
-		{
-			ControlledEntity->Space(Value);
-		}
+		ControlledEntity->Space(Value);
 	}
-	else
-	{
-		if (IControllableInterface* ControlledPawn = CastChecked<IControllableInterface>(GetPawn()))
-		{
-			ControlledPawn->Space(Value);
-		}
-	}
-	
 }
 
 void ASevenPlayerController::StopSpace(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] StopSpace"));
-	if (bGodView)
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
-		if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GodView))
-		{
-			ControlledEntity->StopSpace(Value);
-		}
-	}
-	else
-	{
-		if (IControllableInterface* ControlledPawn = CastChecked<IControllableInterface>(GetPawn()))
-		{
-			ControlledPawn->StopSpace(Value);
-		}
+		ControlledEntity->StopSpace(Value);
 	}
 }
 
 void ASevenPlayerController::Move(const FInputActionValue& Value)
 {
-	if (bGodView)
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
-		if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GodView))
-		{
-			ControlledEntity->Move(Value);
-		}
-	}
-	else
-	{
-		if (IControllableInterface* ControlledPawn = CastChecked<IControllableInterface>(GetPawn()))
-		{
-			ControlledPawn->Move(Value);
-		}
+		ControlledEntity->Move(Value);
 	}
 }
 
 void ASevenPlayerController::Fire(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] Fire"));
-	if (bGodView)
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
-		if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GodView))
-		{
-			ControlledEntity->Fire(Value);
-		}
-	}
-	else
-	{
-		if (IControllableInterface* ControlledPawn = CastChecked<IControllableInterface>(GetPawn()))
-		{
-			ControlledPawn->Fire(Value);
-		}
+		ControlledEntity->Fire(Value);
 	}
 }
 
 void ASevenPlayerController::Look(const FInputActionValue& Value)
 {
-	if (bGodView)
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
-		if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GodView))
-		{
-			ControlledEntity->Look(Value);
-		}
-	}
-	else
-	{
-		if (IControllableInterface* ControlledPawn = CastChecked<IControllableInterface>(GetPawn()))
-		{
-			ControlledPawn->Look(Value);
-		}
+		ControlledEntity->Look(Value);
 	}
 }
 
@@ -170,9 +119,19 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 				UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
 				SetViewTargetWithBlend(GodView);
 				GodView->Enable(true);
-;			}
+			}
 		}		
 		bGodView = true;
 	}
+}
+
+TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()
+{
+	// returns either GodView or GetPawn()
+	if (GetPawn())
+	{
+		return GetPawn();
+	}
+	return GodView ? GodView : nullptr;
 }
 

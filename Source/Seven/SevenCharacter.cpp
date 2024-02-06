@@ -107,7 +107,7 @@ void ASevenCharacter::PerformWeaponTrace()
 {
 	if (EquippedWeapon)
 	{
-		EquippedWeapon->PerformTrace();
+	//	EquippedWeapon->PerformTrace();
 	}
 }
 

@@ -48,6 +48,10 @@ public:
 	void Fire(const FInputActionValue& Value);
 	void Switch(const FInputActionValue& Value);
 
+
+private:
+	TObjectPtr<AActor> GetControlledActor();
+
 private:
 	UPROPERTY()
 	AGodView* GodView;

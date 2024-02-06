@@ -8,6 +8,7 @@
 
 class UNiagaraComponent;
 class USphereComponent;
+class USkeletalMeshComponent;
 
 UCLASS()
 class SEVEN_API AWeapon : public AActor
@@ -34,6 +35,7 @@ protected:
 public:	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
+	void AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName);
 	UFUNCTION(BlueprintCallable)
 	void PerformTrace();
 
