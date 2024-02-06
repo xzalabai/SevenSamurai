@@ -10,10 +10,13 @@
 
 class UAnimMontage;
 class AWeapon;
+class UAnimationComponent;
 
 UCLASS(config=Game)
 class ASevenCharacter : public ACharacter, public IControllableInterface
 {
+	friend class UAnimationComponent;
+
 	GENERATED_BODY()
 
 	/** Camera boom positioning the camera behind the character */
@@ -24,8 +27,14 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* EquippedWeapon;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> WeaponType;
+
+	UPROPERTY()
+	AWeapon* EquippedWeapon;
+
+	UPROPERTY()
+	UAnimationComponent* AnimationComponent;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
@@ -53,5 +62,10 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+
+	// TEST
+	FOnMontageEnded EndDelegate;
+	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 };
 

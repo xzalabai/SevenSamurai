@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "Weapon.h"
 #include "EnhancedInputSubsystems.h"
+#include "AnimationComponent.h"
 
 ASevenCharacter::ASevenCharacter()
 {
@@ -44,11 +45,28 @@ ASevenCharacter::ASevenCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	AnimationComponent = CreateDefaultSubobject<UAnimationComponent>(TEXT("AnimationComponent"));
 }
 
 void ASevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
+	USkeletalMeshComponent* PlayerMesh = GetMesh();
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
+	}
+
+	EndDelegate.BindUObject(this, &ASevenCharacter::OnAnimationEnded);
+	
+}
+
+void ASevenCharacter::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] WWWWWWWWW Not found"));
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -64,8 +82,7 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	// Attack
-	//CreateProxyObjectForPlayMontage
-	PlayAnimMontage(LightAttack, 1.0f, "1");
+	AnimationComponent->Play(LightAttack, FName("1"));
 }
 
 

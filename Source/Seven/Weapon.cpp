@@ -8,12 +8,12 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
-	TriggerCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Trigger Collider"));
+	//TriggerCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Trigger Collider"));
 	ParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Scene Component"));
 	SetRootComponent(RootSceneComponent);
 	MeshComponent->SetupAttachment(RootSceneComponent);
-	TriggerCollider->SetupAttachment(MeshComponent);
+	//TriggerCollider->SetupAttachment(MeshComponent);
 	ParticleSystem->SetupAttachment(RootComponent);
 
 	StartTrace = CreateDefaultSubobject<USceneComponent>(TEXT("Start Trace"));
@@ -36,7 +36,7 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName)
 {
-	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, "RightHandSocket");
+	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, "hand_rSocket");
 	FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
 	SetActorTransform(SocketTransform);
 }

@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -24,8 +22,8 @@ protected:
 	UPROPERTY(EditAnywhere);
 	UNiagaraComponent* ParticleSystem;
 	
-	UPROPERTY(VisibleAnywhere);
-	USphereComponent* TriggerCollider;
+	//UPROPERTY(VisibleAnywhere);
+	//USphereComponent* TriggerCollider;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* StartTrace;
