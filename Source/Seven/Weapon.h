@@ -32,11 +32,7 @@ protected:
 	USceneComponent* EndTrace;
 public:	
 	AWeapon();
-	virtual void Tick(float DeltaTime) override;
 	void AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName);
 	UFUNCTION(BlueprintCallable)
 	void PerformTrace();
-
-protected:
-	virtual void BeginPlay() override;
-};
+};	

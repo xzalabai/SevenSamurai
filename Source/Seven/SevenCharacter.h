@@ -13,6 +13,7 @@ class AWeapon;
 class UAnimationComponent;
 
 UCLASS(config=Game)
+
 class ASevenCharacter : public ACharacter, public IControllableInterface
 {
 	friend class UAnimationComponent;
@@ -33,6 +34,9 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
 
+	UPROPERTY(EditDefaultsOnly)
+	bool bEnemy;
+
 	UPROPERTY()
 	UAnimationComponent* AnimationComponent;
 
@@ -45,6 +49,7 @@ public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)
 	void PerformWeaponTrace();
+	FORCEINLINE bool CanBePossessed() { return !bEnemy; }
 
 protected:
 	// Controllable Int
@@ -66,9 +71,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AnimationComponent; }
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
+	//UPROPERTY(BlueprintAssignable, Category = "Game|Damage")
+	//FTakeAnyDamageSignature OnTakeAnyDamage;
 
 	// TEST
 	FOnMontageEnded EndDelegate;
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
+
+
 };
 

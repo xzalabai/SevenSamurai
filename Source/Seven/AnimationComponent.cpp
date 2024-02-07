@@ -11,6 +11,7 @@ void UAnimationComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EndDelegate.BindUObject(this, &UAnimationComponent::OnAnimationEnded);
+	//StartDelegate.BindUObject(this, &UAnimationComponent::OnAnimationStarted);
 	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
 	{
 		if (UAnimInstance* AnimInstance = SevenCharacter->GetMesh()->GetAnimInstance())
@@ -71,10 +72,11 @@ UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] AnimInstance Not found"));
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] UAnimInstance AnimInstance Not found"));
 		return nullptr;
 	}
 }
+
 void UAnimationComponent::NextComboTriggered(bool bEnable)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] NextComboTriggered %d"), bEnable ? 1 : 0);
@@ -86,5 +88,11 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded"));
 	bMontageRunning = false;
 	bNextComboTriggerEnabled = false;
+	//HitActors.Empty();
 }
 
+void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
+{
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
+	//HitActors.Empty();
+}

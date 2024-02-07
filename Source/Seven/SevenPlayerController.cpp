@@ -96,14 +96,22 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
 		if (FoundActors.Num() > 0)
 		{
-			if (ASevenCharacter* Char = Cast<ASevenCharacter>(FoundActors[0]))
+			for (AActor* Act : FoundActors)
 			{
-				GodView->Enable(false);
-				UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
-				Possess(Char);
-				SetViewTargetWithBlend(Char);
-				bGodView = false;
+				if (ASevenCharacter* Char = Cast<ASevenCharacter>(Act))
+				{
+					if (Char->CanBePossessed())
+					{
+						GodView->Enable(false);
+						UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
+						Possess(Char);
+						SetViewTargetWithBlend(Char);
+						bGodView = false;
+					}
+					
+				}
 			}
+			
 		}
 	}
 	else

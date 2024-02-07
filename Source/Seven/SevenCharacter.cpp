@@ -47,6 +47,8 @@ ASevenCharacter::ASevenCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	AnimationComponent = CreateDefaultSubobject<UAnimationComponent>(TEXT("AnimationComponent"));
+
+	//OnTakeAnyDamage.AddDynamic(this, &ASevenCharacter::TakeDamage);
 }
 
 void ASevenCharacter::BeginPlay()
@@ -63,10 +65,16 @@ void ASevenCharacter::BeginPlay()
 	EndDelegate.BindUObject(this, &ASevenCharacter::OnAnimationEnded);
 	
 }
+	
+float ASevenCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] TakeDamage"));
+	return 0.0f;
+}
 
 void ASevenCharacter::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] WWWWWWWWW Not found"));
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded"));
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -124,7 +132,7 @@ void ASevenCharacter::PerformWeaponTrace()
 {
 	if (EquippedWeapon)
 	{
-	//	EquippedWeapon->PerformTrace();
+		EquippedWeapon->PerformTrace();
 	}
 }
 

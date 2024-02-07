@@ -1,8 +1,11 @@
 #include "Weapon.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Engine/DamageEvents.h"
+#include "GameFramework/Character.h"
 #include "NiagaraComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AWeapon::AWeapon()
 {
@@ -23,17 +26,6 @@ AWeapon::AWeapon()
 	EndTrace->SetupAttachment(RootComponent);
 }
 
-void AWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-void AWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName)
 {
 	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, "hand_rSocket");
@@ -43,6 +35,7 @@ void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 
 void AWeapon::PerformTrace()
 {
+	UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace"));
 	FHitResult OutHit;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
@@ -58,6 +51,18 @@ void AWeapon::PerformTrace()
 		ActorsToIgnore, EDrawDebugTrace::Persistent,
 		OutHit,
 		true);
+
+	// change for other types
+	if (bHit)
+	{
+		if (ACharacter* Target = Cast<ACharacter>(OutHit.GetActor()))
+		{
+			FDamageEvent DamageEvent;
+			ACharacter* AcOwner = Cast<ACharacter>(GetOwner());
+			Target->TakeDamage(10, FDamageEvent{}, UGameplayStatics::GetPlayerController(GetWorld(), 0), Owner);
+		}
+	}
+	
 
 	//if (ICharacterInterface* ITarget = Cast<ICharacterInterface>(OutHit.GetActor()))
 	//{

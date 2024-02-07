@@ -22,7 +22,9 @@ private:
 		
 public:		
 	FOnMontageEnded EndDelegate;
+	FOnMontageStarted StartDelegate;
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
+	void OnAnimationStarted(UAnimMontage* Montage);
 	void Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
 	bool bMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
@@ -30,5 +32,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);
+
+	TArray<AActor*> HitActors;
 		
 };
