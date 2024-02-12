@@ -85,3 +85,13 @@ void AGodView::StopSpace(const FInputActionValue& Value)
 {
 }
 
+void AGodView::AttackStart()
+{
+
+}
+
+void AGodView::Evade(const FInputActionValue& Value)
+{
+
+}
+

@@ -5,7 +5,7 @@
 #include "InputActionValue.h"
 #include "ControllableInterface.generated.h"
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, Blueprintable)
 class UControllableInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -20,6 +20,8 @@ public:
 	virtual void Space(const FInputActionValue& Value) = 0;
 	virtual void StopSpace(const FInputActionValue& Value) = 0;
 	virtual void Fire(const FInputActionValue& Value) = 0;
+	virtual void Evade(const FInputActionValue& Value) = 0;
+	virtual void AttackStart() = 0;
 
 public:
 };

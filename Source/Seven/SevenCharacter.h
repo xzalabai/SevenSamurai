@@ -11,6 +11,7 @@
 class UAnimMontage;
 class AWeapon;
 class UAnimationComponent;
+class UComboManager;
 
 UCLASS(config=Game)
 
@@ -37,14 +38,31 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	UPROPERTY(EditDefaultsOnly)
 	bool bEnemy;
 
-	UPROPERTY()
-	UAnimationComponent* AnimationComponent;
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* LightAttack;
+	
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* EvadeMontage;
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Components
+public:
+	UPROPERTY()
+	UAnimationComponent* AnimationComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	class ACombo* Combo;
+	UPROPERTY(EditDefaultsOnly)
+	UComboManager* ComboComponent;
+
+	
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Methods
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)
@@ -58,6 +76,9 @@ protected:
 	virtual void Space(const FInputActionValue& Value) override;
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
+	virtual void Evade(const FInputActionValue& Value) override;
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackStart() override;
 			
 protected:
 	virtual void BeginPlay();
@@ -73,13 +94,7 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-	//UPROPERTY(BlueprintAssignable, Category = "Game|Damage")
-	//FTakeAnyDamageSignature OnTakeAnyDamage;
-
-	// TEST
-	FOnMontageEnded EndDelegate;
-	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
-
-
+	// TEST vars
+	ASevenCharacter* EnemyTemporary;
 };
 

@@ -133,6 +133,14 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 	}
 }
 
+void ASevenPlayerController::Evade(const FInputActionValue& Value)
+{
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
+	{
+		ControlledEntity->Evade(Value);
+	}
+}
+
 TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()
 {
 	// returns either GodView or GetPawn()

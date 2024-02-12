@@ -24,6 +24,9 @@ protected:
 	virtual void Space(const FInputActionValue& Value) override;
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
+	virtual void AttackStart() override;
+	virtual void Evade(const FInputActionValue& Value) override;
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

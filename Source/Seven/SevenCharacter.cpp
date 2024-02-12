@@ -9,6 +9,9 @@
 #include "Weapon.h"
 #include "EnhancedInputSubsystems.h"
 #include "AnimationComponent.h"
+#include <Kismet\GameplayStatics.h>
+#include <Kismet\KismetMathLibrary.h>
+#include "ComboManager.h"
 
 ASevenCharacter::ASevenCharacter()
 {
@@ -47,6 +50,7 @@ ASevenCharacter::ASevenCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	AnimationComponent = CreateDefaultSubobject<UAnimationComponent>(TEXT("AnimationComponent"));
+	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
 
 	//OnTakeAnyDamage.AddDynamic(this, &ASevenCharacter::TakeDamage);
 }
@@ -62,24 +66,53 @@ void ASevenCharacter::BeginPlay()
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
 
-	EndDelegate.BindUObject(this, &ASevenCharacter::OnAnimationEnded);
+	if (CanBePossessed())
+	{
+		TArray<AActor*> FoundActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
+		if (FoundActors.Num() > 0)
+		{
+			EnemyTemporary = Cast<ASevenCharacter>(FoundActors[0]);
+		}
+	}
+}
+
+void ASevenCharacter::AttackStart()
+{
+	TArray<ASevenCharacter*> FoundActors = { EnemyTemporary };
 	
+	// Find closest enemy (to whose is attack meant)
+	for (auto& Enemy : FoundActors)
+	{
+		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), EnemyTemporary->GetActorLocation().GetSafeNormal());
+		float Angle = FMath::Acos(DotProduct); // TODO DELETE
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AttackStart.DotProduct %f %f"), DotProduct, Angle);
+
+		if (DotProduct > 0.6 && DotProduct <= 1)
+		{
+			// Take closest one
+			FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), Enemy->GetActorLocation());
+			RootComponent->SetWorldRotation(PlayerRot);
+			break;
+		}
+	}
 }
 	
 float ASevenCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] TakeDamage"));
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] TakeDamage"));
 	return 0.0f;
-}
-
-void ASevenCharacter::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded"));
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
 {
-	Jump();
+	ComboComponent->UseCombo("xx");
+	//Jump();
+}
+
+void ASevenCharacter::Evade(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
 }
 
 void ASevenCharacter::StopSpace(const FInputActionValue& Value)

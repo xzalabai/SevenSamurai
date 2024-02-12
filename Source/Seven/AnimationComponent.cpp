@@ -38,6 +38,7 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	{
 		return;
 	}
+
 	if (bMontageRunning && bNextComboTriggerEnabled)
 	{
 		
