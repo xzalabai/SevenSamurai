@@ -95,3 +95,7 @@ void AGodView::Evade(const FInputActionValue& Value)
 
 }
 
+void AGodView::Special(int ID)
+{
+}
+

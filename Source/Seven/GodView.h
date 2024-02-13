@@ -26,6 +26,7 @@ protected:
 	virtual void StopSpace(const FInputActionValue& Value) override;
 	virtual void AttackStart() override;
 	virtual void Evade(const FInputActionValue& Value) override;
+	virtual void Special(int ID) override;
 
 
 private:

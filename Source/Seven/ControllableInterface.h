@@ -21,6 +21,7 @@ public:
 	virtual void StopSpace(const FInputActionValue& Value) = 0;
 	virtual void Fire(const FInputActionValue& Value) = 0;
 	virtual void Evade(const FInputActionValue& Value) = 0;
+	virtual void Special(int ID) = 0;
 	virtual void AttackStart() = 0;
 
 public:

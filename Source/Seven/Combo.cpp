@@ -2,21 +2,36 @@
 #include "SevenCharacter.h"
 #include "AnimationComponent.h"
 
-ACombo::ACombo()
-{
-	PrimaryActorTick.bCanEverTick = false;
-}
 
-void ACombo::Use(AActor* Attacker, AActor* Victim)
+void UCombo::Use(AActor* Attacker, AActor* Victim)
 {
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Attacker);
-	if (!SevenCharacter)
+	ASevenCharacter* AttackerCharacter = Cast<ASevenCharacter>(Attacker);
+	ASevenCharacter* VictimCharacter = Cast<ASevenCharacter>(Victim);
+	if (!AttackerCharacter)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ASevenCharacter.Use Attacker Not Found for combo %s"), *GetName());
 		return;
 	}
-	UAnimationComponent* AnimationComponent = SevenCharacter->GetAnimationComponent();
+
+	if (!VictimCharacter)
+	{
+		VictimCharacter = AttackerCharacter->GetClosestEnemyInRange(-1.1f);
+		if (!VictimCharacter)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ASevenCharacter.Use Victim Not Found for combo %s"), *GetName());
+			return;
+		}
+
+	}
+	// Attacker
+	// Rotate and play animation
+	AttackerCharacter->RotateTowards(VictimCharacter);
+	UAnimationComponent* AnimationComponent = AttackerCharacter->GetAnimationComponent();
 	AnimationComponent->Play(AttackerAnimation, "Default", false);
 
+	// Victim
+	// Rotate and play animation
+	VictimCharacter->RotateTowards(AttackerCharacter);
+	AnimationComponent = VictimCharacter->GetAnimationComponent();
+	AnimationComponent->Play(VictimAnimation, "Default", false);
 }
-
-

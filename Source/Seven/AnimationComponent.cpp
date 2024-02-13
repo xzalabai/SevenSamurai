@@ -21,7 +21,7 @@ void UAnimationComponent::BeginPlay()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] AnimInstance Not found"));
+			UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] AnimInstance Not found for %s"), *SevenCharacter->GetName());
 		}
 	}
 	else

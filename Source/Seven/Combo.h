@@ -1,33 +1,31 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "UObject/NoExportTypes.h"
 #include "Combo.generated.h"
 
-class UAnimMontage;
-class ASevenCharacter;
+class UAnimMontage; 
 
-UCLASS()
-class SEVEN_API ACombo : public AActor
+UCLASS(Blueprintable, BlueprintType)
+class SEVEN_API UCombo : public UObject
 {
 	GENERATED_BODY()
-	
-public:	
-	ACombo();
-	virtual void Use(AActor* Attacker, AActor* Victim);
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 // Variables
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+	UPROPERTY(EditDefaultsOnly)
+	FName ComboName;
 
-protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackerAnimation;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* VictimAnimation;
 
-	UPROPERTY(EditDefaultsOnly)
-	FName Name;
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Methods
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+public:
+	void Use(AActor* Attacker, AActor* Victim);
 };

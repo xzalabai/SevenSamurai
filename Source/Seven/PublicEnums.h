@@ -1,15 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include "CoreMinimal.h"
 
-/**
- * 
- */
-class SEVEN_API PublicEnums
+UENUM(BlueprintType)
+enum class ESpecial : uint8
 {
-public:
-	PublicEnums();
-	~PublicEnums();
+	ES_None UMETA(DisplayName = "None"),
+	ES_Special1 UMETA(DisplayName = "Special 1"),
 };
+

@@ -65,39 +65,19 @@ void ASevenCharacter::BeginPlay()
 	{
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
-
-	if (CanBePossessed())
-	{
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
-		if (FoundActors.Num() > 0)
-		{
-			EnemyTemporary = Cast<ASevenCharacter>(FoundActors[0]);
-		}
-	}
 }
 
 void ASevenCharacter::AttackStart()
 {
-	TArray<ASevenCharacter*> FoundActors = { EnemyTemporary };
-	
-	// Find closest enemy (to whose is attack meant)
-	for (auto& Enemy : FoundActors)
+	ASevenCharacter* ClosestEnemy = GetClosestEnemyInRange(0.6);
+	if (ClosestEnemy)
 	{
-		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), EnemyTemporary->GetActorLocation().GetSafeNormal());
-		float Angle = FMath::Acos(DotProduct); // TODO DELETE
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AttackStart.DotProduct %f %f"), DotProduct, Angle);
-
-		if (DotProduct > 0.6 && DotProduct <= 1)
-		{
-			// Take closest one
-			FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), Enemy->GetActorLocation());
-			RootComponent->SetWorldRotation(PlayerRot);
-			break;
-		}
+		// Rotate character towards enemy
+		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ClosestEnemy->GetActorLocation());
+		RootComponent->SetWorldRotation(PlayerRot);
 	}
 }
-	
+
 float ASevenCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] TakeDamage"));
@@ -106,7 +86,7 @@ float ASevenCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
 {
-	ComboComponent->UseCombo("xx");
+	ComboComponent->UseCombo(ESpecial::ES_Special1);
 	//Jump();
 }
 
@@ -123,7 +103,14 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	// Attack
-	AnimationComponent->Play(LightAttack, FName("1"));
+	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
+	{
+		ComboComponent->UseCombo(ESpecial::ES_Special1);
+	}
+	else
+	{
+		AnimationComponent->Play(LightAttack, FName("1"));
+	}
 }
 
 
@@ -166,6 +153,75 @@ void ASevenCharacter::PerformWeaponTrace()
 	if (EquippedWeapon)
 	{
 		EquippedWeapon->PerformTrace();
+	}
+}
+
+void ASevenCharacter::Special(int ID)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Special %d is activated."), ID);
+	if (ID == 1)
+	{
+		ComboComponent->SpecialActivated = ESpecial::ES_Special1;
+	}
+}
+
+TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer()
+{
+	 TArray<ASevenCharacter*> FoundActors;
+	 TArray<FHitResult> HitResults;
+	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(),
+		 GetActorLocation(),
+		 GetActorLocation() + GetActorForwardVector() * 100,
+		 100,
+		 UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
+		 false, TArray<AActor*> { this },
+		 EDrawDebugTrace::Persistent, HitResults, true);
+
+	 auto filter = [&]()
+		 {
+			 for (FHitResult& HitResult : HitResults)
+			 {
+				 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
+				 {
+					 if (!FoundActors.Contains(Enemy))
+					 {
+						 FoundActors.Add(Enemy);
+					 }
+				 }
+			 }
+		 };
+	 
+	 filter();
+	 UE_LOG(LogTemp, Warning, TEXT("ASevenCharacter.GetEnemiesInFrontOfCharacer Found Enemies %d"), FoundActors.Num());
+	 return FoundActors;
+}
+
+ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshold)
+{
+	TArray<ASevenCharacter*> FoundEnemies = GetEnemiesInFrontOfCharacer();
+
+	// Find closest enemy (to whose is attack meant)
+	for (auto& Enemy : FoundEnemies)
+	{
+		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorLocation().GetSafeNormal());
+
+		if (DotProduct >= DotProductTreshold)
+		{
+			UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Closest enemy is: %s"), *Enemy->GetName());
+			return Enemy;
+		}
+	}
+	return nullptr;
+}
+
+void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
+{
+	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation() + GetActorForwardVector(), Actor->GetActorLocation());
+	RootComponent->SetWorldRotation(PlayerRot);
+
+	if (Shift != 0)
+	{
+		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
 }
 

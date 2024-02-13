@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ControllableInterface.h"
-#include "InputActionValue.h"
+#include "PublicEnums.h"
 #include "SevenCharacter.generated.h"
+
 
 class UAnimMontage;
 class AWeapon;
@@ -18,14 +19,17 @@ UCLASS(config=Game)
 class ASevenCharacter : public ACharacter, public IControllableInterface
 {
 	friend class UAnimationComponent;
+	friend class UCombo;
 
 	GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Variables
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
-	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
@@ -53,8 +57,6 @@ public:
 	UAnimationComponent* AnimationComponent;
 
 	UPROPERTY(EditDefaultsOnly)
-	class ACombo* Combo;
-	UPROPERTY(EditDefaultsOnly)
 	UComboManager* ComboComponent;
 
 	
@@ -77,11 +79,15 @@ protected:
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
 	virtual void Evade(const FInputActionValue& Value) override;
+	virtual void Special(int ID) override;
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackStart() override;
 			
 protected:
 	virtual void BeginPlay();
+	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer();
+	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
+	void RotateTowards(const AActor* Actor, const int Shift = 0);
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -94,7 +100,5 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-	// TEST vars
-	ASevenCharacter* EnemyTemporary;
 };
 
