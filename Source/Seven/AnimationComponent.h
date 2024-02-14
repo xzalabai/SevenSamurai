@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PublicEnums.h"
 #include "AnimationComponent.generated.h"
 
 class UAnimInstance;
@@ -31,6 +32,7 @@ public:
 	void OnAnimationStarted(UAnimMontage* Montage);
 	int8 GetCurrentAnimationMontageSection();
 	void Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
+	EOctagonalDirection ResolveDirection(const FVector &Direction);
 
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);

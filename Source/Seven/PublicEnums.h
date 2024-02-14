@@ -14,6 +14,20 @@ enum class EAttackType
 	Heavy = 1,
 };
 
+enum class EOctagonalDirection
+{
+	Forward = 0,
+	ForwardLeft = 1,
+	ForwardRight = 2,
+	
+	Backward = 3,
+	BackwardLeft = 4,
+	BackwardRight = 5,
+	
+	Left = 6,
+	Right = 7,
+};
+
 struct FAttackInfo
 {
 	FAttackInfo() = default;

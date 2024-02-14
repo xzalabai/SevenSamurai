@@ -102,6 +102,7 @@ void ASevenCharacter::Space(const FInputActionValue& Value)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
+	//AnimationComponent->Evade();
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
 }
 

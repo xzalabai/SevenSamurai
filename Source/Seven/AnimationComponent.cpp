@@ -1,4 +1,5 @@
 #include "AnimationComponent.h"
+#include "PublicEnums.h"
 #include "SevenCharacter.h"
 
 UAnimationComponent::UAnimationComponent()
@@ -59,6 +60,11 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	
 }
 
+EOctagonalDirection UAnimationComponent::ResolveDirection(const FVector& Direction)
+{
+	return EOctagonalDirection::Forward;
+}
+
 ASevenCharacter* UAnimationComponent::GetCharacterOwner()
 {
 	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
@@ -113,6 +119,5 @@ void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
 
 int8 UAnimationComponent::GetCurrentAnimationMontageSection()
 {
-
 	return 0;
 }
