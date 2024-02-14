@@ -1,5 +1,6 @@
 #include "Combo.h"
 #include "SevenCharacter.h"
+#include "MotionWarpingComponent.h"
 #include "AnimationComponent.h"
 
 
@@ -31,7 +32,9 @@ void UCombo::Use(AActor* Attacker, AActor* Victim)
 
 	// Victim
 	// Rotate and play animation
-	VictimCharacter->RotateTowards(AttackerCharacter);
+	//VictimCharacter->RotateTowards(AttackerCharacter);
 	AnimationComponent = VictimCharacter->GetAnimationComponent();
 	AnimationComponent->Play(VictimAnimation, "Default", false);
+	
+	VictimCharacter->MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackComboVictim", AttackerCharacter->VictimDesiredPosition->GetComponentTransform());
 }

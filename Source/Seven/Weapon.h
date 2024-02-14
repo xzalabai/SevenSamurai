@@ -30,9 +30,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* EndTrace;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<AActor*> HitActors;
 public:	
 	AWeapon();
 	void AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName);
+	void ClearHitActors();
 	UFUNCTION(BlueprintCallable)
 	void PerformTrace();
 };	

@@ -6,6 +6,8 @@
 #include "NiagaraComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "PublicEnums.h"
+#include "SevenCharacter.h"
 
 AWeapon::AWeapon()
 {
@@ -33,14 +35,19 @@ void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 	SetActorTransform(SocketTransform);
 }
 
+void AWeapon::ClearHitActors()
+{
+	HitActors.Empty();
+}
+
 void AWeapon::PerformTrace()
 {
 	UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace"));
-	FHitResult OutHit;
+	TArray<FHitResult> OutHit;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 	ActorsToIgnore.Add(GetAttachParentActor());
-	bool bHit = UKismetSystemLibrary::BoxTraceSingle(
+	bool bHit = UKismetSystemLibrary::BoxTraceMulti(
 		this,
 		StartTrace->GetComponentLocation(),
 		EndTrace->GetComponentLocation(),
@@ -52,28 +59,27 @@ void AWeapon::PerformTrace()
 		OutHit,
 		true);
 
-	// change for other types
 	if (bHit)
 	{
-		if (ACharacter* Target = Cast<ACharacter>(OutHit.GetActor()))
+		for (FHitResult& Hit : OutHit)
 		{
-			FDamageEvent DamageEvent;
-			ACharacter* AcOwner = Cast<ACharacter>(GetOwner());
-			Target->TakeDamage(10, FDamageEvent{}, UGameplayStatics::GetPlayerController(GetWorld(), 0), Owner);
-		}
-	}
-	
+			AActor* HitActor = Hit.GetActor();
+			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Contains:"), *HitActor->GetName());
+			if (HitActors.Contains(HitActor))
+			{
+				UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Contains:"), *HitActor->GetName());
+				// Already listed as hit
+				continue;
+			}
 
-	//if (ICharacterInterface* ITarget = Cast<ICharacterInterface>(OutHit.GetActor()))
-	//{
-	//	if (AffectedActors.Contains(OutHit.GetActor()))
-	//	{
-	//		UE_LOG(LogTemp, Display, TEXT("[AWeapon] AffectedActors"));
-	//		// Actor is already in the list of affected
-	//		return;
-	//	}
-	//	ITarget->OnReceivedHit(OutHit.ImpactNormal, OutHit.Location, GetAttachParentActor(), Damage);
-	//	AffectedActors.Add(OutHit.GetActor());
-	//}
+			if (ASevenCharacter* Target = Cast<ASevenCharacter>(HitActor))
+			{
+				UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Hit Actor:"), *HitActor->GetName());
+				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), static_cast<EAttackTypeMontage>(1), 10 });
+				HitActors.Add(Hit.GetActor());
+			}
+		}
+		
+	}
 }
 

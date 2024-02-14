@@ -13,6 +13,8 @@ class UAnimMontage;
 class AWeapon;
 class UAnimationComponent;
 class UComboManager;
+class AEnemy;
+class UMotionWarpingComponent;
 
 UCLASS(config=Game)
 
@@ -26,7 +28,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
@@ -36,6 +38,9 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> WeaponType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* VictimDesiredPosition;
+
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
 
@@ -44,11 +49,18 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
+private:
 	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* LightAttack;
+	UAnimMontage* LightAttackAttacker;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* LightAttackVictim;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EvadeMontage;
+
+	UPROPERTY()
+	ASevenCharacter* TargetedEnemy;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Components
@@ -59,7 +71,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UComboManager* ComboComponent;
 
-	
+	UPROPERTY()
+	UMotionWarpingComponent* MotionWarpingComponent;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods
@@ -98,7 +111,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AnimationComponent; }
 
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	
 };
 

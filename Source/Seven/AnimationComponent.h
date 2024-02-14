@@ -26,7 +26,7 @@ public:
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	void OnAnimationStarted(UAnimMontage* Montage);
 	void Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
-	bool bMontageRunning = false;
+	bool bActiveMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
 	int currentComboIndex = 1;
 

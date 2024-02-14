@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Weapon.h"
+#include "MotionWarpingComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "AnimationComponent.h"
 #include <Kismet\GameplayStatics.h>
@@ -46,13 +47,16 @@ ASevenCharacter::ASevenCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	VictimDesiredPosition = CreateDefaultSubobject<USceneComponent>(TEXT("VictimDesiredPosition"));
+	VictimDesiredPosition->SetupAttachment(RootComponent);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	AnimationComponent = CreateDefaultSubobject<UAnimationComponent>(TEXT("AnimationComponent"));
 	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 
-	//OnTakeAnyDamage.AddDynamic(this, &ASevenCharacter::TakeDamage);
 }
 
 void ASevenCharacter::BeginPlay()
@@ -78,16 +82,17 @@ void ASevenCharacter::AttackStart()
 	}
 }
 
-float ASevenCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] TakeDamage"));
-	return 0.0f;
+	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : LightAttackVictim; // TODO: Change
+	FString SectionToPlay = AttackInfo.AttackTypeMontageToString();
+	AnimationComponent->Play(MontageToPlay, FName(*SectionToPlay), true);
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
 {
-	ComboComponent->UseCombo(ESpecial::ES_Special1);
-	//Jump();
+	Jump();
 }
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
@@ -103,13 +108,21 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	// Attack
+	EquippedWeapon->ClearHitActors();
+
 	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
 	{
 		ComboComponent->UseCombo(ESpecial::ES_Special1);
 	}
 	else
 	{
-		AnimationComponent->Play(LightAttack, FName("1"));
+		TargetedEnemy = GetClosestEnemyInRange();
+		if (TargetedEnemy)
+		{
+			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
+		}
+
+		AnimationComponent->Play(LightAttackAttacker, FName("1"), false);
 	}
 }
 

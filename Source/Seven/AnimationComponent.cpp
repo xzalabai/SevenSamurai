@@ -34,20 +34,27 @@ void UAnimationComponent::BeginPlay()
 
 void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt)
 {
-	if (bMontageRunning && !bNextComboTriggerEnabled)
+	if (bCanInterrupt)
+	{
+		GetCharacterOwner()->StopAnimMontage();
+	}
+	else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
 	{
 		return;
 	}
-
-	if (bMontageRunning && bNextComboTriggerEnabled)
+	else if (bActiveMontageRunning && bNextComboTriggerEnabled)
 	{
 		
 	}
 
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
 	GetCharacterOwner()->PlayAnimMontage(AnimMontage, 1.0f, FName(*FString::FromInt(currentComboIndex++)) );
-	GetOwnerAnimInstance()->Montage_SetEndDelegate(EndDelegate, SevenCharacter->LightAttack);
-	bMontageRunning = true;
+	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())
+	{
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
+	}
+	
+	bActiveMontageRunning = true;
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play"));
 	
 }
@@ -82,13 +89,19 @@ void UAnimationComponent::NextComboTriggered(bool bEnable)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] NextComboTriggered %d"), bEnable ? 1 : 0);
 	bNextComboTriggerEnabled = bEnable;
+	// TODO REMOVE!
+	if (currentComboIndex > 4)
+	{
+		currentComboIndex = 0;
+	}
 }
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded"));
-	bMontageRunning = false;
+	bActiveMontageRunning = false;
 	bNextComboTriggerEnabled = false;
+	GetCharacterOwner()->TargetedEnemy = nullptr;
 	//HitActors.Empty();
 }
 
