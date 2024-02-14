@@ -101,7 +101,7 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded"));
 	bActiveMontageRunning = false;
 	bNextComboTriggerEnabled = false;
-	GetCharacterOwner()->TargetedEnemy = nullptr;
+	GetCharacterOwner()->OnAnimationEnded();
 	//HitActors.Empty();
 }
 

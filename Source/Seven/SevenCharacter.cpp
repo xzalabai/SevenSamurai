@@ -124,6 +124,7 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 		TargetedEnemy = GetClosestEnemyInRange();
 		if (TargetedEnemy)
 		{
+			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
 			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 		}
 
@@ -232,6 +233,12 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 		}
 	}
 	return nullptr;
+}
+
+void ASevenCharacter::OnAnimationEnded()
+{
+	TargetedEnemy = nullptr;
+	MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
 }
 
 void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)

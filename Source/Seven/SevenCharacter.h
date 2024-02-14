@@ -101,6 +101,7 @@ protected:
 	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer();
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
+	void OnAnimationEnded();
 
 public:
 	/** Returns CameraBoom subobject **/
