@@ -48,7 +48,7 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	}
 
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
-	GetCharacterOwner()->PlayAnimMontage(AnimMontage, 1.0f, FName(*FString::FromInt(currentComboIndex++)) );
+	GetCharacterOwner()->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
 	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())
 	{
 		AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
@@ -109,4 +109,10 @@ void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
 	//HitActors.Empty();
+}
+
+int8 UAnimationComponent::GetCurrentAnimationMontageSection()
+{
+
+	return 0;
 }

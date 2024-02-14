@@ -42,7 +42,6 @@ void AWeapon::ClearHitActors()
 
 void AWeapon::PerformTrace()
 {
-	UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace"));
 	TArray<FHitResult> OutHit;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
@@ -64,18 +63,15 @@ void AWeapon::PerformTrace()
 		for (FHitResult& Hit : OutHit)
 		{
 			AActor* HitActor = Hit.GetActor();
-			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Contains:"), *HitActor->GetName());
 			if (HitActors.Contains(HitActor))
 			{
-				UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Contains:"), *HitActor->GetName());
 				// Already listed as hit
 				continue;
 			}
 
 			if (ASevenCharacter* Target = Cast<ASevenCharacter>(HitActor))
 			{
-				UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Hit Actor:"), *HitActor->GetName());
-				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), static_cast<EAttackTypeMontage>(1), 10 });
+				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10 });
 				HitActors.Add(Hit.GetActor());
 			}
 		}

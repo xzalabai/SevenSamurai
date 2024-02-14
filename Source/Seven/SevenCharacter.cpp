@@ -85,9 +85,14 @@ void ASevenCharacter::AttackStart()
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] TakeDamage"));
+	
 	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : LightAttackVictim; // TODO: Change
-	FString SectionToPlay = AttackInfo.AttackTypeMontageToString();
-	AnimationComponent->Play(MontageToPlay, FName(*SectionToPlay), true);
+	
+	// TODO: For now, random receivedHit animation is being played
+	int RandomMontage = FMath::RandRange(1, LightAttackVictim->CompositeSections.Num());
+	FString RandomMontageStr = FString::FromInt(RandomMontage);
+
+	AnimationComponent->Play(MontageToPlay, FName(*RandomMontageStr), true);
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -122,7 +127,9 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 		}
 
-		AnimationComponent->Play(LightAttackAttacker, FName("1"), false);
+		int RandomMontage = FMath::RandRange(1, LightAttackAttacker->CompositeSections.Num());
+		FString RandomMontageStr = FString::FromInt(RandomMontage);
+		AnimationComponent->Play(LightAttackAttacker, FName(*RandomMontageStr), false);
 	}
 }
 

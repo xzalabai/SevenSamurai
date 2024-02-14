@@ -19,16 +19,18 @@ public:
 private:
 	UAnimInstance* GetOwnerAnimInstance();
 	ASevenCharacter* GetCharacterOwner();
-		
+	bool bActiveMontageRunning = false;
+	bool bNextComboTriggerEnabled = false;
+	int currentComboIndex = 1;
+	int8 currentMontageSection = -1;
+	
 public:		
 	FOnMontageEnded EndDelegate;
 	FOnMontageStarted StartDelegate;
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	void OnAnimationStarted(UAnimMontage* Montage);
+	int8 GetCurrentAnimationMontageSection();
 	void Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
-	bool bActiveMontageRunning = false;
-	bool bNextComboTriggerEnabled = false;
-	int currentComboIndex = 1;
 
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);
