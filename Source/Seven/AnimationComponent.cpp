@@ -1,5 +1,6 @@
 #include "AnimationComponent.h"
 #include "PublicEnums.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "SevenCharacter.h"
 
 UAnimationComponent::UAnimationComponent()
@@ -101,6 +102,21 @@ void UAnimationComponent::NextComboTriggered(bool bEnable)
 	{
 		currentComboIndex = 0;
 	}
+}
+
+bool UAnimationComponent::Block(bool bEnable)
+{
+	if (IsAnimationRunning())
+		return false;
+
+	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+
+	SevenCharacter->bIsBlocking = bEnable;
+	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
+	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
+	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 250 : 600;
+
+	return true;
 }
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)

@@ -35,6 +35,8 @@ public:
 	void Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt);
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);
+	bool Block(bool bEnable);
+	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
 
 	TArray<AActor*> HitActors;
 		

@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	bool bEnemy;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsBlocking;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
 private:
@@ -90,6 +93,7 @@ protected:
 	virtual void Look(const FInputActionValue& Value) override;
 	virtual void Space(const FInputActionValue& Value) override;
 	virtual void Fire(const FInputActionValue& Value) override;
+	virtual void Block(bool bEnable) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
 	virtual void Evade(const FInputActionValue& Value) override;
 	virtual void Special(int ID) override;
@@ -112,7 +116,8 @@ public:
 	/** Returns AnimationComponent subobject **/
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AnimationComponent; }
-
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	
 };

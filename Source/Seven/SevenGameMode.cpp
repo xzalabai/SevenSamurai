@@ -20,9 +20,9 @@ Medium - Merge all methods (look,space,move) into one with, where BindAction wil
 Medium - Cache player who owns a camera
 Medium - Sync ESpecial with int that is passed into the ComboManager
 Medium - OnAnimationEnded is triggered also for Victim -> although sometimes it's intended only for Attacker! replace with anim notifier probably
-Features:
 
-Evade
+
+Features:
 Block
 
 

@@ -39,6 +39,9 @@ public:
 	class UInputAction* FireAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* BlockAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SwitchAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -55,6 +58,8 @@ public:
 	void Switch(const FInputActionValue& Value);
 	void Evade(const FInputActionValue& Value);
 	void Special1(const FInputActionValue& Value);
+	void BlockStart(const FInputActionValue& Value);
+	void BlockEnd(const FInputActionValue& Value);
 
 
 private:

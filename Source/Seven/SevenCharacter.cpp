@@ -106,6 +106,12 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
 }
 
+void ASevenCharacter::Block(bool bEnable)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
+	AnimationComponent->Block(bEnable);
+}
+
 void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 {
 	StopJumping();
@@ -144,6 +150,7 @@ void ASevenCharacter::Move(const FInputActionValue& Value)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
+		//const FRotator Rotation = GetActorRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector

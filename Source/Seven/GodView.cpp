@@ -81,6 +81,10 @@ void AGodView::Fire(const FInputActionValue& Value)
 
 }
 
+void AGodView::Block(bool bEnable)
+{
+}
+
 void AGodView::StopSpace(const FInputActionValue& Value)
 {
 }

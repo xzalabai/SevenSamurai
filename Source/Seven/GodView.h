@@ -23,6 +23,7 @@ protected:
 	virtual void Look(const FInputActionValue& Value) override;
 	virtual void Space(const FInputActionValue& Value) override;
 	virtual void Fire(const FInputActionValue& Value) override;
+	virtual void Block(bool bEnable) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
 	virtual void AttackStart() override;
 	virtual void Evade(const FInputActionValue& Value) override;
