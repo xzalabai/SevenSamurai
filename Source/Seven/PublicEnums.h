@@ -26,6 +26,7 @@ enum class EOctagonalDirection
 	
 	Left = 6,
 	Right = 7,
+	None = 8,
 };
 
 struct FAttackInfo

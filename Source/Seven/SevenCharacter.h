@@ -102,6 +102,7 @@ protected:
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded();
+	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
 
 public:
 	/** Returns CameraBoom subobject **/

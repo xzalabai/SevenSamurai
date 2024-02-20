@@ -43,7 +43,7 @@ void ASevenPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Fire);
 		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Switch);
 		EnhancedInputComponent->BindAction(Special1Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special1);
-		EnhancedInputComponent->BindAction(EvadeAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Evade);
+		EnhancedInputComponent->BindAction(EvadeAction, ETriggerEvent::Triggered, this, &ASevenPlayerController::Evade);
 	}
 }
 

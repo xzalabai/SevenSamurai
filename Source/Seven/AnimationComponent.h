@@ -32,8 +32,7 @@ public:
 	void OnAnimationStarted(UAnimMontage* Montage);
 	int8 GetCurrentAnimationMontageSection();
 	void Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
-	EOctagonalDirection ResolveDirection(const FVector &Direction);
-
+	void Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt);
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);
 

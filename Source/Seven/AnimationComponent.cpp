@@ -33,6 +33,12 @@ void UAnimationComponent::BeginPlay()
 	
 }
 
+void UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt)
+{
+	FString myString = FString::FromInt(SectionName);
+	Play(AnimMontage, FName(*myString), bCanInterrupt);
+}
+
 void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt)
 {
 	if (bCanInterrupt)
@@ -58,11 +64,6 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	bActiveMontageRunning = true;
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play"));
 	
-}
-
-EOctagonalDirection UAnimationComponent::ResolveDirection(const FVector& Direction)
-{
-	return EOctagonalDirection::Forward;
 }
 
 ASevenCharacter* UAnimationComponent::GetCharacterOwner()

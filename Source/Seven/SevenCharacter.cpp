@@ -102,7 +102,7 @@ void ASevenCharacter::Space(const FInputActionValue& Value)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	//AnimationComponent->Evade();
+	AnimationComponent->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), false);
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
 }
 
@@ -236,6 +236,20 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 	return nullptr;
 }
 
+EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
+{
+	if (Vector.X == 0)
+	{
+		return Vector.Y == 1 ? EOctagonalDirection::Forward : EOctagonalDirection::Backward;
+	}
+	if (Vector.Y == 0)
+	{
+		return Vector.X == 1 ? EOctagonalDirection::Right : EOctagonalDirection::Left;
+	}
+
+	return EOctagonalDirection::None;
+}
+
 void ASevenCharacter::OnAnimationEnded()
 {
 	TargetedEnemy = nullptr;
@@ -252,6 +266,7 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
 }
+
 
 
 
