@@ -82,6 +82,11 @@ void ASevenCharacter::AttackStart()
 	}
 }
 
+void ASevenCharacter::AttackEnd()
+{
+	
+}
+
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] TakeDamage"));
@@ -145,7 +150,6 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 void ASevenCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
 	if (Controller != nullptr)
 	{
 		// find out which way is forward
@@ -221,7 +225,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer()
 		 };
 	 
 	 filter();
-	 UE_LOG(LogTemp, Warning, TEXT("ASevenCharacter.GetEnemiesInFrontOfCharacer Found Enemies %d"), FoundActors.Num());
+	 UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetEnemiesInFrontOfCharacer Found Enemies %d"), FoundActors.Num());
 	 return FoundActors;
 }
 

@@ -52,7 +52,7 @@ protected:
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* LightAttackAttacker;
 
@@ -99,6 +99,8 @@ protected:
 	virtual void Special(int ID) override;
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackStart() override;
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackEnd() override;
 			
 protected:
 	virtual void BeginPlay();

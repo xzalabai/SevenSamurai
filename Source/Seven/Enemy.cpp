@@ -30,7 +30,7 @@ void AEnemy::BeginPlay()
 	}
 
 	// Only temporary
-	SetActorTickInterval(1.5f);
+	//SetActorTickInterval(1.5f);
 
 }
 
@@ -40,6 +40,6 @@ void AEnemy::Tick(float DeltaTime)
 
 	if (MainCharacter)
 	{
-		RotateTowards(MainCharacter);
+		//RotateTowards(MainCharacter);
 	}
 }

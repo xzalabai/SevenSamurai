@@ -94,6 +94,11 @@ void AGodView::AttackStart()
 
 }
 
+void AGodView::AttackEnd()
+{
+
+}
+
 void AGodView::Evade(const FInputActionValue& Value)
 {
 

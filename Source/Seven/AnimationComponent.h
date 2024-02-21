@@ -22,6 +22,7 @@ private:
 	ASevenCharacter* GetCharacterOwner();
 	bool bActiveMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
+	bool bNextComboTriggered = false;
 	int currentComboIndex = 1;
 	int8 currentMontageSection = -1;
 	

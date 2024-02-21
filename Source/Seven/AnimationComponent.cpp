@@ -42,17 +42,24 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, bool 
 
 void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt)
 {
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d"),
+		(bCanInterrupt ? 1 : 0),
+		(bActiveMontageRunning ? 1 : 0),
+		(bNextComboTriggerEnabled ? 1 : 0));
+
 	if (bCanInterrupt)
 	{
 		GetCharacterOwner()->StopAnimMontage();
 	}
-	else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
+	else if ((bActiveMontageRunning && !bNextComboTriggerEnabled) || bNextComboTriggered)
 	{
+		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] xxx"));
 		return;
 	}
-	else if (bActiveMontageRunning && bNextComboTriggerEnabled)
+	else if (bActiveMontageRunning && bNextComboTriggerEnabled && !bNextComboTriggered)
 	{
-		
+		GetCharacterOwner()->StopAnimMontage();
+		bNextComboTriggered = true;
 	}
 
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
@@ -61,10 +68,8 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	{
 		AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
 	}
-	
-	bActiveMontageRunning = true;
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play"));
-	
+	bActiveMontageRunning = true;
 }
 
 ASevenCharacter* UAnimationComponent::GetCharacterOwner()
@@ -102,6 +107,8 @@ void UAnimationComponent::NextComboTriggered(bool bEnable)
 	{
 		currentComboIndex = 0;
 	}
+	if (!bEnable)
+		bNextComboTriggered = false;
 }
 
 bool UAnimationComponent::Block(bool bEnable)
@@ -121,7 +128,7 @@ bool UAnimationComponent::Block(bool bEnable)
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded"));
+	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded"));
 	bActiveMontageRunning = false;
 	bNextComboTriggerEnabled = false;
 	GetCharacterOwner()->OnAnimationEnded();
