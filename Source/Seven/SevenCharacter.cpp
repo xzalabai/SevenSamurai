@@ -13,6 +13,7 @@
 #include <Kismet\GameplayStatics.h>
 #include <Kismet\KismetMathLibrary.h>
 #include "ComboManager.h"
+#include "AttributesComponent.h"
 
 ASevenCharacter::ASevenCharacter()
 {
@@ -53,7 +54,9 @@ ASevenCharacter::ASevenCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	AnimationComponent = CreateDefaultSubobject<UAnimationComponent>(TEXT("AnimationComponent"));
+	// COMPONENTS
+	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
+	AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attributes"));
 	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 
@@ -89,15 +92,22 @@ void ASevenCharacter::AttackEnd()
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] TakeDamage"));
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit"));
 	
+	if (1==1)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] BLOCKING"));
+		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
+		AC_Animation->Play(BlockMontage, RandomMontageStr, true);
+		return;
+	}
 	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : LightAttackVictim; // TODO: Change
 	
 	// TODO: For now, random receivedHit animation is being played
 	int RandomMontage = FMath::RandRange(1, LightAttackVictim->CompositeSections.Num());
 	FString RandomMontageStr = FString::FromInt(RandomMontage);
 
-	AnimationComponent->Play(MontageToPlay, FName(*RandomMontageStr), true);
+	AC_Animation->Play(MontageToPlay, FName(*RandomMontageStr), true);
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -107,14 +117,14 @@ void ASevenCharacter::Space(const FInputActionValue& Value)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	AnimationComponent->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), false);
+	AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), false);
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
 }
 
 void ASevenCharacter::Block(bool bEnable)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
-	AnimationComponent->Block(bEnable);
+	AC_Animation->Block(bEnable);
 }
 
 void ASevenCharacter::StopSpace(const FInputActionValue& Value)
@@ -140,9 +150,8 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 		}
 
-		int RandomMontage = FMath::RandRange(1, LightAttackAttacker->CompositeSections.Num());
-		FString RandomMontageStr = FString::FromInt(RandomMontage);
-		AnimationComponent->Play(LightAttackAttacker, FName(*RandomMontageStr), false);
+		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(1, LightAttackAttacker->CompositeSections.Num());
+		AC_Animation->Play(LightAttackAttacker, RandomMontageStr, false);
 	}
 }
 

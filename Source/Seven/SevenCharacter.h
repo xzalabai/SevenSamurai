@@ -12,6 +12,7 @@
 class UAnimMontage;
 class AWeapon;
 class UAnimationComponent;
+class UAttributesComponent;
 class UComboManager;
 class AEnemy;
 class UMotionWarpingComponent;
@@ -50,6 +51,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsBlocking;
 
+	UPROPERTY()
+	ASevenCharacter* TargetedEnemy;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
 protected:
@@ -62,17 +66,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EvadeMontage;
 
-	UPROPERTY()
-	ASevenCharacter* TargetedEnemy;
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* BlockMontage;
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Components
 public:
 	UPROPERTY()
-	UAnimationComponent* AnimationComponent;
+	UAnimationComponent* AC_Animation;
 
 	UPROPERTY(EditDefaultsOnly)
 	UComboManager* ComboComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAttributesComponent* AC_Attributes;
 
 	UPROPERTY()
 	UMotionWarpingComponent* MotionWarpingComponent;
@@ -115,9 +125,9 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	/** Returns AnimationComponent subobject **/
+	/** Returns AC_Animation subobject **/
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AnimationComponent; }
+	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AC_Animation; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);

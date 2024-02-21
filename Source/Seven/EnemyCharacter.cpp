@@ -28,7 +28,7 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 
 		int RandomMontage = FMath::RandRange(1, LightAttackAttacker->CompositeSections.Num());
 		FString RandomMontageStr = FString::FromInt(RandomMontage);
-		AnimationComponent->Play(LightAttackAttacker, FName(*RandomMontageStr), false);
+		AC_Animation->Play(LightAttackAttacker, FName(*RandomMontageStr), false);
 	}
 }
 

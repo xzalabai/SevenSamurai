@@ -38,3 +38,19 @@ struct FAttackInfo
 	uint8 AttackTypeMontage = 0;
 	uint8 Damage;
 };
+
+namespace CustomMath
+{
+
+	static FString GetRandomNumber_FString(int Start, int End)
+	{
+		int RandomMontage = FMath::RandRange(Start, End);
+		return FString::FromInt(RandomMontage);
+	}
+
+	static FName GetRandomNumber_FName(int Start, int End)
+	{
+		int RandomMontage = FMath::RandRange(Start, End);
+		return FName(*FString::FromInt(RandomMontage));
+	}
+};

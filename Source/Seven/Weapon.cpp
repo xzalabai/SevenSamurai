@@ -57,7 +57,7 @@ void AWeapon::PerformTrace()
 		ActorsToIgnore, EDrawDebugTrace::Persistent,
 		OutHit,
 		true);
-
+	//UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.bHit:%d"), bHit ? 1 : 0);
 	if (bHit)
 	{
 		for (FHitResult& Hit : OutHit)
@@ -73,6 +73,7 @@ void AWeapon::PerformTrace()
 			{
 				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10 });
 				HitActors.Add(Hit.GetActor());
+				UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.Hit:%s"), *Hit.GetActor()->GetName());
 			}
 		}
 		
