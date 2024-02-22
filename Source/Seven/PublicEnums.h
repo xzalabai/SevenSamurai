@@ -32,11 +32,12 @@ enum class EOctagonalDirection
 struct FAttackInfo
 {
 	FAttackInfo() = default;
-	FAttackInfo(EAttackType AttackType, uint8 AttackTypeMontage, uint8 Damage)
-		: AttackType(AttackType), AttackTypeMontage(AttackTypeMontage), Damage(Damage) {}
+	FAttackInfo(EAttackType AttackType, uint8 AttackTypeMontage, uint8 Damage, uint8 AttackerID)
+		: AttackType(AttackType), AttackTypeMontage(AttackTypeMontage), Damage(Damage), AttackerID(AttackerID) {}
 	EAttackType AttackType = EAttackType::Light;
 	uint8 AttackTypeMontage = 0;
 	uint8 Damage;
+	uint8 AttackerID;
 };
 
 namespace CustomMath

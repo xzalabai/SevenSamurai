@@ -33,6 +33,11 @@ void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, "hand_rSocket");
 	FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
 	SetActorTransform(SocketTransform);
+
+	if (ASevenCharacter* Character = Cast<ASevenCharacter>(GetAttachParentActor()))
+	{
+		OwnerCharacter = Character;
+	}
 }
 
 void AWeapon::ClearHitActors()
@@ -71,7 +76,7 @@ void AWeapon::PerformTrace()
 
 			if (ASevenCharacter* Target = Cast<ASevenCharacter>(HitActor))
 			{
-				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10 });
+				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10, OwnerCharacter->GetUniqueID()});
 				HitActors.Add(Hit.GetActor());
 				UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.Hit:%s"), *Hit.GetActor()->GetName());
 			}

@@ -59,19 +59,20 @@ ASevenCharacter::ASevenCharacter()
 	AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attributes"));
 	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
-
 }
 
 void ASevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
 	USkeletalMeshComponent* PlayerMesh = GetMesh();
 	if (EquippedWeapon)
 	{
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
+
 }
 
 void ASevenCharacter::AttackStart()
@@ -92,9 +93,9 @@ void ASevenCharacter::AttackEnd()
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit"));
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit from %d character"), AttackInfo.AttackerID);
 	
-	if (1==1)
+	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(AttackInfo.AttackerID).IsEmpty())
 	{
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] BLOCKING"));
 		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
@@ -207,7 +208,7 @@ void ASevenCharacter::Special(int ID)
 	}
 }
 
-TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer()
+TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const uint8 EnemyID)
 {
 	 TArray<ASevenCharacter*> FoundActors;
 	 TArray<FHitResult> HitResults;
@@ -225,7 +226,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer()
 			 {
 				 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
 				 {
-					 if (!FoundActors.Contains(Enemy))
+					 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID))
 					 {
 						 FoundActors.Add(Enemy);
 					 }

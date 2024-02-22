@@ -17,7 +17,9 @@ class UComboManager;
 class AEnemy;
 class UMotionWarpingComponent;
 
-UCLASS(config=Game)
+static uint8 UniqueIDCounter = 0;
+
+UCLASS(config = Game)
 
 class ASevenCharacter : public ACharacter, public IControllableInterface
 {
@@ -53,6 +55,9 @@ protected:
 
 	UPROPERTY()
 	ASevenCharacter* TargetedEnemy;
+
+	UPROPERTY()
+	uint8 uniqueID = 0;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
@@ -114,7 +119,7 @@ protected:
 			
 protected:
 	virtual void BeginPlay();
-	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer();
+	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const uint8 EnemyID = -1);
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded();
@@ -130,6 +135,7 @@ public:
 	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AC_Animation; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
+	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	
 };

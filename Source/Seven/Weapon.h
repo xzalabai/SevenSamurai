@@ -6,6 +6,7 @@
 
 class UNiagaraComponent;
 class USphereComponent;
+class ASevenCharacter;
 class USkeletalMeshComponent;
 
 UCLASS()
@@ -33,6 +34,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<AActor*> HitActors;
+
+	UPROPERTY()
+	ASevenCharacter* OwnerCharacter;
+
+
 public:	
 	AWeapon();
 	void AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName);
