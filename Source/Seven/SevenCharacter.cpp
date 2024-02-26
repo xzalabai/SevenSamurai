@@ -14,6 +14,7 @@
 #include <Kismet\KismetMathLibrary.h>
 #include "ComboManager.h"
 #include "AttributesComponent.h"
+#include "SevenPlayerController.h"
 
 ASevenCharacter::ASevenCharacter()
 {
@@ -64,6 +65,7 @@ ASevenCharacter::ASevenCharacter()
 void ASevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	UniqueIDCounter = 0;
 	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
 	USkeletalMeshComponent* PlayerMesh = GetMesh();
@@ -91,17 +93,50 @@ void ASevenCharacter::AttackEnd()
 	
 }
 
+void ASevenCharacter::CheckParrying()
+{
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
+
+	if (!GetEnemiesInFrontOfCharacer(SevenPlayerController->GetLatestIncomingAttacker()).IsEmpty())
+	{
+		bIsParrying = true;
+		bIsImmortal = true;
+	}
+}
+
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit from %d character"), AttackInfo.AttackerID);
-	
-	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(AttackInfo.AttackerID).IsEmpty())
+	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character"), Attacker->GetUniqueID());
+
+	// Parry
+	if (bIsParrying)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] BLOCKING"));
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Is Parrying"));
+		AC_Animation->Play(ParryMontage, "0", true);
+		Attacker->AC_Animation->Play(Attacker->ParryMontage, "1", true);
+		bIsParrying = false;
+		return;
+	}
+	
+	// Block
+	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+	{
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Blocking"));
 		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
 		AC_Animation->Play(BlockMontage, RandomMontageStr, true);
 		return;
 	}
+
+	// Evade
+	if (GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway"));	
+		bIsImmortal = true;
+		return;
+		
+	}
+
 	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : LightAttackVictim; // TODO: Change
 	
 	// TODO: For now, random receivedHit animation is being played
@@ -118,14 +153,19 @@ void ASevenCharacter::Space(const FInputActionValue& Value)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), false);
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
+	if (AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), false))
+	{
+		bIsEvading = true;
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
+	}
 }
 
 void ASevenCharacter::Block(bool bEnable)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
 	AC_Animation->Block(bEnable);
+
+	CheckParrying();
 }
 
 void ASevenCharacter::StopSpace(const FInputActionValue& Value)
@@ -136,6 +176,9 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	// Attack
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("[ASevenCharacter] Fire"));
+
 	EquippedWeapon->ClearHitActors();
 
 	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
@@ -275,6 +318,58 @@ void ASevenCharacter::OnAnimationEnded()
 {
 	TargetedEnemy = nullptr;
 	MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
+}
+
+bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy)
+{
+	EOctagonalDirection EvadeDirection = OctagonalDirection::GetOctagonalDirectionFName(AC_Animation->GetCurrentMontageSection());
+	//EOctagonalDirection EvadeDirection = EOctagonalDirection::None;
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway %d"), EvadeDirection);
+	const float Dot = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorForwardVector().GetSafeNormal());
+	const float Cross = FVector::CrossProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorForwardVector().GetSafeNormal()).Z;
+
+
+	// DEBUG
+	
+	FVector StartLocation(0, 0, 0);
+	FVector EndLocation(100, 0, 0);
+	FColor DebugColor(255, 0, 0); // Red color
+	FColor DebugColor2(0, 255, 0); // Red color
+	float ArrowSize = 10.0f;
+	float Thickness = 2.0f;
+	float Duration = 5.0f;
+	uint8 DepthPriority = 0; // Default depth priority
+	float Length = -1.0f; // Length of the arrow shaft, -1 to use default
+	//DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector().GetSafeNormal() * 1000, ArrowSize, DebugColor, false, Duration, DepthPriority, Thickness);
+	//DrawDebugDirectionalArrow(GetWorld(), Enemy->GetActorLocation(), Enemy->GetActorLocation() + Enemy->GetActorForwardVector().GetSafeNormal() * 1000, ArrowSize, DebugColor2, false, Duration, DepthPriority, Thickness);
+
+	if (Cross > 0) // ^ ^ || < ^
+	{
+		if (Dot >= 0.5f) // ^ ^
+		{
+			UE_LOG(LogTemp, Warning, TEXT("^ ^"));
+			return (EvadeDirection != EOctagonalDirection::Backward && EvadeDirection != EOctagonalDirection::BackwardLeft && EvadeDirection != EOctagonalDirection::BackwardRight);
+		}
+		else // < ^
+		{
+			UE_LOG(LogTemp, Warning, TEXT("< ^"));
+			return (EvadeDirection != EOctagonalDirection::Left && EvadeDirection != EOctagonalDirection::ForwardLeft && EvadeDirection != EOctagonalDirection::BackwardLeft);
+		}
+	}
+	else if (Cross < 0) // v ^ || > ^ 
+	{
+		if (-0.7f <= Dot && Dot <= 0.7f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("> ^ "));
+			return (EvadeDirection != EOctagonalDirection::Right && EvadeDirection != EOctagonalDirection::ForwardRight && EvadeDirection != EOctagonalDirection::BackwardRight);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("v ^ "));
+			return (EvadeDirection != EOctagonalDirection::Forward && EvadeDirection != EOctagonalDirection::ForwardLeft && EvadeDirection != EOctagonalDirection::ForwardRight);
+		}
+	}
+	return false;
 }
 
 void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)

@@ -1,5 +1,4 @@
 #include "AnimationComponent.h"
-#include "PublicEnums.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SevenCharacter.h"
 
@@ -34,13 +33,13 @@ void UAnimationComponent::BeginPlay()
 	
 }
 
-void UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt)
+bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt)
 {
 	FString myString = FString::FromInt(SectionName);
-	Play(AnimMontage, FName(*myString), bCanInterrupt);
+	return Play(AnimMontage, FName(*myString), bCanInterrupt);
 }
 
-void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt)
+bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d"),
 		(bCanInterrupt ? 1 : 0),
@@ -54,7 +53,7 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	else if ((bActiveMontageRunning && !bNextComboTriggerEnabled) || bNextComboTriggered)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] xxx"));
-		return;
+		return false;
 	}
 	else if (bActiveMontageRunning && bNextComboTriggerEnabled && !bNextComboTriggered)
 	{
@@ -68,8 +67,14 @@ void UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	{
 		AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
 	}
+	else
+	{
+		return false;
+	}
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play"));
 	bActiveMontageRunning = true;
+
+	return true;
 }
 
 ASevenCharacter* UAnimationComponent::GetCharacterOwner()
@@ -96,6 +101,11 @@ UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] UAnimInstance AnimInstance Not found"));
 		return nullptr;
 	}
+}
+
+void UAnimationComponent::OnEvadeEnded()
+{
+	GetCharacterOwner()->bIsEvading = false;
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -126,6 +136,15 @@ bool UAnimationComponent::Block(bool bEnable)
 	return true;
 }
 
+FName UAnimationComponent::GetCurrentMontageSection()
+{
+	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())
+	{
+		return AnimInstance->Montage_GetCurrentSection();
+	}
+	return NAME_None;
+}
+
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded"));
@@ -139,9 +158,4 @@ void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
 	//HitActors.Empty();
-}
-
-int8 UAnimationComponent::GetCurrentAnimationMontageSection()
-{
-	return 0;
 }

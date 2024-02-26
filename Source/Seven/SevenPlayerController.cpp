@@ -22,6 +22,8 @@ void ASevenPlayerController::BeginPlay()
 
 	Switch(FInputActionValue{});
 
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
 }
 
 void ASevenPlayerController::SetupInputComponent()
@@ -171,6 +173,26 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 	}
 }
 
+void ASevenPlayerController::UpdateStatus(const int8 CharacterID, const EEnemyStatus Status)
+{
+	if (Status == EEnemyStatus::IncomingAttack)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus.IncomingAttack"));
+		LatestIncomingAttacker = CharacterID;
+	}
+
+	if (!Enemies.Contains(CharacterID))
+	{
+		Enemies.Add({ CharacterID, Status });
+	}
+	else
+	{
+		Enemies[CharacterID] = Status;
+	}
+	
+	// Notify Character?
+}
+
 TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()
 {
 	// returns either GodView or GetPawn()
@@ -180,4 +202,8 @@ TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()
 	}
 	return GodView ? GodView : nullptr;
 }
+
+
+
+
 

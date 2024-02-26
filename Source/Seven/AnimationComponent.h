@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PublicEnums.h"
 #include "AnimationComponent.generated.h"
 
 class UAnimInstance;
@@ -16,6 +15,7 @@ class SEVEN_API UAnimationComponent : public UActorComponent
 public:	
 	UAnimationComponent();
 	virtual void BeginPlay() override;
+
 
 private:
 	UAnimInstance* GetOwnerAnimInstance();
@@ -31,13 +31,18 @@ public:
 	FOnMontageStarted StartDelegate;
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	void OnAnimationStarted(UAnimMontage* Montage);
-	int8 GetCurrentAnimationMontageSection();
-	void Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
-	void Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt);
+	
+	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt = false);
+	bool Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt);
+	
+	UFUNCTION(BlueprintCallable)
+	void OnEvadeEnded();
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);
+	
 	bool Block(bool bEnable);
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
+	FName GetCurrentMontageSection();
 
 	TArray<AActor*> HitActors;
 		

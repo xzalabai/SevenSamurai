@@ -51,7 +51,16 @@ protected:
 	bool bEnemy;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool bIsBlocking;
+	bool bIsBlocking{ false };
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsParrying{ false };
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsImmortal{ false };
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsEvading{ false };
 
 	UPROPERTY()
 	ASevenCharacter* TargetedEnemy;
@@ -73,6 +82,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* BlockMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* ParryMontage;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -123,6 +135,8 @@ protected:
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded();
+	void CheckParrying();
+	bool IsEvadingAway(const ASevenCharacter *Enemy);
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
 
 public:
@@ -135,6 +149,9 @@ public:
 	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AC_Animation; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
+	FORCEINLINE bool GetIsImmortal() const { return bIsImmortal; }
+	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
+	FORCEINLINE bool GetIsParrying() const { return bIsParrying; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	

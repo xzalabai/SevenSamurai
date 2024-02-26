@@ -76,7 +76,7 @@ void AWeapon::PerformTrace()
 
 			if (ASevenCharacter* Target = Cast<ASevenCharacter>(HitActor))
 			{
-				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10, OwnerCharacter->GetUniqueID()});
+				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10, GetAttachParentActor()});
 				HitActors.Add(Hit.GetActor());
 				UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.Hit:%s"), *Hit.GetActor()->GetName());
 			}

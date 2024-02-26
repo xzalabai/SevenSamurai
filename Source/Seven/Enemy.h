@@ -16,12 +16,7 @@ class SEVEN_API AEnemy : public ASevenCharacter
 	AEnemy();
 
 private:
-	UPROPERTY()
-	ASevenCharacter* MainCharacter;
 public:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	
 
 	
 };

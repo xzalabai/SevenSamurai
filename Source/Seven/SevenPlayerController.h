@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
+#include "PublicEnums.h"
 #include "GodView.h"
 #include "SevenPlayerController.generated.h"
 
@@ -61,13 +62,17 @@ public:
 	void BlockStart(const FInputActionValue& Value);
 	void BlockEnd(const FInputActionValue& Value);
 
+	void UpdateStatus(const int8 CharacterID, const EEnemyStatus Status = EEnemyStatus::None);
+	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
 
 private:
 	TObjectPtr<AActor> GetControlledActor();
-
+	UPROPERTY()
+	TMap<int8, EEnemyStatus> Enemies;
 private:
 	UPROPERTY()
 	AGodView* GodView;
 	bool bGodView = true;
+	int8 LatestIncomingAttacker;
 
 };

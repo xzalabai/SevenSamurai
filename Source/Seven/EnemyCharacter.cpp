@@ -1,11 +1,29 @@
 #include "EnemyCharacter.h"
 #include "Weapon.h"
 #include "AnimationComponent.h"
+#include "SevenPlayerController.h"
 #include "ComboManager.h"
+#include "Kismet\GameplayStatics.h"
 
 void AEnemyCharacter::InitiateAttack()
 {
 	Fire(FInputActionValue());
+}
+
+void AEnemyCharacter::IncomingAttack()
+{
+	if (SevenPlayerController)
+	{
+		SevenPlayerController->UpdateStatus(GetUniqueID(), EEnemyStatus::IncomingAttack);
+	}
+}
+
+void AEnemyCharacter::ParryAvailable(bool bEnable)
+{
+	if (SevenPlayerController)
+	{
+		SevenPlayerController->UpdateStatus(GetUniqueID(), bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
+	}
 }
 
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
@@ -30,9 +48,15 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 		FString RandomMontageStr = FString::FromInt(RandomMontage);
 		AC_Animation->Play(LightAttackAttacker, FName(*RandomMontageStr), false);
 	}
+
+	// Subscribe to Player Controller
+	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	SevenPlayerController->UpdateStatus(GetUniqueID());
 }
 
 void AEnemyCharacter::AttackEnd()
 {
 	OnAttackEnd.Broadcast();
+	SevenPlayerController->UpdateStatus(GetUniqueID(), EEnemyStatus::Cooldown);
 }
+
