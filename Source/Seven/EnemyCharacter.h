@@ -14,6 +14,8 @@ class SEVEN_API AEnemyCharacter : public ASevenCharacter
 {
 	GENERATED_BODY()
 protected:
+	virtual void BeginPlay();
+
 	UFUNCTION(BlueprintCallable)
 	void InitiateAttack();
 
@@ -22,9 +24,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
-
+	
 	virtual void Fire(const FInputActionValue& Value) override;
-	virtual void AttackEnd() override;
+	virtual void AttackEnd() const override;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnAttackEndDelegate OnAttackEnd;

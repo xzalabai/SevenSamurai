@@ -26,7 +26,7 @@ protected:
 	virtual void Block(bool bEnable) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
 	virtual void AttackStart() override;
-	virtual void AttackEnd() override;
+	virtual void AttackEnd() const override;
 	virtual void Evade(const FInputActionValue& Value) override;
 	virtual void Special(int ID) override;
 

@@ -24,7 +24,7 @@ public:
 	virtual void Evade(const FInputActionValue& Value) = 0;
 	virtual void Special(int ID) = 0;
 	virtual void AttackStart() = 0;
-	virtual void AttackEnd() = 0;
+	virtual void AttackEnd() const = 0 ;
 
 public:
 };

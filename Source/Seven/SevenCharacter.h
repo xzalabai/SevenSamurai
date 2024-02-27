@@ -127,7 +127,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackStart() override;
 	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnd() override;
+	virtual void AttackEnd() const override;
 			
 protected:
 	virtual void BeginPlay();
@@ -136,6 +136,7 @@ protected:
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded();
 	void CheckParrying();
+	void AttackIsParried() const;
 	bool IsEvadingAway(const ASevenCharacter *Enemy);
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
 

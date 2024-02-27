@@ -10,6 +10,12 @@ void AEnemyCharacter::InitiateAttack()
 	Fire(FInputActionValue());
 }
 
+void AEnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+}
+
 void AEnemyCharacter::IncomingAttack()
 {
 	if (SevenPlayerController)
@@ -50,11 +56,10 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 	}
 
 	// Subscribe to Player Controller
-	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	SevenPlayerController->UpdateStatus(GetUniqueID());
 }
 
-void AEnemyCharacter::AttackEnd()
+void AEnemyCharacter::AttackEnd() const
 {
 	OnAttackEnd.Broadcast();
 	SevenPlayerController->UpdateStatus(GetUniqueID(), EEnemyStatus::Cooldown);

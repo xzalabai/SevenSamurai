@@ -88,9 +88,15 @@ void ASevenCharacter::AttackStart()
 	}
 }
 
-void ASevenCharacter::AttackEnd()
+void ASevenCharacter::AttackEnd() const
 {
 	
+}
+
+void ASevenCharacter::AttackIsParried() const
+{
+	AttackEnd();
+	AC_Animation->Play(ParryMontage, "1", true);
 }
 
 void ASevenCharacter::CheckParrying()
@@ -112,9 +118,9 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	// Parry
 	if (bIsParrying)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Is Parrying"));
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
 		AC_Animation->Play(ParryMontage, "0", true);
-		Attacker->AC_Animation->Play(Attacker->ParryMontage, "1", true);
+		Attacker->AttackIsParried();
 		bIsParrying = false;
 		return;
 	}
@@ -131,12 +137,12 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	// Evade
 	if (GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway"));	
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway"));
 		bIsImmortal = true;
 		return;
 		
 	}
-
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
 	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : LightAttackVictim; // TODO: Change
 	
 	// TODO: For now, random receivedHit animation is being played

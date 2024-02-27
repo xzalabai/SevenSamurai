@@ -94,7 +94,7 @@ void AGodView::AttackStart()
 
 }
 
-void AGodView::AttackEnd()
+void AGodView::AttackEnd() const
 {
 
 }
