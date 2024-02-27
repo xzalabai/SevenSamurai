@@ -72,6 +72,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		return false;
 	}
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play"));
+	
 	bActiveMontageRunning = true;
 
 	return true;
@@ -147,15 +148,19 @@ FName UAnimationComponent::GetCurrentMontageSection()
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded"));
+	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded. Animation: %s"), *Montage->GetName());
+	
 	bActiveMontageRunning = false;
-	bNextComboTriggerEnabled = false;
 	GetCharacterOwner()->OnAnimationEnded();
-	//HitActors.Empty();
+	
+	if (Montage == GetCharacterOwner()->LightAttackAttacker)
+	{
+		GetCharacterOwner()->AttackEnd();
+		bNextComboTriggerEnabled = false;
+	}
 }
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
-	//HitActors.Empty();
 }

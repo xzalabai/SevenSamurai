@@ -131,7 +131,7 @@ protected:
 			
 protected:
 	virtual void BeginPlay();
-	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const uint8 EnemyID = -1);
+	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1);
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded();

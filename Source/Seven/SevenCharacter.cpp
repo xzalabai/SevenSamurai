@@ -79,7 +79,8 @@ void ASevenCharacter::BeginPlay()
 
 void ASevenCharacter::AttackStart()
 {
-	ASevenCharacter* ClosestEnemy = GetClosestEnemyInRange(0.6);
+	// This is when Victim is running around -> probably valid only for EnemyChar (because he does not modify player rotation)
+	ASevenCharacter* ClosestEnemy = GetClosestEnemyInRange(0.4);
 	if (ClosestEnemy)
 	{
 		// Rotate character towards enemy
@@ -182,8 +183,6 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	// Attack
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("[ASevenCharacter] Fire"));
 
 	EquippedWeapon->ClearHitActors();
 
@@ -257,7 +256,7 @@ void ASevenCharacter::Special(int ID)
 	}
 }
 
-TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const uint8 EnemyID)
+TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID)
 {
 	 TArray<ASevenCharacter*> FoundActors;
 	 TArray<FHitResult> HitResults;
@@ -295,7 +294,7 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 	// Find closest enemy (to whose is attack meant)
 	for (auto& Enemy : FoundEnemies)
 	{
-		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorLocation().GetSafeNormal());
+		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorLocation().GetSafeNormal() * GetActorForwardVector().GetSafeNormal());
 
 		if (DotProduct >= DotProductTreshold)
 		{

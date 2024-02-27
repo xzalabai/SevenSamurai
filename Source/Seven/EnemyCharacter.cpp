@@ -14,6 +14,7 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	SevenPlayerController->UpdateStatus(GetUniqueID());
 }
 
 void AEnemyCharacter::IncomingAttack()
@@ -52,11 +53,11 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 
 		int RandomMontage = FMath::RandRange(1, LightAttackAttacker->CompositeSections.Num());
 		FString RandomMontageStr = FString::FromInt(RandomMontage);
-		AC_Animation->Play(LightAttackAttacker, FName(*RandomMontageStr), false);
+		if (!AC_Animation->Play(LightAttackAttacker, FName(*RandomMontageStr), false))
+		{
+			AttackEnd();
+		}
 	}
-
-	// Subscribe to Player Controller
-	SevenPlayerController->UpdateStatus(GetUniqueID());
 }
 
 void AEnemyCharacter::AttackEnd() const

@@ -16,6 +16,7 @@ Refactor:
 High - Create View For 3rd person (so it's not controlled directly in Seven
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
+High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Refactor logic for Attacks (avoid spamming, etc) -> do it with a help of AttackEnd and AttackStart
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
 High - Cache ASevenCharacter in AnimationComponent
