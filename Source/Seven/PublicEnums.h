@@ -15,6 +15,18 @@ enum class EAttackType
 };
 
 UENUM(BlueprintType)
+enum class EMontageType : uint8
+{
+	None,
+	Misc,
+	Attack,
+	Parry,
+	HitReaction,
+	Block,
+	Evade,
+};
+
+UENUM(BlueprintType)
 enum class EEnemyStatus : uint8
 {
 	None,

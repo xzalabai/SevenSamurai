@@ -1,6 +1,8 @@
 #include "AnimationComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SevenCharacter.h"
+#include "MotionWarpingComponent.h"
+#include "Kismet\KismetMathLibrary.h"
 
 UAnimationComponent::UAnimationComponent()
 {
@@ -33,48 +35,69 @@ void UAnimationComponent::BeginPlay()
 	
 }
 
-bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, bool bCanInterrupt)
+bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt)
 {
 	FString myString = FString::FromInt(SectionName);
-	return Play(AnimMontage, FName(*myString), bCanInterrupt);
+	return Play(AnimMontage, FName(*myString), MontageType, bCanInterrupt);
 }
 
-bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, bool bCanInterrupt)
+void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim)
+{
+	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+
+	const FVector Direction = Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation();
+	const FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(SevenCharacter->GetActorLocation() + SevenCharacter->GetActorForwardVector(), Victim->GetActorLocation());
+	const FVector AttackerFinalPosition = Rotation.RotateVector(-Direction) + Victim->GetActorLocation();
+	FTransform T(Rotation, AttackerFinalPosition);
+	//DrawDebugPoint(GetWorld(), T.GetTranslation(), 15.0f, FColor(0, 0, 255), true);
+	SevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
+}
+
+bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d"),
 		(bCanInterrupt ? 1 : 0),
 		(bActiveMontageRunning ? 1 : 0),
 		(bNextComboTriggerEnabled ? 1 : 0));
 
-	if (bCanInterrupt)
+	if (MontageType == EMontageType::Attack)
 	{
-		GetCharacterOwner()->StopAnimMontage();
-	}
-	else if ((bActiveMontageRunning && !bNextComboTriggerEnabled) || bNextComboTriggered)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] xxx"));
-		return false;
-	}
-	else if (bActiveMontageRunning && bNextComboTriggerEnabled && !bNextComboTriggered)
-	{
-		GetCharacterOwner()->StopAnimMontage();
-		bNextComboTriggered = true;
-	}
+		if (bActiveMontageRunning && bNextComboTriggerEnabled)
+		{
+			bNextComboTriggered = false;
+			GetCharacterOwner()->StopAnimMontage();
+		}
+		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
+		{
+			return false;
+		}
+		else if (!bActiveMontageRunning)
+		{
 
-	ASevenCharacter* SevenCharacter = GetCharacterOwner();
-	GetCharacterOwner()->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
-	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())
-	{
-		AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
+		}
 	}
 	else
 	{
+		if (bCanInterrupt)
+		{
+			GetCharacterOwner()->StopAnimMontage();
+		}
+	}
+
+	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+	UAnimInstance* AnimInstance = GetOwnerAnimInstance();
+
+	if (!SevenCharacter || !AnimInstance)
+	{
 		return false;
 	}
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play"));
 	
-	bActiveMontageRunning = true;
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play Animation %s, section:"), *AnimMontage->GetName(), *SectionName.ToString());
 
+	SevenCharacter->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
+	bActiveMontageRunning = true;
+	CurrentMontageType = MontageType;
 	return true;
 }
 
@@ -111,23 +134,20 @@ void UAnimationComponent::OnEvadeEnded()
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] NextComboTriggered %d"), bEnable ? 1 : 0);
 	bNextComboTriggerEnabled = bEnable;
 	// TODO REMOVE!
 	if (currentComboIndex > 4)
 	{
 		currentComboIndex = 0;
 	}
-	if (!bEnable)
-		bNextComboTriggered = false;
 }
 
 bool UAnimationComponent::Block(bool bEnable)
 {
-	if (IsAnimationRunning())
-		return false;
-
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+
+	if ((bEnable && IsAnimationRunning()) || !SevenCharacter)
+		return false;
 
 	SevenCharacter->bIsBlocking = bEnable;
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
@@ -150,14 +170,20 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 {
 	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded. Animation: %s"), *Montage->GetName());
 	
-	bActiveMontageRunning = false;
+	if (!bInterrupted)
+	{
+		bActiveMontageRunning = false;
+	}
+	
 	GetCharacterOwner()->OnAnimationEnded();
 	
-	if (Montage == GetCharacterOwner()->LightAttackAttacker)
+	if (CurrentMontageType == EMontageType::Attack)
 	{
 		GetCharacterOwner()->AttackEnd();
 		bNextComboTriggerEnabled = false;
 	}
+
+	CurrentMontageType = EMontageType::None;
 }
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)

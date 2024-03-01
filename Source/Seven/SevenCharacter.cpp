@@ -10,8 +10,8 @@
 #include "MotionWarpingComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "AnimationComponent.h"
-#include <Kismet\GameplayStatics.h>
-#include <Kismet\KismetMathLibrary.h>
+#include "Kismet\GameplayStatics.h"
+#include "Kismet\KismetMathLibrary.h"
 #include "ComboManager.h"
 #include "AttributesComponent.h"
 #include "SevenPlayerController.h"
@@ -59,7 +59,7 @@ ASevenCharacter::ASevenCharacter()
 	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
 	AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attributes"));
 	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 void ASevenCharacter::BeginPlay()
@@ -84,7 +84,7 @@ void ASevenCharacter::AttackStart()
 	if (ClosestEnemy)
 	{
 		// Rotate character towards enemy
-		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ClosestEnemy->GetActorLocation());
+		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
 		RootComponent->SetWorldRotation(PlayerRot);
 	}
 }
@@ -97,7 +97,7 @@ void ASevenCharacter::AttackEnd() const
 void ASevenCharacter::AttackIsParried() const
 {
 	AttackEnd();
-	AC_Animation->Play(ParryMontage, "1", true);
+	AC_Animation->Play(ParryMontage, "1", EMontageType::Parry, true);
 }
 
 void ASevenCharacter::CheckParrying()
@@ -120,7 +120,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	if (bIsParrying)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
-		AC_Animation->Play(ParryMontage, "0", true);
+		AC_Animation->Play(ParryMontage, "0", EMontageType::Parry, true);
 		Attacker->AttackIsParried();
 		bIsParrying = false;
 		return;
@@ -131,7 +131,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Blocking"));
 		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
-		AC_Animation->Play(BlockMontage, RandomMontageStr, true);
+		AC_Animation->Play(BlockMontage, RandomMontageStr, EMontageType::Block, true);
 		return;
 	}
 
@@ -150,7 +150,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	int RandomMontage = FMath::RandRange(1, LightAttackVictim->CompositeSections.Num());
 	FString RandomMontageStr = FString::FromInt(RandomMontage);
 
-	AC_Animation->Play(MontageToPlay, FName(*RandomMontageStr), true);
+	AC_Animation->Play(MontageToPlay, FName(*RandomMontageStr), EMontageType::HitReaction, true);
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -160,7 +160,7 @@ void ASevenCharacter::Space(const FInputActionValue& Value)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	if (AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), false))
+	if (AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade,  false))
 	{
 		bIsEvading = true;
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
@@ -192,15 +192,23 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 	}
 	else
 	{
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 		TargetedEnemy = GetClosestEnemyInRange();
 		if (TargetedEnemy)
 		{
-			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
-			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
+			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(1, LightAttackAttacker->CompositeSections.Num());
+			if (AC_Animation->Play(LightAttackAttacker, RandomMontageStr, EMontageType::Attack, false))
+			{
+				UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
+				AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
+			}
+		}
+		else
+		{
+			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(1, LightAttackAttacker->CompositeSections.Num());
+			AC_Animation->Play(LightAttackAttacker, RandomMontageStr, EMontageType::Attack, false);
 		}
 
-		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(1, LightAttackAttacker->CompositeSections.Num());
-		AC_Animation->Play(LightAttackAttacker, RandomMontageStr, false);
 	}
 }
 
@@ -260,9 +268,11 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 {
 	 TArray<ASevenCharacter*> FoundActors;
 	 TArray<FHitResult> HitResults;
+	 FVector DirectionOfSphere = bEnemy ? GetActorForwardVector() : FollowCamera->GetForwardVector();
+	 DirectionOfSphere.Z = 0;
 	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(),
 		 GetActorLocation(),
-		 GetActorLocation() + GetActorForwardVector() * 100,
+		 GetActorLocation() + DirectionOfSphere * 200,
 		 100,
 		 UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
 		 false, TArray<AActor*> { this },
@@ -290,18 +300,26 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshold)
 {
 	TArray<ASevenCharacter*> FoundEnemies = GetEnemiesInFrontOfCharacer();
-
+	
+	// TODO REMOVE !!!
+	if (FoundEnemies.Num() > 0)
+	{
+		return FoundEnemies[0];
+	}
+	// 
+	// This code is not USED ANYMORE !
+	// 
 	// Find closest enemy (to whose is attack meant)
 	for (auto& Enemy : FoundEnemies)
 	{
-		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorLocation().GetSafeNormal() * GetActorForwardVector().GetSafeNormal());
-
+		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), (Enemy->GetActorLocation() + GetActorForwardVector().GetSafeNormal()).GetSafeNormal());
 		if (DotProduct >= DotProductTreshold)
 		{
 			UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Closest enemy is: %s"), *Enemy->GetName());
 			return Enemy;
 		}
 	}
+	UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Haven't found any close enemies"));
 	return nullptr;
 }
 
@@ -322,7 +340,7 @@ EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
 void ASevenCharacter::OnAnimationEnded()
 {
 	TargetedEnemy = nullptr;
-	MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
+	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
 }
 
 bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy)
@@ -347,6 +365,7 @@ bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy)
 	float Length = -1.0f; // Length of the arrow shaft, -1 to use default
 	//DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector().GetSafeNormal() * 1000, ArrowSize, DebugColor, false, Duration, DepthPriority, Thickness);
 	//DrawDebugDirectionalArrow(GetWorld(), Enemy->GetActorLocation(), Enemy->GetActorLocation() + Enemy->GetActorForwardVector().GetSafeNormal() * 1000, ArrowSize, DebugColor2, false, Duration, DepthPriority, Thickness);
+	//DrawDebugPoint(GetWorld(), T.GetTranslation(), ArrowSize, DebugColor2, true, Duration, DepthPriority);
 
 	if (Cross > 0) // ^ ^ || < ^
 	{
@@ -386,6 +405,22 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 	{
 		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
+}
+
+const FTransform ASevenCharacter::GetAttackersDesiredTransform(const FVector& VictimLocation, const FTransform& VictimDesiredTransform)
+{
+	FTransform Result;
+	FQuat Rot = GetActorRotation().Quaternion();
+	FVector Scale = VictimDesiredTransform.GetScale3D();
+	FVector Loc = VictimDesiredTransform.GetLocation() + VictimDesiredTransform.GetLocation().GetSafeNormal();
+
+	Result.SetScale3D(Scale);
+	Result *= Rot;
+	
+
+	DrawDebugSphere(GetWorld(), Result.GetLocation(), 100.0f, 12, FColor::Red, true, 10.0f, 0, 2.0f);
+	// https://1danielcoelho.github.io/unreal-non-uniform-scaling-gotcha/ !!!!!!!!!!!!!!
+	return Result;
 }
 
 
