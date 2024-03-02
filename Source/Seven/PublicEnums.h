@@ -66,6 +66,7 @@ struct FAttackInfo
 
 namespace CustomMath
 {
+	// No typechecking in these methods
 
 	static FString GetRandomNumber_FString(int Start, int End)
 	{
@@ -77,6 +78,17 @@ namespace CustomMath
 	{
 		int RandomMontage = FMath::RandRange(Start, End);
 		return FName(*FString::FromInt(RandomMontage));
+	}
+
+	static FName IntToFName(int Number)
+	{
+		return FName(*FString::FromInt(Number));
+	}
+
+	static int FNameToInt(FName Name)
+	{
+		FString Str = Name.ToString();
+		return  FCString::Atoi(*Str);
 	}
 };
 

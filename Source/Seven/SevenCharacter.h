@@ -12,6 +12,7 @@
 class UAnimMontage;
 class AWeapon;
 class UAnimationComponent;
+class UAttackComponent;
 class UAttributesComponent;
 class UComboManager;
 class AEnemy;
@@ -25,6 +26,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 {
 	friend class UAnimationComponent;
 	friend class UCombo;
+	friend class UAttackComponent;
 
 	GENERATED_BODY()
 
@@ -104,6 +106,9 @@ public:
 	UPROPERTY()
 	UMotionWarpingComponent* AC_MotionWarpingComponent;
 
+	UPROPERTY()
+	UAttackComponent* AC_AttackComponent;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +139,7 @@ protected:
 	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1);
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
-	void OnAnimationEnded();
+	void OnAnimationEnded(const EMontageType& MontageType);
 	void CheckParrying();
 	void AttackIsParried() const;
 	bool IsEvadingAway(const ASevenCharacter *Enemy);

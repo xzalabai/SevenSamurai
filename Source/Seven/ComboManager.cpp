@@ -23,7 +23,7 @@ void UComboManager::UseCombo(const ESpecial& Special)
 	
 	if (Combos.Num() == 0)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[UComboManager].UseCombo is Empty"));
+		UE_LOG(LogTemp, Warning, TEXT("[UComboManager].UseCombo is Empty"));
 		return;
 	}
 

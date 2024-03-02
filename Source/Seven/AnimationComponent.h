@@ -24,10 +24,9 @@ private:
 
 	bool bActiveMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
-	bool bNextComboTriggered = false;
-	int currentComboIndex = 1;
 	int8 currentMontageSection = -1;
 	EMontageType CurrentMontageType = EMontageType::None;
+	EMontageType NextMontageType = EMontageType::None;
 	
 public:		
 	FOnMontageEnded EndDelegate;
@@ -46,8 +45,12 @@ public:
 	
 	bool Block(bool bEnable);
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
+	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontageType; }
 	FName GetCurrentMontageSection();
 
 	TArray<AActor*> HitActors;
+
+
+	friend class UAttackComponent;
 		
 };

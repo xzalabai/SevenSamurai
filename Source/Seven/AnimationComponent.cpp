@@ -1,6 +1,7 @@
 #include "AnimationComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SevenCharacter.h"
+#include "AttackComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Kismet\KismetMathLibrary.h"
 
@@ -64,8 +65,8 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	{
 		if (bActiveMontageRunning && bNextComboTriggerEnabled)
 		{
-			bNextComboTriggered = false;
 			GetCharacterOwner()->StopAnimMontage();
+			NextMontageType = EMontageType::Attack;
 		}
 		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
 		{
@@ -78,8 +79,9 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	}
 	else
 	{
-		if (bCanInterrupt)
+		if (bCanInterrupt && bActiveMontageRunning)
 		{
+			NextMontageType = MontageType;
 			GetCharacterOwner()->StopAnimMontage();
 		}
 	}
@@ -135,11 +137,6 @@ void UAnimationComponent::OnEvadeEnded()
 void UAnimationComponent::NextComboTriggered(bool bEnable)
 {
 	bNextComboTriggerEnabled = bEnable;
-	// TODO REMOVE!
-	if (currentComboIndex > 4)
-	{
-		currentComboIndex = 0;
-	}
 }
 
 bool UAnimationComponent::Block(bool bEnable)
@@ -173,9 +170,15 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	if (!bInterrupted)
 	{
 		bActiveMontageRunning = false;
+		NextMontageType = EMontageType::None;
 	}
 	
-	GetCharacterOwner()->OnAnimationEnded();
+	GetCharacterOwner()->OnAnimationEnded(CurrentMontageType);
+
+	if (NextMontageType == EMontageType::None)
+	{
+		GetCharacterOwner()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType);
+	}
 	
 	if (CurrentMontageType == EMontageType::Attack)
 	{

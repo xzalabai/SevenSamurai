@@ -14,6 +14,7 @@
 #include "Kismet\KismetMathLibrary.h"
 #include "ComboManager.h"
 #include "AttributesComponent.h"
+#include "AttackComponent.h"
 #include "SevenPlayerController.h"
 
 ASevenCharacter::ASevenCharacter()
@@ -58,6 +59,7 @@ ASevenCharacter::ASevenCharacter()
 	// COMPONENTS
 	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
 	AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attributes"));
+	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
 	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
@@ -80,13 +82,13 @@ void ASevenCharacter::BeginPlay()
 void ASevenCharacter::AttackStart()
 {
 	// This is when Victim is running around -> probably valid only for EnemyChar (because he does not modify player rotation)
-	ASevenCharacter* ClosestEnemy = GetClosestEnemyInRange(0.4);
-	if (ClosestEnemy)
-	{
-		// Rotate character towards enemy
-		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
-		RootComponent->SetWorldRotation(PlayerRot);
-	}
+	//ASevenCharacter* ClosestEnemy = GetClosestEnemyInRange(0.4);
+	//if (ClosestEnemy)
+	//{
+	//	// Rotate character towards enemy
+	//	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
+	//	RootComponent->SetWorldRotation(PlayerRot);
+	//}
 }
 
 void ASevenCharacter::AttackEnd() const
@@ -182,33 +184,32 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
-	// Attack
-
 	EquippedWeapon->ClearHitActors();
 
 	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
 	{
 		ComboComponent->UseCombo(ESpecial::ES_Special1);
+		return;
+	}
+	
+	// Attack
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
+	TargetedEnemy = GetClosestEnemyInRange();
+	if (TargetedEnemy)
+	{
+		// Targeted Attack
+		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetNextAttackMontage();
+		if (AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
+		{
+			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
+			AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
+		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
-		TargetedEnemy = GetClosestEnemyInRange();
-		if (TargetedEnemy)
-		{
-			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(1, LightAttackAttacker->CompositeSections.Num());
-			if (AC_Animation->Play(LightAttackAttacker, RandomMontageStr, EMontageType::Attack, false))
-			{
-				UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
-				AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
-			}
-		}
-		else
-		{
-			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(1, LightAttackAttacker->CompositeSections.Num());
-			AC_Animation->Play(LightAttackAttacker, RandomMontageStr, EMontageType::Attack, false);
-		}
-
+		// Attack to emptyness
+		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetNextAttackMontage();
+		AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false);
 	}
 }
 
@@ -301,7 +302,6 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 {
 	TArray<ASevenCharacter*> FoundEnemies = GetEnemiesInFrontOfCharacer();
 	
-	// TODO REMOVE !!!
 	if (FoundEnemies.Num() > 0)
 	{
 		return FoundEnemies[0];
@@ -319,7 +319,7 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 			return Enemy;
 		}
 	}
-	UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Haven't found any close enemies"));
+	//UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Haven't found any close enemies"));
 	return nullptr;
 }
 
@@ -337,7 +337,7 @@ EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
 	return EOctagonalDirection::None;
 }
 
-void ASevenCharacter::OnAnimationEnded()
+void ASevenCharacter::OnAnimationEnded(const EMontageType& MontageType)
 {
 	TargetedEnemy = nullptr;
 	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
