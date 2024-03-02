@@ -46,11 +46,11 @@ void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenChar
 {
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
 
-	const FVector Direction = Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation();
+	const FVector Direction = (Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation()) * Victim->GetActorForwardVector();
 	const FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(SevenCharacter->GetActorLocation() + SevenCharacter->GetActorForwardVector(), Victim->GetActorLocation());
-	const FVector AttackerFinalPosition = Rotation.RotateVector(-Direction) + Victim->GetActorLocation();
+	const FVector AttackerFinalPosition = Rotation.RotateVector(-Direction) + Victim->GetActorLocation() + Victim->GetActorForwardVector().GetSafeNormal();
 	FTransform T(Rotation, AttackerFinalPosition);
-	//DrawDebugPoint(GetWorld(), T.GetTranslation(), 15.0f, FColor(0, 0, 255), true);
+	DrawDebugPoint(GetWorld(), T.GetTranslation(), 10.f, FColor(0,0,255), true);
 	SevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
 }
 
@@ -65,8 +65,8 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	{
 		if (bActiveMontageRunning && bNextComboTriggerEnabled)
 		{
-			GetCharacterOwner()->StopAnimMontage();
 			NextMontageType = EMontageType::Attack;
+			GetCharacterOwner()->StopAnimMontage();
 		}
 		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
 		{
@@ -74,7 +74,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		}
 		else if (!bActiveMontageRunning)
 		{
-
+			NextMontageType = EMontageType::None;
 		}
 	}
 	else
@@ -172,21 +172,19 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 		bActiveMontageRunning = false;
 		NextMontageType = EMontageType::None;
 	}
-	
-	GetCharacterOwner()->OnAnimationEnded(CurrentMontageType);
-
-	if (NextMontageType == EMontageType::None)
+	else
 	{
-		GetCharacterOwner()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType);
+		CurrentMontageType = NextMontageType;
 	}
+	
+	GetCharacterOwner()->OnAnimationEnded(CurrentMontageType, NextMontageType);
+	GetCharacterOwner()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType, NextMontageType);
 	
 	if (CurrentMontageType == EMontageType::Attack)
 	{
 		GetCharacterOwner()->AttackEnd();
 		bNextComboTriggerEnabled = false;
 	}
-
-	CurrentMontageType = EMontageType::None;
 }
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)

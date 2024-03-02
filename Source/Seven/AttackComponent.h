@@ -22,8 +22,8 @@ private:
 public:	
 	UAttackComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	const TPair<UAnimMontage*, FName> GetNextAttackMontage();
-	void OnAnimationEnded(const EMontageType& MontageType);
+	const TPair<UAnimMontage*, FName> GetAttackMontageToBePlayed();
+	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
 
 protected:
 	virtual void BeginPlay() override;

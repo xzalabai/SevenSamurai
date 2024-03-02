@@ -3,7 +3,9 @@
 #include "AnimationComponent.h"
 #include "SevenPlayerController.h"
 #include "ComboManager.h"
+#include "AttackComponent.h"
 #include "Kismet\GameplayStatics.h"
+#include "Kismet\KismetMathLibrary.h"
 
 void AEnemyCharacter::InitiateAttack()
 {
@@ -47,15 +49,18 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 		TargetedEnemy = GetClosestEnemyInRange();
 		if (TargetedEnemy)
 		{
-			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
+			//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
 			//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
-		}
 
-		int RandomMontage = FMath::RandRange(1, LightAttackAttacker->CompositeSections.Num());
-		FString RandomMontageStr = FString::FromInt(RandomMontage);
-		if (!AC_Animation->Play(LightAttackAttacker, FName(*RandomMontageStr), EMontageType::Attack, false))
-		{
-			AttackEnd();
+			// Rotate character towards enemy
+			FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
+			RootComponent->SetWorldRotation(PlayerRot);
+
+			const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
+			if (!AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
+			{
+				AttackEnd();
+			}
 		}
 	}
 }

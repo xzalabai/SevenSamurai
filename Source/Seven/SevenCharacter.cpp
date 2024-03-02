@@ -96,21 +96,29 @@ void ASevenCharacter::AttackEnd() const
 	
 }
 
-void ASevenCharacter::AttackIsParried() const
+void ASevenCharacter::AttackWasParried() const
 {
 	AttackEnd();
 	AC_Animation->Play(ParryMontage, "1", EMontageType::Parry, true);
 }
 
-void ASevenCharacter::CheckParrying()
+bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 {
 	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
-
-	if (!GetEnemiesInFrontOfCharacer(SevenPlayerController->GetLatestIncomingAttacker()).IsEmpty())
+	if (GetIsBlockingBeforeAttack() || !GetIsBlocking())
 	{
-		bIsParrying = true;
-		bIsImmortal = true;
+		return false;
 	}
+	if (GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+	{
+		// Is not turned towards enemy
+		return false;
+	}
+	if (SevenPlayerController->GetEnemyStatus(Attacker->GetUniqueID()) == EEnemyStatus::ParryAvailable)
+	{
+		return true;
+	}
+	return false;
 }
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
@@ -119,12 +127,12 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character"), Attacker->GetUniqueID());
 
 	// Parry
-	if (bIsParrying)
+	if (ParryAttack(Attacker))
 	{
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
 		AC_Animation->Play(ParryMontage, "0", EMontageType::Parry, true);
-		Attacker->AttackIsParried();
-		bIsParrying = false;
+		Attacker->AttackWasParried();
+		bIsImmortal = true;
 		return;
 	}
 	
@@ -174,7 +182,27 @@ void ASevenCharacter::Block(bool bEnable)
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
 	AC_Animation->Block(bEnable);
 
-	CheckParrying();
+	if (bEnable)
+	{
+		CheckIfBlockingBeforeParrying();
+	}
+	else
+	{
+		bIsBlockingBeforeAttack = false;
+	}
+}
+
+void ASevenCharacter::CheckIfBlockingBeforeParrying()
+{
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
+	if (SevenPlayerController->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
+	{
+		bIsBlockingBeforeAttack = false;
+	}
+	else
+	{
+		bIsBlockingBeforeAttack = true;
+	}
 }
 
 void ASevenCharacter::StopSpace(const FInputActionValue& Value)
@@ -198,7 +226,7 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 	if (TargetedEnemy)
 	{
 		// Targeted Attack
-		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetNextAttackMontage();
+		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
 		if (AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
 		{
 			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
@@ -208,7 +236,7 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 	else
 	{
 		// Attack to emptyness
-		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetNextAttackMontage();
+		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
 		AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false);
 	}
 }
@@ -337,10 +365,15 @@ EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
 	return EOctagonalDirection::None;
 }
 
-void ASevenCharacter::OnAnimationEnded(const EMontageType& MontageType)
+void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage)
 {
 	TargetedEnemy = nullptr;
 	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
+
+	if (StoppedMontage == EMontageType::Parry || StoppedMontage == EMontageType::Evade)
+	{
+		bIsImmortal = false;
+	}
 }
 
 bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy)

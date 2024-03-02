@@ -63,6 +63,8 @@ public:
 	void BlockEnd(const FInputActionValue& Value);
 
 	void UpdateStatus(const int8 CharacterID, const EEnemyStatus Status = EEnemyStatus::None);
+	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
+	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
 	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
 
 private:

@@ -193,6 +193,28 @@ void ASevenPlayerController::UpdateStatus(const int8 CharacterID, const EEnemySt
 	// Notify Character?
 }
 
+const EEnemyStatus ASevenPlayerController::GetEnemyStatus(const int8 CharacterID) const
+{
+	if (!Enemies.Contains(CharacterID))
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController] GetEnemyStatus Non Existing Character ID"));
+		return EEnemyStatus::None;
+	}
+	return Enemies[CharacterID];
+}
+
+bool ASevenPlayerController::HasAnyEnemyStatus(const EEnemyStatus& Status) const
+{
+	for (auto &Enemy : Enemies)
+	{
+		if (Enemy.Value == Status)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()
 {
 	// returns either GodView or GetPawn()

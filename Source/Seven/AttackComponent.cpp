@@ -19,17 +19,15 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-const TPair<UAnimMontage*, FName> UAttackComponent::GetNextAttackMontage()
+const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 {
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
 	
 	if (SevenCharacter->AC_Animation->GetCurrentMontageSection() == NAME_None)
 	{
 		// No Animation in progress
-		UE_LOG(LogTemp, Display, TEXT("[UAttackComponent] GetNextAttackMontage NAME_None"));
 		CurrentSection = 1;
 	}
-
 	if (SevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::Attack)
 	{
 		// Some Attack animation is in progress
@@ -38,12 +36,10 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetNextAttackMontage()
 		{
 			// We can still iterate
 			++CurrentSection;
-			UE_LOG(LogTemp, Display, TEXT("[UAttackComponent] GetNextAttackMontage INC"));
 		}
 		else
 		{
 			CurrentSection = 1;
-			UE_LOG(LogTemp, Display, TEXT("[UAttackComponent] GetNextAttackMontage Set to 1"));
 			// TODO: HERE SHOULD BE COOLDOWN!
 		}
 		
@@ -54,11 +50,11 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetNextAttackMontage()
 	return TPair< UAnimMontage*, FName> (MontageToPlay, SectionToPlay);
 }
 
-void UAttackComponent::OnAnimationEnded(const EMontageType &MontageType)
+void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, const EMontageType &NextMontage)
 {
-	if (MontageType == EMontageType::Attack)
+	if (StoppedMontage == EMontageType::Attack && NextMontage != EMontageType::Attack)
 	{
-		CurrentSection = 0;
+		CurrentSection = 1;
 	}
 }
 
