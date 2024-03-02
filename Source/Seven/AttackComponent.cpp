@@ -1,5 +1,6 @@
 #include "AttackComponent.h"
 #include "AnimationComponent.h"
+#include "MotionWarpingComponent.h"
 #include "SevenCharacter.h"
 
 UAttackComponent::UAttackComponent()
@@ -44,7 +45,7 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 		}
 		
 	}
-
+	// Maybe removeWarp should be here!!!!!!!!!!!
 	const FName SectionToPlay = CustomMath::IntToFName(CurrentSection);
 	UAnimMontage* MontageToPlay = GetCharacterOwner()->LightAttackAttacker;
 	return TPair< UAnimMontage*, FName> (MontageToPlay, SectionToPlay);

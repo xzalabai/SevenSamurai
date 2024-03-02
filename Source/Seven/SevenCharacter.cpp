@@ -229,8 +229,8 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
 		if (AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
 		{
-			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
 			AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
+			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
 		}
 	}
 	else
@@ -305,7 +305,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 		 100,
 		 UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
 		 false, TArray<AActor*> { this },
-		 EDrawDebugTrace::Persistent, HitResults, true);
+		 EDrawDebugTrace::None, HitResults, true);
 
 	 auto filter = [&]()
 		 {
@@ -334,6 +334,10 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 	{
 		return FoundEnemies[0];
 	}
+	return nullptr;
+
+
+
 	// 
 	// This code is not USED ANYMORE !
 	// 
@@ -347,8 +351,7 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 			return Enemy;
 		}
 	}
-	//UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Haven't found any close enemies"));
-	return nullptr;
+	
 }
 
 EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
@@ -439,23 +442,6 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
 }
-
-const FTransform ASevenCharacter::GetAttackersDesiredTransform(const FVector& VictimLocation, const FTransform& VictimDesiredTransform)
-{
-	FTransform Result;
-	FQuat Rot = GetActorRotation().Quaternion();
-	FVector Scale = VictimDesiredTransform.GetScale3D();
-	FVector Loc = VictimDesiredTransform.GetLocation() + VictimDesiredTransform.GetLocation().GetSafeNormal();
-
-	Result.SetScale3D(Scale);
-	Result *= Rot;
-	
-
-	DrawDebugSphere(GetWorld(), Result.GetLocation(), 100.0f, 12, FColor::Red, true, 10.0f, 0, 2.0f);
-	// https://1danielcoelho.github.io/unreal-non-uniform-scaling-gotcha/ !!!!!!!!!!!!!!
-	return Result;
-}
-
 
 
 

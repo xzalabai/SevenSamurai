@@ -45,12 +45,14 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const
 void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim)
 {
 	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+	// TODO: Understand and FIX this when you will have enough strenght solider
+	const FVector Direction = (Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation()) * Victim->GetActorForwardVector().GetSafeNormal();
+	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Victim->GetActorLocation(), SevenCharacter->GetActorLocation());
+	const FVector FinalPosition = Rotation.RotateVector(FVector(Direction.X, 0, 0)) + Victim->GetActorLocation();
+	Rotation.Yaw = Rotation.Yaw - 180;
+	FTransform T(Rotation, FinalPosition);
 
-	const FVector Direction = (Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation()) * Victim->GetActorForwardVector();
-	const FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(SevenCharacter->GetActorLocation() + SevenCharacter->GetActorForwardVector(), Victim->GetActorLocation());
-	const FVector AttackerFinalPosition = Rotation.RotateVector(-Direction) + Victim->GetActorLocation() + Victim->GetActorForwardVector().GetSafeNormal();
-	FTransform T(Rotation, AttackerFinalPosition);
-	DrawDebugPoint(GetWorld(), T.GetTranslation(), 10.f, FColor(0,0,255), true);
+	DrawDebugCoordinateSystem(GetWorld(), T.GetTranslation(), T.GetRotation().Rotator(), 100, true);
 	SevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
 }
 

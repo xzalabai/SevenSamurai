@@ -144,7 +144,6 @@ protected:
 	void AttackWasParried() const;
 	void CheckIfBlockingBeforeParrying();
 	bool IsEvadingAway(const ASevenCharacter *Enemy);
-	const FTransform GetAttackersDesiredTransform(const FVector& VictimLocation, const FTransform& VictimDesiredTransform);
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
 
 public:
