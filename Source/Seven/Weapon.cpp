@@ -7,6 +7,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "PublicEnums.h"
+#include "AttackComponent.h"
 #include "SevenCharacter.h"
 
 AWeapon::AWeapon()
@@ -40,26 +41,17 @@ void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 	}
 }
 
-void AWeapon::ClearHitActors()
-{
-	HitActors.Empty();
-}
-
 void AWeapon::PerformTrace()
 {
-	TArray<FHitResult> OutHit;
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-	ActorsToIgnore.Add(GetAttachParentActor());
 	bool bHit = UKismetSystemLibrary::BoxTraceMulti(
 		this,
 		StartTrace->GetComponentLocation(),
 		EndTrace->GetComponentLocation(),
-		FVector(3.3f, 3.3f, 3.3f),
+		FVector(10.0f, 10.0f, 10.0f),
 		StartTrace->GetComponentRotation(),
 		UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
 		false,
-		ActorsToIgnore, EDrawDebugTrace::None,
+		ActorsToIgnore, EDrawDebugTrace::Persistent,
 		OutHit,
 		true);
 	//UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.bHit:%d"), bHit ? 1 : 0);
@@ -76,12 +68,25 @@ void AWeapon::PerformTrace()
 
 			if (ASevenCharacter* Target = Cast<ASevenCharacter>(HitActor))
 			{
-				Target->ReceivedHit(FAttackInfo{ static_cast<EAttackType>(0), 4, 10, GetAttachParentActor()});
+				Target->ReceivedHit(AttackInfo);
 				HitActors.Add(Hit.GetActor());
-				UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.Hit:%s"), *Hit.GetActor()->GetName());
+				//UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.Hit:%s"), *Hit.GetActor()->GetName());
 			}
 		}
 		
 	}
+}
+
+void AWeapon::AttackStart()
+{
+	HitActors.Empty();
+	OutHit.Empty();
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(GetAttachParentActor());
+
+	TObjectPtr<ASevenCharacter> SevenCharacter = Cast<ASevenCharacter>(GetAttachParentActor());
+
+	AttackInfo = SevenCharacter->GetAttackComponent()->GetInfoAboutAttack();
+
 }
 

@@ -59,10 +59,18 @@ struct FAttackInfo
 	FAttackInfo() = default;
 	FAttackInfo(EAttackType AttackType, uint8 AttackTypeMontage, uint8 Damage, AActor* Attacker)
 		: AttackType(AttackType), AttackTypeMontage(AttackTypeMontage), Damage(Damage), Attacker(Attacker) {}
-	EAttackType AttackType = EAttackType::Light;
+	void Reset()
+	{
+		AttackType = EAttackType::None;
+		AttackTypeMontage = 0;
+		Damage = 0;
+		Attacker = nullptr;
+	}
+	EAttackType AttackType = EAttackType::None;
 	uint8 AttackTypeMontage = 0;
 	uint8 Damage;
-	const AActor* const Attacker;
+	AActor* Attacker;
+	
 };
 
 namespace CustomMath

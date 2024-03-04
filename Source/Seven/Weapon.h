@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PublicEnums.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
@@ -38,11 +39,16 @@ protected:
 	UPROPERTY()
 	ASevenCharacter* OwnerCharacter;
 
+private:
+	// Cached data for Weapon Trace
+	TArray<FHitResult> OutHit;
+	TArray<AActor*> ActorsToIgnore;
+	FAttackInfo AttackInfo;
 
 public:	
 	AWeapon();
 	void AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName);
-	void ClearHitActors();
 	UFUNCTION(BlueprintCallable)
 	void PerformTrace();
+	void AttackStart();
 };	

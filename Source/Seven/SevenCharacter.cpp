@@ -89,6 +89,10 @@ void ASevenCharacter::AttackStart()
 	//	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
 	//	RootComponent->SetWorldRotation(PlayerRot);
 	//}
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->AttackStart();
+	}
 }
 
 void ASevenCharacter::AttackEnd() const
@@ -154,13 +158,11 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		
 	}
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
-	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : LightAttackVictim; // TODO: Change
+	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change
 	
 	// TODO: For now, random receivedHit animation is being played
-	int RandomMontage = FMath::RandRange(1, LightAttackVictim->CompositeSections.Num());
-	FString RandomMontageStr = FString::FromInt(RandomMontage);
-
-	AC_Animation->Play(MontageToPlay, FName(*RandomMontageStr), EMontageType::HitReaction, true);
+	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -213,8 +215,6 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
-
-	EquippedWeapon->ClearHitActors();
 
 	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
 	{

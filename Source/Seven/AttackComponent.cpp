@@ -73,14 +73,24 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 	}
 }
 
-void UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
+FAttackInfo UAttackComponent::GetInfoAboutAttack() const
 {
-	CurrentAttackType = EAttackType::Light;
-	if (TargetedEnemy)
+	return FAttackInfo(CurrentAttackType, 0, CurrentAttackType == EAttackType::Light ? 10 : 20, GetOwner());
+}
+
+bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt)
+{
+	const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
+	
+	if (!NextAttack.Key)
 	{
-		// Targeted Attack
-		const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
-		if (GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
+		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]HeavyAttack.NextAttack.Key is nullptr"));
+		return false;
+	}
+
+	if (GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, canInterrupt))
+	{
+		if (TargetedEnemy && bWarp)
 		{
 			GetOwnerCharacter()->AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
 			UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]LightAttack.TargetedEnemy %s"), *TargetedEnemy->GetName());
@@ -88,9 +98,23 @@ void UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 	}
 	else
 	{
+		return false;
+	}
+	return true;
+}
+
+void UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
+{
+	CurrentAttackType = EAttackType::Light;
+	if (TargetedEnemy)
+	{
+		// Targeted Attack
+		PlayAttack(TargetedEnemy, true, false);
+	}
+	else
+	{
 		// Attack to emptyness
-		const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
-		GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false);
+		PlayAttack(nullptr, false, true);
 	}	
 }
 
@@ -103,15 +127,9 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 	}
 	else if (CurrentAttackType != EAttackType::Heavy)
 	{
-		// Start of attack
+		// Initialization phase of attack
 		CurrentAttackType = EAttackType::Heavy;
-		const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
-		if (NextAttack.Key == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]HeavyAttack.NextAttack.Key is nullptr"));
-			return;
-		}
-		GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, true);
+		PlayAttack(nullptr, false, true);
 	}
 	else if (bReleased && !bHeavyAttackReady)
 	{
@@ -122,14 +140,9 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 	else if (bHeavyAttackReady && bReleased)
 	{
 		// Released during Idle, play attack
-		const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
-		if (NextAttack.Key == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]HeavyAttack.NextAttack.Key is nullptr"));
-			return;
-		}
-		GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, true);
+		PlayAttack(TargetedEnemy, true, true);
 		bHeavyAttackReady = false;
+		GetOwnerCharacter()->AttackStart(); // Will be needed in case of accumulating damage while in ready pose
 	}
 }
 
@@ -138,13 +151,7 @@ void UAttackComponent::SetIsHeavyAttackReady(bool bEnable)
 	if (bHeavyAttackWasReleased)
 	{
 		// If we already released mouse, perform attack
-		const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
-		if (NextAttack.Key == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]HeavyAttack.NextAttack.Key is nullptr"));
-			return;
-		}
-		GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, true);
+		PlayAttack(nullptr, false, true);
 	}
 	bHeavyAttackReady = true;
 }

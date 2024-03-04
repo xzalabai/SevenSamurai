@@ -38,7 +38,6 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
 {
 	// Attack
-	EquippedWeapon->ClearHitActors();
 
 	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
 	{
@@ -47,6 +46,8 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 	else
 	{
 		TargetedEnemy = GetClosestEnemyInRange();
+		AC_AttackComponent->LightAttack(TargetedEnemy);
+
 		if (TargetedEnemy)
 		{
 			//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
@@ -56,11 +57,7 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 			FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
 			RootComponent->SetWorldRotation(PlayerRot);
 
-			const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
-			if (!AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
-			{
-				AttackEnd();
-			}
+			AC_AttackComponent->LightAttack(TargetedEnemy);
 		}
 	}
 }
