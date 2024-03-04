@@ -10,8 +10,9 @@ enum class ESpecial : uint8
 
 enum class EAttackType
 {
-	Light = 0,
-	Heavy = 1,
+	None = 0,
+	Light = 1,
+	Heavy = 2,
 };
 
 UENUM(BlueprintType)

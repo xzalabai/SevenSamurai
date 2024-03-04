@@ -212,6 +212,8 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
+
 	EquippedWeapon->ClearHitActors();
 
 	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
@@ -221,24 +223,8 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 	}
 	
 	// Attack
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 	TargetedEnemy = GetClosestEnemyInRange();
-	if (TargetedEnemy)
-	{
-		// Targeted Attack
-		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
-		if (AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false))
-		{
-			AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
-			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.Play.TargetedEnemy %s"), *TargetedEnemy->GetName());
-		}
-	}
-	else
-	{
-		// Attack to emptyness
-		const TPair<UAnimMontage*, FName> NextAttack = AC_AttackComponent->GetAttackMontageToBePlayed();
-		AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, false);
-	}
+	AC_AttackComponent->LightAttack(TargetedEnemy);
 }
 
 
@@ -441,6 +427,14 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 	{
 		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
+}
+
+void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireRMB %d"), (uint8)TriggerEvent);
+
+	TargetedEnemy = GetClosestEnemyInRange();
+	AC_AttackComponent->HeavyAttack(TargetedEnemy, (TriggerEvent == ETriggerEvent::Completed || TriggerEvent == ETriggerEvent::Canceled));
 }
 
 

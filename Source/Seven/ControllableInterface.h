@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "InputActionValue.h"
+#include "EnhancedInputComponent.h"
 #include "ControllableInterface.generated.h"
 
 UINTERFACE(MinimalAPI, Blueprintable)
@@ -20,6 +21,7 @@ public:
 	virtual void Space(const FInputActionValue& Value) = 0;
 	virtual void StopSpace(const FInputActionValue& Value) = 0;
 	virtual void Fire(const FInputActionValue& Value) = 0;
+	virtual void FireRMB(const ETriggerEvent &TriggerEvent) = 0;
 	virtual void Block(bool bEnable) = 0;
 	virtual void Evade(const FInputActionValue& Value) = 0;
 	virtual void Special(int ID) = 0;

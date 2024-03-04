@@ -8,6 +8,29 @@
 class UAnimInstance;
 class ASevenCharacter;
 
+USTRUCT()
+struct FAnimationToPlay
+{
+	GENERATED_BODY()
+	FAnimationToPlay() = default;
+	FAnimationToPlay(UAnimMontage* AnimMontage, const FName SectionName, const EMontageType MontageType, bool bCanInterrupt)
+		: AnimMontage(AnimMontage), SectionName(SectionName), MontageType(MontageType), bCanInterrupt(bCanInterrupt) {}
+	
+	UAnimMontage* AnimMontage = nullptr;
+	FName SectionName = FName();
+	EMontageType MontageType = EMontageType::None;
+	bool bCanInterrupt = false;
+	bool IsSet() { return MontageType != EMontageType::None; }
+	void Reset()
+	{
+		AnimMontage = nullptr;
+		SectionName = FName();
+		MontageType = EMontageType::None;
+		bCanInterrupt = false;
+	}
+		
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEVEN_API UAnimationComponent : public UActorComponent
 {
@@ -20,13 +43,14 @@ public:
 
 private:
 	UAnimInstance* GetOwnerAnimInstance();
-	ASevenCharacter* GetCharacterOwner();
+	ASevenCharacter* GetOwnerCharacter();
 
 	bool bActiveMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
 	int8 currentMontageSection = -1;
 	EMontageType CurrentMontageType = EMontageType::None;
 	EMontageType NextMontageType = EMontageType::None;
+	FAnimationToPlay AnimationToPlay;
 	
 public:		
 	FOnMontageEnded EndDelegate;
@@ -36,6 +60,7 @@ public:
 	
 	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt = false);
 	bool Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt);
+	void PlayAfterCurrent(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType& MontageType, bool bCanInterrupt);
 	void WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim);
 	
 	UFUNCTION(BlueprintCallable)
@@ -50,7 +75,7 @@ public:
 
 	TArray<AActor*> HitActors;
 
-
 	friend class UAttackComponent;
-		
 };
+
+

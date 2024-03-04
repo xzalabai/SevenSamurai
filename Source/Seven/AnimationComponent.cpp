@@ -42,9 +42,14 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const
 	return Play(AnimMontage, FName(*myString), MontageType, bCanInterrupt);
 }
 
+void UAnimationComponent::PlayAfterCurrent(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType& MontageType, bool bCanInterrupt)
+{
+	//AnimationToPlay = FAnimationToPlay(AnimMontage, SectionName, MontageType, bCanInterrupt);
+}
+
 void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim)
 {
-	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 	// TODO: Understand and FIX this when you will have enough strenght solider
 	const FVector Direction = (Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation()) * Victim->GetActorForwardVector().GetSafeNormal();
 	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Victim->GetActorLocation(), SevenCharacter->GetActorLocation());
@@ -68,7 +73,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		if (bActiveMontageRunning && bNextComboTriggerEnabled)
 		{
 			NextMontageType = EMontageType::Attack;
-			GetCharacterOwner()->StopAnimMontage();
+			GetOwnerCharacter()->StopAnimMontage();
 		}
 		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
 		{
@@ -84,11 +89,11 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		if (bCanInterrupt && bActiveMontageRunning)
 		{
 			NextMontageType = MontageType;
-			GetCharacterOwner()->StopAnimMontage();
+			GetOwnerCharacter()->StopAnimMontage();
 		}
 	}
 
-	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 	UAnimInstance* AnimInstance = GetOwnerAnimInstance();
 
 	if (!SevenCharacter || !AnimInstance)
@@ -105,7 +110,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	return true;
 }
 
-ASevenCharacter* UAnimationComponent::GetCharacterOwner()
+ASevenCharacter* UAnimationComponent::GetOwnerCharacter()
 {
 	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
 	{
@@ -120,7 +125,7 @@ ASevenCharacter* UAnimationComponent::GetCharacterOwner()
 
 UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 {
-	if (UAnimInstance* AnimInstance = GetCharacterOwner()->GetMesh()->GetAnimInstance())
+	if (UAnimInstance* AnimInstance = GetOwnerCharacter()->GetMesh()->GetAnimInstance())
 	{
 		return AnimInstance;
 	}
@@ -133,7 +138,7 @@ UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 
 void UAnimationComponent::OnEvadeEnded()
 {
-	GetCharacterOwner()->bIsEvading = false;
+	GetOwnerCharacter()->bIsEvading = false;
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -143,7 +148,7 @@ void UAnimationComponent::NextComboTriggered(bool bEnable)
 
 bool UAnimationComponent::Block(bool bEnable)
 {
-	ASevenCharacter* SevenCharacter = GetCharacterOwner();
+	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 
 	if ((bEnable && IsAnimationRunning()) || !SevenCharacter)
 		return false;
@@ -179,14 +184,22 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 		CurrentMontageType = NextMontageType;
 	}
 	
-	GetCharacterOwner()->OnAnimationEnded(CurrentMontageType, NextMontageType);
-	GetCharacterOwner()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType, NextMontageType);
+	GetOwnerCharacter()->OnAnimationEnded(CurrentMontageType, NextMontageType);
+	GetOwnerCharacter()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType, NextMontageType);
 	
 	if (CurrentMontageType == EMontageType::Attack)
 	{
-		GetCharacterOwner()->AttackEnd();
+		GetOwnerCharacter()->AttackEnd();
 		bNextComboTriggerEnabled = false;
 	}
+
+	// Check if we have to play Animation in queue
+	//if (AnimationToPlay.IsSet())
+	//{
+	//	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded.AnimationToPlay.IsSet()"));
+	//	Play(AnimationToPlay.AnimMontage, AnimationToPlay.SectionName, AnimationToPlay.MontageType, AnimationToPlay.bCanInterrupt);
+	//	AnimationToPlay.Reset();
+	//}
 }
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)

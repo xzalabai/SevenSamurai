@@ -43,6 +43,9 @@ void ASevenPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASevenPlayerController::Look);
 		//Action
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Fire);
+		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Started, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Started);
+		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Completed, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Completed);
+		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Canceled, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Canceled);
 
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &ASevenPlayerController::BlockStart);
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ASevenPlayerController::BlockEnd);
@@ -93,6 +96,14 @@ void ASevenPlayerController::Look(const FInputActionValue& Value)
 	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
 		ControlledEntity->Look(Value);
+	}
+}
+
+void ASevenPlayerController::FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent)
+{
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
+	{
+		ControlledEntity->FireRMB(TriggerEvent);
 	}
 }
 

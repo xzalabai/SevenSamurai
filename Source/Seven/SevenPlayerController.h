@@ -40,6 +40,9 @@ public:
 	class UInputAction* FireAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* FireRMBAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* BlockAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -56,6 +59,8 @@ public:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
+	//void FireRMBStart(const FInputActionValue& Value);
+	void FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent);
 	void Switch(const FInputActionValue& Value);
 	void Evade(const FInputActionValue& Value);
 	void Special1(const FInputActionValue& Value);

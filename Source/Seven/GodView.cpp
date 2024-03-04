@@ -81,6 +81,10 @@ void AGodView::Fire(const FInputActionValue& Value)
 
 }
 
+void AGodView::FireRMB(const ETriggerEvent& TriggerEvent)
+{
+}
+
 void AGodView::Block(bool bEnable)
 {
 }

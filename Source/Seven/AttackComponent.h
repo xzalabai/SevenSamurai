@@ -14,16 +14,25 @@ class SEVEN_API UAttackComponent : public UActorComponent
 
 private:
 	class UAnimInstance* GetOwnerAnimInstance();
-	class ASevenCharacter* GetCharacterOwner();
+	class ASevenCharacter* GetOwnerCharacter();
 
 	int MaxSections = -1;
 	int CurrentSection = -1;
+
+	bool bHeavyAttackReady = false;
+	bool bHeavyAttackWasReleased = false;
+
+	EAttackType CurrentAttackType = EAttackType::None;
 
 public:	
 	UAttackComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	const TPair<UAnimMontage*, FName> GetAttackMontageToBePlayed();
 	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
+	void LightAttack(ASevenCharacter* TargetedEnemy);
+	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
+	UFUNCTION(BlueprintCallable)
+	void SetIsHeavyAttackReady(bool bEnable = true);
 
 protected:
 	virtual void BeginPlay() override;

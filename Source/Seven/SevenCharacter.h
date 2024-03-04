@@ -77,7 +77,16 @@ protected:
 	UAnimMontage* LightAttackAttacker;
 
 	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* HeavyAttackAttacker;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* HeavyAttackAttackerIdle;
+
+	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* LightAttackVictim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* HeavyAttackVictim;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EvadeMontage;
@@ -125,6 +134,7 @@ protected:
 	virtual void Look(const FInputActionValue& Value) override;
 	virtual void Space(const FInputActionValue& Value) override;
 	virtual void Fire(const FInputActionValue& Value) override;
+	virtual void FireRMB(const ETriggerEvent& TriggerEvent) override;
 	virtual void Block(bool bEnable) override;
 	virtual void StopSpace(const FInputActionValue& Value) override;
 	virtual void Evade(const FInputActionValue& Value) override;
@@ -154,6 +164,8 @@ public:
 	/** Returns AC_Animation subobject **/
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAnimationComponent* GetAnimationComponent() const { return AC_Animation; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class UAttackComponent* GetAttackComponent() const { return AC_AttackComponent; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	FORCEINLINE bool GetIsImmortal() const { return bIsImmortal; }
