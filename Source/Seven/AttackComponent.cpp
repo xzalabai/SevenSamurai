@@ -103,19 +103,10 @@ bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bo
 	return true;
 }
 
-void UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
+bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	CurrentAttackType = EAttackType::Light;
-	if (TargetedEnemy)
-	{
-		// Targeted Attack
-		PlayAttack(TargetedEnemy, true, false);
-	}
-	else
-	{
-		// Attack to emptyness
-		PlayAttack(nullptr, false, true);
-	}	
+	return PlayAttack(TargetedEnemy, TargetedEnemy ? true : false, true);
 }
 
 void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased)

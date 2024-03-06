@@ -31,7 +31,7 @@ public:
 	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
 	FAttackInfo GetInfoAboutAttack() const;
 	bool PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt);
-	void LightAttack(ASevenCharacter* TargetedEnemy);
+	bool LightAttack(ASevenCharacter* TargetedEnemy);
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
 	UFUNCTION(BlueprintCallable)
 	void SetIsHeavyAttackReady(bool bEnable = true);

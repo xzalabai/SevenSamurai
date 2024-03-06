@@ -172,7 +172,8 @@ FName UAnimationComponent::GetCurrentMontageSection()
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded. Animation: %s"), *Montage->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s"),
+		*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName());
 	
 	if (!bInterrupted)
 	{
@@ -189,17 +190,10 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	
 	if (CurrentMontageType == EMontageType::Attack)
 	{
+		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent]OnAnimationEnded.AttackEnd"));
 		GetOwnerCharacter()->AttackEnd();
 		bNextComboTriggerEnabled = false;
 	}
-
-	// Check if we have to play Animation in queue
-	//if (AnimationToPlay.IsSet())
-	//{
-	//	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded.AnimationToPlay.IsSet()"));
-	//	Play(AnimationToPlay.AnimMontage, AnimationToPlay.SectionName, AnimationToPlay.MontageType, AnimationToPlay.bCanInterrupt);
-	//	AnimationToPlay.Reset();
-	//}
 }
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)

@@ -50,20 +50,24 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 
 		if (TargetedEnemy)
 		{
-			//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
+			UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
 			//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 
 			// Rotate character towards enemy
 			FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
 			RootComponent->SetWorldRotation(PlayerRot);
 
-			AC_AttackComponent->LightAttack(TargetedEnemy);
+			if (!AC_AttackComponent->LightAttack(TargetedEnemy))
+			{
+				AttackEnd();
+			}
 		}
 	}
 }
 
 void AEnemyCharacter::AttackEnd() const
 {
+	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] AttackEnd"));
 	OnAttackEnd.Broadcast();
 	SevenPlayerController->UpdateStatus(GetUniqueID(), EEnemyStatus::Cooldown);
 }
