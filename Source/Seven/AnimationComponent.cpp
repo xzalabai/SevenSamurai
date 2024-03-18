@@ -63,7 +63,8 @@ void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenChar
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d"),
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent].Play %s, bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d"),
+		*GetOwner()->GetName(),
 		(bCanInterrupt ? 1 : 0),
 		(bActiveMontageRunning ? 1 : 0),
 		(bNextComboTriggerEnabled ? 1 : 0));
@@ -134,6 +135,15 @@ UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] UAnimInstance AnimInstance Not found"));
 		return nullptr;
 	}
+}
+
+void UAnimationComponent::OnLayingDead()
+{
+	USkeletalMeshComponent* PlayerMesh = GetOwnerCharacter()->GetMesh();
+	PlayerMesh->SetCollisionProfileName("Ragdoll");
+	PlayerMesh->SetSimulatePhysics(true);
+	
+	GetOwnerCharacter()->ProcessDeath();
 }
 
 void UAnimationComponent::OnEvadeEnded()

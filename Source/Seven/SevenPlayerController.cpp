@@ -186,6 +186,7 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 
 void ASevenPlayerController::UpdateStatus(const int8 CharacterID, const EEnemyStatus Status)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
 	if (Status == EEnemyStatus::IncomingAttack)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus.IncomingAttack"));

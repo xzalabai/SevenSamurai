@@ -1,3 +1,5 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,8 +14,11 @@ class SEVEN_API UAttributesComponent : public UActorComponent
 
 public:	
 	UAttributesComponent();
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	const int32& DecreaseHP(const int32 Decrease);
+	void SetHP(const int32 NewHP);
 protected:
 	virtual void BeginPlay() override;
-
+	int32 HP = 0;
+		
 };

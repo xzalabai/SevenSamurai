@@ -75,6 +75,7 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 
 FAttackInfo UAttackComponent::GetInfoAboutAttack() const
 {
+	// TODO: Damage based on weapon
 	return FAttackInfo(CurrentAttackType, 0, CurrentAttackType == EAttackType::Light ? 10 : 20, GetOwner());
 }
 

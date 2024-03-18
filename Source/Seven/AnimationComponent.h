@@ -64,6 +64,8 @@ public:
 	void WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim);
 	
 	UFUNCTION(BlueprintCallable)
+	void OnLayingDead();
+	UFUNCTION(BlueprintCallable)
 	void OnEvadeEnded();
 	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);

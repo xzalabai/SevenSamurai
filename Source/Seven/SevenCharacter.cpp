@@ -58,7 +58,7 @@ ASevenCharacter::ASevenCharacter()
 
 	// COMPONENTS
 	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
-	AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attributes"));
+	//AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attribute"));
 	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
 	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
@@ -77,6 +77,10 @@ void ASevenCharacter::BeginPlay()
 	}
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
 
+	//AC_Attributes->RegisterComponent();
+	//AC_Attributes->InitializeComponent();
+	//AC_Attributes->SetHP(10);
+	HP = 40;
 }
 
 void ASevenCharacter::AttackStart()
@@ -125,6 +129,16 @@ bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 	return false;
 }
 
+void ASevenCharacter::ProcessDeath()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetGenerateOverlapEvents(false);
+	if (Controller)
+	{
+		Controller->UnPossess();
+	}
+}
+
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
@@ -157,12 +171,29 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		return;
 		
 	}
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
-	UAnimMontage *MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change
-	
-	// TODO: For now, random receivedHit animation is being played
-	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+
+	HP = FMath::Max(0, HP - AttackInfo.Damage);
+	if (HP == 0)
+	{
+		// Dead
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
+		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictimDeath : HeavyAttackVictimDeath; // TODO: Change
+
+		// TODO: For now, random receivedHit animation is being played
+		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+	}
+	else
+	{
+		// Alive
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
+		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change
+
+		// TODO: For now, random receivedHit animation is being played
+		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+	}
+
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)

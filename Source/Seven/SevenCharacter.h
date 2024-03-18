@@ -86,7 +86,13 @@ protected:
 	UAnimMontage* LightAttackVictim;
 
 	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* LightAttackVictimDeath;
+
+	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HeavyAttackVictim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* HeavyAttackVictimDeath;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EvadeMontage;
@@ -155,6 +161,7 @@ protected:
 	void CheckIfBlockingBeforeParrying();
 	bool IsEvadingAway(const ASevenCharacter *Enemy);
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
+	virtual void ProcessDeath();
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -173,6 +180,8 @@ public:
 	FORCEINLINE bool GetIsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
+
+	int32 HP;
 	
 };
 
