@@ -37,32 +37,26 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
 {
-	// Attack
+	//Attack
+	
+	TargetedEnemy = GetClosestEnemyInRange();
+	AC_AttackComponent->LightAttack(TargetedEnemy);
 
-	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
+	if (TargetedEnemy)
 	{
-		ComboComponent->UseCombo(ESpecial::ES_Special1);
-	}
-	else
-	{
-		TargetedEnemy = GetClosestEnemyInRange();
-		AC_AttackComponent->LightAttack(TargetedEnemy);
+		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
+		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 
-		if (TargetedEnemy)
+		// Rotate character towards enemy
+		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
+		RootComponent->SetWorldRotation(PlayerRot);
+
+		if (!AC_AttackComponent->LightAttack(TargetedEnemy))
 		{
-			UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
-			//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
-
-			// Rotate character towards enemy
-			FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
-			RootComponent->SetWorldRotation(PlayerRot);
-
-			if (!AC_AttackComponent->LightAttack(TargetedEnemy))
-			{
-				AttackEnd();
-			}
+			AttackEnd();
 		}
 	}
+	
 }
 
 void AEnemyCharacter::AttackEnd() const

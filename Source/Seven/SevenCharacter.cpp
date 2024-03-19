@@ -12,7 +12,6 @@
 #include "AnimationComponent.h"
 #include "Kismet\GameplayStatics.h"
 #include "Kismet\KismetMathLibrary.h"
-#include "ComboManager.h"
 #include "AttributesComponent.h"
 #include "AttackComponent.h"
 #include "SevenPlayerController.h"
@@ -60,7 +59,6 @@ ASevenCharacter::ASevenCharacter()
 	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
 	//AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attribute"));
 	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
-	ComboComponent = CreateDefaultSubobject<UComboManager>(TEXT("ComboComponent"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
@@ -102,6 +100,16 @@ void ASevenCharacter::AttackStart()
 void ASevenCharacter::AttackEnd() const
 {
 	
+}
+
+void ASevenCharacter::ComboAttackStart()
+{
+	AC_AttackComponent->ComboAttackStart();
+}
+
+void ASevenCharacter::ComboAttackEnd()
+{
+	AC_AttackComponent->ComboAttackEnd();
 }
 
 void ASevenCharacter::AttackWasParried() const
@@ -246,9 +254,18 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 
-	if (ComboComponent->SpecialActivated == ESpecial::ES_Special1)
+	// TODO MOVE THIS TO ATTACK COMPONENT
+	if (AC_AttackComponent->SpecialActivated == ESpecial::ES_Special1)
 	{
-		ComboComponent->UseCombo(ESpecial::ES_Special1);
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.UseCombo1"));
+		AC_AttackComponent->UseCombo(ESpecial::ES_Special1);
+		return;
+	}
+
+	if (AC_AttackComponent->SpecialActivated == ESpecial::ES_Special2)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.UseCombo2"));
+		AC_AttackComponent->UseCombo(ESpecial::ES_Special2);
 		return;
 	}
 	
@@ -305,23 +322,25 @@ void ASevenCharacter::Special(int ID)
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Special %d is activated."), ID);
 	if (ID == 1)
 	{
-		ComboComponent->SpecialActivated = ESpecial::ES_Special1;
+		AC_AttackComponent->SpecialActivated = ESpecial::ES_Special1;
+	}
+	if (ID == 2)
+	{
+		AC_AttackComponent->SpecialActivated = ESpecial::ES_Special2;
 	}
 }
 
-TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID)
+TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID, const int32 StartOffset, const int32 EndOffset, const int32 Thickness, const bool bCameraRelative)
 {
 	 TArray<ASevenCharacter*> FoundActors;
 	 TArray<FHitResult> HitResults;
-	 FVector DirectionOfSphere = bEnemy ? GetActorForwardVector() : FollowCamera->GetForwardVector();
+	 FVector DirectionOfSphere = bEnemy || !bCameraRelative ? GetActorForwardVector() : FollowCamera->GetForwardVector();
 	 DirectionOfSphere.Z = 0;
-	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(),
-		 GetActorLocation() + DirectionOfSphere * 200,
-		 GetActorLocation() + DirectionOfSphere * 200,
-		 100,
-		 UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
-		 false, TArray<AActor*> { this },
-		 EDrawDebugTrace::Persistent, HitResults, true);
+	 
+	 const FVector Start = GetActorLocation() + DirectionOfSphere * StartOffset;
+	 const FVector End = GetActorLocation() + DirectionOfSphere * EndOffset;
+
+	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), Start, End, Thickness, UEngineTypes::ConvertToTraceType(ECC_WorldDynamic), false, TArray<AActor*> { this }, EDrawDebugTrace::Persistent, HitResults, true);
 
 	 auto filter = [&]()
 		 {

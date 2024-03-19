@@ -14,7 +14,6 @@ class AWeapon;
 class UAnimationComponent;
 class UAttackComponent;
 class UAttributesComponent;
-class UComboManager;
 class AEnemy;
 class UMotionWarpingComponent;
 
@@ -26,6 +25,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 {
 	friend class UAnimationComponent;
 	friend class UCombo;
+	friend class URadialCombo;
 	friend class UAttackComponent;
 
 	GENERATED_BODY()
@@ -45,6 +45,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* VictimDesiredPosition;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TSubclassOf<UCombo>> Combos;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TSubclassOf<UObject>> Combos2;
 
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
@@ -112,8 +118,8 @@ public:
 	UPROPERTY()
 	UAnimationComponent* AC_Animation;
 
-	UPROPERTY(EditDefaultsOnly)
-	UComboManager* ComboComponent;
+	//UPROPERTY(EditDefaultsOnly)
+	//UComboManager* ComboComponent;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAttributesComponent* AC_Attributes;
@@ -149,10 +155,14 @@ protected:
 	virtual void AttackStart() override;
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd() const override;
-			
+	UFUNCTION(BlueprintCallable)
+	virtual void ComboAttackStart() override;
+	UFUNCTION(BlueprintCallable)
+	virtual void ComboAttackEnd() override;
+
 protected:
 	virtual void BeginPlay();
-	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1);
+	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1,const int32 StartOffset = 200, const int32 EndOffset = 200, const int32 Thickness = 100, const bool bCameraRelative = true);
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);

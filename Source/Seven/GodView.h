@@ -30,6 +30,8 @@ protected:
 	virtual void AttackEnd() const override;
 	virtual void Evade(const FInputActionValue& Value) override;
 	virtual void Special(int ID) override;
+	virtual void ComboAttackStart() override;
+	virtual void ComboAttackEnd() override;
 
 
 private:

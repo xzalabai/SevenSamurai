@@ -1,12 +1,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ComboInterface.h"
 #include "UObject/NoExportTypes.h"
 #include "Combo.generated.h"
 
 class UAnimMontage; 
+class ASevenCharacter;
 
 UCLASS(Blueprintable, BlueprintType)
+
 class SEVEN_API UCombo : public UObject
 {
 	GENERATED_BODY()
@@ -14,6 +17,7 @@ class SEVEN_API UCombo : public UObject
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+protected:
 	UPROPERTY(EditDefaultsOnly)
 	FName ComboName;
 
@@ -23,9 +27,13 @@ class SEVEN_API UCombo : public UObject
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* VictimAnimation;
 
+	TObjectPtr<ASevenCharacter> Attacker;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-	void Use(AActor* Attacker, AActor* Victim);
+	virtual void Use(AActor* AttackerActor, AActor* VictimActor);
+	virtual void ComboAttackStart();
+	virtual void ComboAttackEnd();
 };

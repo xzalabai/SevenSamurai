@@ -6,6 +6,7 @@ enum class ESpecial : uint8
 {
 	ES_None UMETA(DisplayName = "None"),
 	ES_Special1 UMETA(DisplayName = "Special 1"),
+	ES_Special2 UMETA(DisplayName = "Special 2"),
 };
 
 enum class EAttackType
@@ -13,6 +14,7 @@ enum class EAttackType
 	None = 0,
 	Light = 1,
 	Heavy = 2,
+	Combo = 3,
 };
 
 UENUM(BlueprintType)

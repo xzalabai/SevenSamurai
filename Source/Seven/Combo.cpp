@@ -4,10 +4,10 @@
 #include "AnimationComponent.h"
 
 
-void UCombo::Use(AActor* Attacker, AActor* Victim)
+void UCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
-	ASevenCharacter* AttackerCharacter = Cast<ASevenCharacter>(Attacker);
-	ASevenCharacter* VictimCharacter = Cast<ASevenCharacter>(Victim);
+	ASevenCharacter* AttackerCharacter = Cast<ASevenCharacter>(AttackerActor);
+	ASevenCharacter* VictimCharacter = Cast<ASevenCharacter>(VictimActor);
 	if (!AttackerCharacter)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ASevenCharacter.Use Attacker Not Found for combo %s"), *GetName());
@@ -37,4 +37,12 @@ void UCombo::Use(AActor* Attacker, AActor* Victim)
 	AC_Animation->Play(VictimAnimation, "Default", EMontageType::Attack, false);
 	
 	VictimCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackComboVictim", AttackerCharacter->VictimDesiredPosition->GetComponentTransform());
+}
+
+void UCombo::ComboAttackStart()
+{
+}
+
+void UCombo::ComboAttackEnd()
+{
 }

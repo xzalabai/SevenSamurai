@@ -5,12 +5,14 @@
 #include "PublicEnums.h"
 #include "AttackComponent.generated.h"
 
+class UCombo;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent) )
 class SEVEN_API UAttackComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+	friend class ASevenCharacter;
 
 private:
 	class UAnimInstance* GetOwnerAnimInstance();
@@ -24,6 +26,15 @@ private:
 
 	EAttackType CurrentAttackType = EAttackType::None;
 
+	UPROPERTY(VisibleAnywhere)
+	ESpecial SpecialActivated = ESpecial::ES_None;
+
+	UPROPERTY()
+	TMap<int, UCombo*> CombosMapping;
+
+	UPROPERTY()
+	TObjectPtr<UCombo> LastUsedCombo;
+
 public:	
 	UAttackComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -35,7 +46,11 @@ public:
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
 	UFUNCTION(BlueprintCallable)
 	void SetIsHeavyAttackReady(bool bEnable = true);
+	void UseCombo(const ESpecial& Special);
+	void ComboAttackStart();
+	void ComboAttackEnd();
 
 protected:
 	virtual void BeginPlay() override;
+
 };

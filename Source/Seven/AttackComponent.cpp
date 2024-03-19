@@ -1,6 +1,7 @@
 #include "AttackComponent.h"
 #include "AnimationComponent.h"
 #include "MotionWarpingComponent.h"
+#include "Combo.h"
 #include "SevenCharacter.h"
 
 UAttackComponent::UAttackComponent()
@@ -12,6 +13,12 @@ UAttackComponent::UAttackComponent()
 void UAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	for (int i = 0; i < GetOwnerCharacter()->Combos.Num(); ++i)
+	{
+		CombosMapping.Emplace(i + 1, NewObject<UCombo>(this, GetOwnerCharacter()->Combos[i]));
+	}
+
 }
 
 
@@ -149,6 +156,42 @@ void UAttackComponent::SetIsHeavyAttackReady(bool bEnable)
 		PlayAttack(nullptr, false, true);
 	}
 	bHeavyAttackReady = true;
+}
+
+void UAttackComponent::UseCombo(const ESpecial& Special)
+{
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo"));
+
+	if (GetOwnerCharacter()->Combos.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent].UseCombo is Empty"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo %d"), (uint8)Special);
+	UCombo* Combo = CombosMapping[(uint8)Special];
+	Combo->Use(GetOwner(), nullptr);
+	LastUsedCombo = Combo;
+
+	SpecialActivated = ESpecial::ES_None;
+}
+
+void UAttackComponent::ComboAttackStart()
+{
+	if (LastUsedCombo)
+	{
+		LastUsedCombo->ComboAttackStart();
+	}
+}
+
+void UAttackComponent::ComboAttackEnd()
+{
+	if (LastUsedCombo)
+	{
+		LastUsedCombo->ComboAttackEnd();
+	}
+
+	LastUsedCombo = nullptr;
 }
 
 ASevenCharacter* UAttackComponent::GetOwnerCharacter()

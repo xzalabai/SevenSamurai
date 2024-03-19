@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* Special1Action;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* Special2Action;
+
 	void Space(const FInputActionValue& Value);
 	void StopSpace(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -63,7 +66,7 @@ public:
 	void FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent);
 	void Switch(const FInputActionValue& Value);
 	void Evade(const FInputActionValue& Value);
-	void Special1(const FInputActionValue& Value);
+	void Special(const FInputActionValue& Value, const int8 Number);
 	void BlockStart(const FInputActionValue& Value);
 	void BlockEnd(const FInputActionValue& Value);
 

@@ -51,7 +51,10 @@ void ASevenPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ASevenPlayerController::BlockEnd);
 		
 		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Switch);
-		EnhancedInputComponent->BindAction(Special1Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special1);
+		
+		EnhancedInputComponent->BindAction(Special1Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special, (int8)1);
+		EnhancedInputComponent->BindAction(Special2Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special, (int8)2);
+		
 		EnhancedInputComponent->BindAction(EvadeAction, ETriggerEvent::Triggered, this, &ASevenPlayerController::Evade);
 	}
 }
@@ -160,11 +163,11 @@ void ASevenPlayerController::Evade(const FInputActionValue& Value)
 	}
 }
 
-void ASevenPlayerController::Special1(const FInputActionValue& Value)
+void ASevenPlayerController::Special(const FInputActionValue& Value, const int8 Number)
 {
 	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
-		ControlledEntity->Special(1);
+		ControlledEntity->Special(Number);
 	}
 }
 

@@ -112,3 +112,11 @@ void AGodView::Special(int ID)
 {
 }
 
+void AGodView::ComboAttackStart()
+{
+}
+
+void AGodView::ComboAttackEnd()
+{
+}
+

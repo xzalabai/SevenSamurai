@@ -27,6 +27,8 @@ public:
 	virtual void Special(int ID) = 0;
 	virtual void AttackStart() = 0;
 	virtual void AttackEnd() const = 0 ;
+	virtual void ComboAttackStart() = 0;
+	virtual void ComboAttackEnd() = 0;
 
 public:
 };
