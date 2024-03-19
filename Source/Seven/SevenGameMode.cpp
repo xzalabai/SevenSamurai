@@ -14,11 +14,10 @@ TODOs:
 
 Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
-High - Create View For 3rd person (so it's not controlled directly in Seven
+Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - Consideration: Change OnAnimationEnded to EVENT ?
-High - merge all calls of const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed(); in AttackComponent
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
 High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
@@ -29,7 +28,6 @@ Medium - put ComboComponent into AttackComponent
 Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate) ... ALSO make it more readable ..
 Medium - IsBlocking -> update this variable NOT IN ANIMATION BP UPDATE but call event which sets it!
 Medium - Cache player who owns a camera
-Medium - Modify Weird Light Attack animation
 Medium - Sync ESpecial with int that is passed into the ComboManager
 Medium - OnAnimationEnded is triggered also for Victim -> although sometimes it's intended only for Attacker! replace with anim notifier probably
 Medium - GetDirection -> complete for evading to 8 DIRECTIONS ! Then Change IsEvadingAway to compare with 8 evades not 4

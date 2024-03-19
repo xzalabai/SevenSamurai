@@ -193,7 +193,6 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
 		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
 	}
-
 }
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
@@ -203,7 +202,7 @@ void ASevenCharacter::Space(const FInputActionValue& Value)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	if (AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade,  false))
+	if (AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade, false))
 	{
 		bIsEvading = true;
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
@@ -317,12 +316,12 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 	 FVector DirectionOfSphere = bEnemy ? GetActorForwardVector() : FollowCamera->GetForwardVector();
 	 DirectionOfSphere.Z = 0;
 	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(),
-		 GetActorLocation(),
+		 GetActorLocation() + DirectionOfSphere * 200,
 		 GetActorLocation() + DirectionOfSphere * 200,
 		 100,
 		 UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
 		 false, TArray<AActor*> { this },
-		 EDrawDebugTrace::None, HitResults, true);
+		 EDrawDebugTrace::Persistent, HitResults, true);
 
 	 auto filter = [&]()
 		 {

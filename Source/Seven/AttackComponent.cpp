@@ -52,8 +52,6 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 		}
 		
 	}
-	// Maybe removeWarp should be here!!!!!!!!!!!
-	//CurrentAttackType = AttackType;
 	const FName SectionToPlay = CustomMath::IntToFName(CurrentSection);
 	return TPair< UAnimMontage*, FName> (MontageToBePlayed, SectionToPlay);
 }
@@ -106,6 +104,11 @@ bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bo
 
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
+	if (CurrentAttackType == EAttackType::Heavy)
+	{
+		// Don't interrupt heavy
+		return false;
+	}
 	CurrentAttackType = EAttackType::Light;
 	return PlayAttack(TargetedEnemy, TargetedEnemy ? true : false, true);
 }
@@ -117,19 +120,19 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 		// Was holding mouse and there was not attack
 		return;
 	}
-	else if (CurrentAttackType != EAttackType::Heavy)
+	else if (CurrentAttackType == EAttackType::None)
 	{
 		// Initialization phase of attack
 		CurrentAttackType = EAttackType::Heavy;
 		PlayAttack(nullptr, false, true);
 	}
-	else if (bReleased && !bHeavyAttackReady)
+	else if (CurrentAttackType == EAttackType::Heavy && bReleased && !bHeavyAttackReady)
 	{
 		// Released too soon, wait until Attack is Ready (punishment for Heavy attack)
 		bHeavyAttackWasReleased = true;
 		return;
 	}
-	else if (bHeavyAttackReady && bReleased)
+	else if (CurrentAttackType == EAttackType::Heavy && bHeavyAttackReady && bReleased)
 	{
 		// Released during Idle, play attack
 		PlayAttack(TargetedEnemy, true, true);

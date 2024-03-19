@@ -87,6 +87,11 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	}
 	else
 	{
+		if (!bCanInterrupt && bActiveMontageRunning)
+		{
+			return false;
+		}
+
 		if (bCanInterrupt && bActiveMontageRunning)
 		{
 			NextMontageType = MontageType;
