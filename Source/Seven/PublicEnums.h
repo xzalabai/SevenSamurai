@@ -2,11 +2,11 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class ESpecial : uint8
+enum class ECombo : uint8
 {
 	ES_None UMETA(DisplayName = "None"),
-	ES_Special1 UMETA(DisplayName = "Special 1"),
-	ES_Special2 UMETA(DisplayName = "Special 2"),
+	ES_Combo1 UMETA(DisplayName = "Combo 1"),
+	ES_Combo2 UMETA(DisplayName = "Combo 2"),
 };
 
 enum class EAttackType

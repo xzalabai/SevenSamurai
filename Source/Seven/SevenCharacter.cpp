@@ -254,21 +254,6 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 
-	// TODO MOVE THIS TO ATTACK COMPONENT
-	if (AC_AttackComponent->SpecialActivated == ESpecial::ES_Special1)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.UseCombo1"));
-		AC_AttackComponent->UseCombo(ESpecial::ES_Special1);
-		return;
-	}
-
-	if (AC_AttackComponent->SpecialActivated == ESpecial::ES_Special2)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire.UseCombo2"));
-		AC_AttackComponent->UseCombo(ESpecial::ES_Special2);
-		return;
-	}
-	
 	// Attack
 	TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
@@ -319,15 +304,7 @@ void ASevenCharacter::PerformWeaponTrace()
 
 void ASevenCharacter::Special(int ID)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Special %d is activated."), ID);
-	if (ID == 1)
-	{
-		AC_AttackComponent->SpecialActivated = ESpecial::ES_Special1;
-	}
-	if (ID == 2)
-	{
-		AC_AttackComponent->SpecialActivated = ESpecial::ES_Special2;
-	}
+	AC_AttackComponent->SetCombo(ID);
 }
 
 TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID, const int32 StartOffset, const int32 EndOffset, const int32 Thickness, const bool bCameraRelative)

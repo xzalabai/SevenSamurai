@@ -14,7 +14,7 @@ class SEVEN_API UComboManager : public UActorComponent
 
 public:	
 	UComboManager();
-	void UseCombo(const ESpecial& Special);
+	void UseCombo(const ECombo& Special);
 
 protected:
 	virtual void BeginPlay() override;
@@ -23,7 +23,7 @@ protected:
 // Variables
 public:
 	UPROPERTY(VisibleAnywhere)
-	ESpecial SpecialActivated = ESpecial::ES_None;
+	ECombo ComboActivated = ECombo::ES_None;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)

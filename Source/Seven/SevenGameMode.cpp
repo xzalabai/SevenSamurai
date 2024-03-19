@@ -30,7 +30,7 @@ Medium - put ComboComponent into AttackComponent
 Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate) ... ALSO make it more readable ..
 Medium - IsBlocking -> update this variable NOT IN ANIMATION BP UPDATE but call event which sets it!
 Medium - Cache player who owns a camera
-Medium - Sync ESpecial with int that is passed into the ComboManager
+Medium - Sync ECombo with int that is passed into the ComboManager
 Medium - OnAnimationEnded is triggered also for Victim -> although sometimes it's intended only for Attacker! replace with anim notifier probably
 Medium - GetDirection -> complete for evading to 8 DIRECTIONS ! Then Change IsEvadingAway to compare with 8 evades not 4
 Medium - Adjust Fire as is in FireRMB

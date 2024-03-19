@@ -28,13 +28,13 @@ private:
 	EAttackType CurrentAttackType = EAttackType::None;
 
 	UPROPERTY(VisibleAnywhere)
-	ESpecial SpecialActivated = ESpecial::ES_None;
+	ECombo ComboActivated = ECombo::ES_None;
 
 	UPROPERTY()
 	TMap<int, UObject*> CombosMapping;
 
 	UPROPERTY()
-	TObjectPtr<IComboInterface> LastUsedCombo;
+	TObjectPtr<IComboInterface> LastUsedCombo = nullptr;
 
 public:	
 	UAttackComponent();
@@ -47,7 +47,9 @@ public:
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
 	UFUNCTION(BlueprintCallable)
 	void SetIsHeavyAttackReady(bool bEnable = true);
-	void UseCombo(const ESpecial& Special);
+	bool IsComboAttack();
+	void UseCombo(const ECombo& Special);
+	void SetCombo(const int8 ID);
 	void ComboAttackStart();
 	void ComboAttackEnd();
 

@@ -111,6 +111,12 @@ bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bo
 
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
+	if (IsComboAttack())
+	{
+		UseCombo(ComboActivated);
+		return true;
+	}
+
 	if (CurrentAttackType == EAttackType::Heavy)
 	{
 		// Don't interrupt heavy
@@ -158,7 +164,12 @@ void UAttackComponent::SetIsHeavyAttackReady(bool bEnable)
 	bHeavyAttackReady = true;
 }
 
-void UAttackComponent::UseCombo(const ESpecial& Special)
+bool UAttackComponent::IsComboAttack()
+{
+	return ComboActivated != ECombo::ES_None;
+}
+
+void UAttackComponent::UseCombo(const ECombo& Special)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo"));
 
@@ -175,7 +186,25 @@ void UAttackComponent::UseCombo(const ESpecial& Special)
 		Combo->Use(GetOwner(), nullptr);
 		LastUsedCombo = Combo;
 	}
-	SpecialActivated = ESpecial::ES_None;
+	ComboActivated = ECombo::ES_None;
+}
+
+void UAttackComponent::SetCombo(const int8 ID)
+{
+	// Player pressed one of keys for combos (we store it) 
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]SetCombo %d is activated."), ID);
+	if (ID == 1)
+	{
+		ComboActivated = ECombo::ES_Combo1;
+	}
+	if (ID == 2)
+	{
+		ComboActivated = ECombo::ES_Combo2;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]SetCombo Unidentified combo."));
+	}
 }
 
 void UAttackComponent::ComboAttackStart()

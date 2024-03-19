@@ -10,7 +10,7 @@ void UComboManager::BeginPlay()
 {
 }
 
-void UComboManager::UseCombo(const ESpecial& Special)
+void UComboManager::UseCombo(const ECombo& Special)
 {
 
 }
