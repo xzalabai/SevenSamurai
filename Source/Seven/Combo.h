@@ -10,7 +10,7 @@ class ASevenCharacter;
 
 UCLASS(Blueprintable, BlueprintType)
 
-class SEVEN_API UCombo : public UObject
+class SEVEN_API UCombo : public UObject, public IComboInterface
 {
 	GENERATED_BODY()
 
@@ -27,13 +27,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* VictimAnimation;
 
-	TObjectPtr<ASevenCharacter> Attacker;
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-	virtual void Use(AActor* AttackerActor, AActor* VictimActor);
-	virtual void ComboAttackStart();
-	virtual void ComboAttackEnd();
+	virtual void Use(AActor* AttackerActor, AActor* VictimActor) override;
+	virtual void ComboAttackStart() override;
+	virtual void ComboAttackEnd() override;
 };

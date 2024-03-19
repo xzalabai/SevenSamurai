@@ -16,7 +16,7 @@ void UAttackComponent::BeginPlay()
 	
 	for (int i = 0; i < GetOwnerCharacter()->Combos.Num(); ++i)
 	{
-		CombosMapping.Emplace(i + 1, NewObject<UCombo>(this, GetOwnerCharacter()->Combos[i]));
+		CombosMapping.Emplace(i + 1, NewObject<UObject>(this, GetOwnerCharacter()->Combos[i]));
 	}
 
 }
@@ -169,10 +169,12 @@ void UAttackComponent::UseCombo(const ESpecial& Special)
 	}
 
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo %d"), (uint8)Special);
-	UCombo* Combo = CombosMapping[(uint8)Special];
-	Combo->Use(GetOwner(), nullptr);
-	LastUsedCombo = Combo;
-
+	
+	if (IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[(uint8)Special]))
+	{
+		Combo->Use(GetOwner(), nullptr);
+		LastUsedCombo = Combo;
+	}
 	SpecialActivated = ESpecial::ES_None;
 }
 

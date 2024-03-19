@@ -47,10 +47,7 @@ protected:
 	class USceneComponent* VictimDesiredPosition;
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<UCombo>> Combos;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<UObject>> Combos2;
+	TArray<TSubclassOf<UObject>> Combos;
 
 	UPROPERTY()
 	AWeapon* EquippedWeapon;

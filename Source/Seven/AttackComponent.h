@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ComboInterface.h"
 #include "PublicEnums.h"
 #include "AttackComponent.generated.h"
 
@@ -30,10 +31,10 @@ private:
 	ESpecial SpecialActivated = ESpecial::ES_None;
 
 	UPROPERTY()
-	TMap<int, UCombo*> CombosMapping;
+	TMap<int, UObject*> CombosMapping;
 
 	UPROPERTY()
-	TObjectPtr<UCombo> LastUsedCombo;
+	TObjectPtr<IComboInterface> LastUsedCombo;
 
 public:	
 	UAttackComponent();
