@@ -11,6 +11,7 @@
 
 class UAnimMontage;
 class AWeapon;
+class AThrowingKnife;
 class UAnimationComponent;
 class UAttackComponent;
 class UAttributesComponent;
@@ -104,6 +105,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* ParryMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* ThrowAnimation;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -129,7 +133,12 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
+
+protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AThrowingKnife> ThrowingKnifeClass;
+
 public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)

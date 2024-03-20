@@ -3,6 +3,8 @@
 #include "MotionWarpingComponent.h"
 #include "Combo.h"
 #include "SevenCharacter.h"
+#include "Weapon.h"
+#include "ThrowingKnife.h"
 
 UAttackComponent::UAttackComponent()
 {
@@ -136,8 +138,13 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 		}
 	
 		CurrentSection = 1;
-		CurrentAttackType = EAttackType::None;		
+		CurrentAttackType = EAttackType::None;
 	}
+	if (StoppedMontage == EMontageType::Throw)
+	{
+		CurrentAttackType = EAttackType::None;
+	}
+	LastUsedCombo = nullptr;
 }
 
 FAttackInfo UAttackComponent::GetInfoAboutAttack() const
@@ -176,6 +183,7 @@ bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 	if (IsComboAttack())
 	{
 		UseCombo(ComboActivated);
+		CurrentAttackType = EAttackType::Combo;
 		return true;
 	}
 
@@ -212,8 +220,35 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 		// Released during Idle, play attack
 		PlayAttack(TargetedEnemy, true, true);
 		bHeavyAttackReady = false;
-		GetOwnerCharacter()->AttackStart(); // Will be needed in case of accumulating damage while in ready pose
 	}
+}
+
+
+void UAttackComponent::StartThrowKnife()
+{
+	if (GetOwnerCharacter()->AC_Animation->Play(GetOwnerCharacter()->ThrowAnimation, "Default", EMontageType::Throw, false))
+	{
+		CurrentAttackType = EAttackType::Throw;
+	}
+}
+
+void UAttackComponent::ThrowKnife()
+{
+	ASevenCharacter* Attacker = GetOwnerCharacter();
+	const TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, 0, 600, 300, true);
+
+	if (FoundEnemies.Num() == 0)
+	{
+		// Throw in front of you
+		return;
+	}
+
+	FVector Vector = Attacker->GetActorLocation();
+	Vector.X = Vector.X + 100;
+	const FRotator Rotation = FRotator::ZeroRotator;
+	// TODO: try to put here CONST throwingKnife
+	TObjectPtr<AThrowingKnife> ThrowingKnife = GetWorld()->SpawnActor<AThrowingKnife>(Attacker->ThrowingKnifeClass, Vector, Rotation);
+	ThrowingKnife->FireInDirection(FoundEnemies[0]->GetActorLocation());
 }
 
 void UAttackComponent::SetIsHeavyAttackReady(bool bEnable)
@@ -285,6 +320,18 @@ void UAttackComponent::ComboAttackEnd()
 	}
 
 	LastUsedCombo = nullptr;
+}
+
+void UAttackComponent::OnAttackStart()
+{
+	if ((CurrentAttackType == EAttackType::Light || CurrentAttackType == EAttackType::Heavy) && GetOwnerCharacter()->EquippedWeapon)
+	{
+		GetOwnerCharacter()->EquippedWeapon->AttackStart();
+	}
+	else if (CurrentAttackType == EAttackType::Throw)
+	{
+		ThrowKnife();
+	}
 }
 
 ASevenCharacter* UAttackComponent::GetOwnerCharacter()

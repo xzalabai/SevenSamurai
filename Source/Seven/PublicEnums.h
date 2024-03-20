@@ -15,6 +15,7 @@ enum class EAttackType
 	Light = 1,
 	Heavy = 2,
 	Combo = 3,
+	Throw = 4,
 };
 
 UENUM(BlueprintType)
@@ -25,6 +26,7 @@ enum class EMontageType : uint8
 	Attack,
 	Parry,
 	HitReaction,
+	Throw,
 	Block,
 	Evade,
 };

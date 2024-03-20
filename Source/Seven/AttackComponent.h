@@ -7,6 +7,7 @@
 #include "AttackComponent.generated.h"
 
 class UCombo;
+class AThrowingKnife;
 
 UCLASS( ClassGroup=(Custom), BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent) )
 class SEVEN_API UAttackComponent : public UActorComponent
@@ -45,6 +46,8 @@ public:
 	bool PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt);
 	bool LightAttack(ASevenCharacter* TargetedEnemy);
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
+	void ThrowKnife();
+	void StartThrowKnife();
 	UFUNCTION(BlueprintCallable)
 	void SetIsHeavyAttackReady(bool bEnable = true);
 	bool IsComboAttack();
@@ -52,6 +55,8 @@ public:
 	void SetCombo(const int8 ID);
 	void ComboAttackStart();
 	void ComboAttackEnd();
+
+	void OnAttackStart();
 
 protected:
 	virtual void BeginPlay() override;

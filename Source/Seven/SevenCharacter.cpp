@@ -103,6 +103,11 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 
 void ASevenCharacter::Block(bool bEnable)
 {
+	AC_AttackComponent->StartThrowKnife();
+	return;
+
+	// TODO delete above
+
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
 	AC_Animation->Block(bEnable);
 
@@ -173,10 +178,7 @@ void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
 
 void ASevenCharacter::AttackStart()
 {
-	if (EquippedWeapon)
-	{
-		EquippedWeapon->AttackStart();
-	}
+	AC_AttackComponent->OnAttackStart();
 }
 
 void ASevenCharacter::AttackEnd() const
