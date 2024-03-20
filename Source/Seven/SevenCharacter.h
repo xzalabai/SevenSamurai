@@ -14,7 +14,6 @@ class AWeapon;
 class UAnimationComponent;
 class UAttackComponent;
 class UAttributesComponent;
-class AEnemy;
 class UMotionWarpingComponent;
 
 static uint8 UniqueIDCounter = 0;
@@ -119,7 +118,7 @@ public:
 	//UComboManager* ComboComponent;
 
 	UPROPERTY(EditDefaultsOnly)
-	UAttributesComponent* AC_Attributes;
+	UAttributesComponent* AC_Attribute;
 
 	UPROPERTY()
 	UMotionWarpingComponent* AC_MotionWarpingComponent;
@@ -187,8 +186,6 @@ public:
 	FORCEINLINE bool GetIsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
-
-	int32 HP;
-	
+	virtual bool IsAlive() const;
 };
 

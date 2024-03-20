@@ -57,9 +57,10 @@ ASevenCharacter::ASevenCharacter()
 
 	// COMPONENTS
 	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
-	//AC_Attributes = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attribute"));
+	AC_Attribute = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attribute"));
 	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	
 }
 
 void ASevenCharacter::BeginPlay()
@@ -75,22 +76,103 @@ void ASevenCharacter::BeginPlay()
 	}
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
 
-	//AC_Attributes->RegisterComponent();
-	//AC_Attributes->InitializeComponent();
-	//AC_Attributes->SetHP(10);
-	HP = 40;
+	AC_Attribute->SetHP(20);
 }
+
+///////////////////////////////////////////////////////////////////////
+/// Inputs
+
+void ASevenCharacter::Space(const FInputActionValue& Value)
+{
+	Jump();
+}
+
+void ASevenCharacter::StopSpace(const FInputActionValue& Value)
+{
+	StopJumping();
+}
+
+void ASevenCharacter::Fire(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
+
+	// Attack
+	TargetedEnemy = GetClosestEnemyInRange();
+	AC_AttackComponent->LightAttack(TargetedEnemy);
+}
+
+void ASevenCharacter::Block(bool bEnable)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
+	AC_Animation->Block(bEnable);
+
+	if (bEnable)
+	{
+		CheckIfBlockingBeforeParrying();
+	}
+	else
+	{
+		bIsBlockingBeforeAttack = false;
+	}
+}
+
+
+void ASevenCharacter::Move(const FInputActionValue& Value)
+{
+	FVector2D MovementVector = Value.Get<FVector2D>();
+	if (Controller != nullptr)
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		//const FRotator Rotation = GetActorRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+		// get right vector 
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// add movement 
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
+
+void ASevenCharacter::Look(const FInputActionValue& Value)
+{
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		// add yaw and pitch input to controller
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void ASevenCharacter::Special(int ID)
+{
+	AC_AttackComponent->SetCombo(ID);
+}
+
+void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireRMB %d"), (uint8)TriggerEvent);
+
+	TargetedEnemy = GetClosestEnemyInRange();
+	AC_AttackComponent->HeavyAttack(TargetedEnemy, (TriggerEvent == ETriggerEvent::Completed || TriggerEvent == ETriggerEvent::Canceled));
+}
+
+/// Inputs
+///////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////
+/// Callbacks from ABP
 
 void ASevenCharacter::AttackStart()
 {
-	// This is when Victim is running around -> probably valid only for EnemyChar (because he does not modify player rotation)
-	//ASevenCharacter* ClosestEnemy = GetClosestEnemyInRange(0.4);
-	//if (ClosestEnemy)
-	//{
-	//	// Rotate character towards enemy
-	//	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
-	//	RootComponent->SetWorldRotation(PlayerRot);
-	//}
 	if (EquippedWeapon)
 	{
 		EquippedWeapon->AttackStart();
@@ -117,6 +199,17 @@ void ASevenCharacter::AttackWasParried() const
 	AttackEnd();
 	AC_Animation->Play(ParryMontage, "1", EMontageType::Parry, true);
 }
+
+void ASevenCharacter::PerformWeaponTrace()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->PerformTrace();
+	}
+}
+
+/// Callbacks from ABP
+///////////////////////////////////////////////////////////////////////
 
 bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 {
@@ -180,11 +273,11 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		
 	}
 
-	HP = FMath::Max(0, HP - AttackInfo.Damage);
-	if (HP == 0)
+	const int32 NewHP = AC_Attribute->DecreaseHP(AttackInfo.Damage);
+	if (NewHP == 0)
 	{
 		// Dead
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP == 0"));
 		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictimDeath : HeavyAttackVictimDeath; // TODO: Change
 
 		// TODO: For now, random receivedHit animation is being played
@@ -194,7 +287,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	else
 	{
 		// Alive
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit"));
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP != 0"));
 		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change
 
 		// TODO: For now, random receivedHit animation is being played
@@ -203,9 +296,9 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	}
 }
 
-void ASevenCharacter::Space(const FInputActionValue& Value)
+bool ASevenCharacter::IsAlive() const
 {
-	Jump();
+	return AC_Attribute->GetHP() > 0;
 }
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
@@ -214,21 +307,6 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 	{
 		bIsEvading = true;
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
-	}
-}
-
-void ASevenCharacter::Block(bool bEnable)
-{
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
-	AC_Animation->Block(bEnable);
-
-	if (bEnable)
-	{
-		CheckIfBlockingBeforeParrying();
-	}
-	else
-	{
-		bIsBlockingBeforeAttack = false;
 	}
 }
 
@@ -243,68 +321,6 @@ void ASevenCharacter::CheckIfBlockingBeforeParrying()
 	{
 		bIsBlockingBeforeAttack = true;
 	}
-}
-
-void ASevenCharacter::StopSpace(const FInputActionValue& Value)
-{
-	StopJumping();
-}
-
-void ASevenCharacter::Fire(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
-
-	// Attack
-	TargetedEnemy = GetClosestEnemyInRange();
-	AC_AttackComponent->LightAttack(TargetedEnemy);
-}
-
-
-void ASevenCharacter::Move(const FInputActionValue& Value)
-{
-	FVector2D MovementVector = Value.Get<FVector2D>();
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		//const FRotator Rotation = GetActorRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
-}
-
-void ASevenCharacter::Look(const FInputActionValue& Value)
-{
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
-}
-
-void ASevenCharacter::PerformWeaponTrace()
-{
-	if (EquippedWeapon)
-	{
-		EquippedWeapon->PerformTrace();
-	}
-}
-
-void ASevenCharacter::Special(int ID)
-{
-	AC_AttackComponent->SetCombo(ID);
 }
 
 TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID, const int32 StartOffset, const int32 EndOffset, const int32 Thickness, const bool bCameraRelative)
@@ -325,7 +341,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 			 {
 				 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
 				 {
-					 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID))
+					 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive())
 					 {
 						 FoundActors.Add(Enemy);
 					 }
@@ -347,23 +363,6 @@ ASevenCharacter* ASevenCharacter::GetClosestEnemyInRange(float DotProductTreshol
 		return FoundEnemies[0];
 	}
 	return nullptr;
-
-
-
-	// 
-	// This code is not USED ANYMORE !
-	// 
-	// Find closest enemy (to whose is attack meant)
-	for (auto& Enemy : FoundEnemies)
-	{
-		float DotProduct = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), (Enemy->GetActorLocation() + GetActorForwardVector().GetSafeNormal()).GetSafeNormal());
-		if (DotProduct >= DotProductTreshold)
-		{
-			UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetClosestEnemyInRange Closest enemy is: %s"), *Enemy->GetName());
-			return Enemy;
-		}
-	}
-	
 }
 
 EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
@@ -455,13 +454,7 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 	}
 }
 
-void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
-{
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireRMB %d"), (uint8)TriggerEvent);
 
-	TargetedEnemy = GetClosestEnemyInRange();
-	AC_AttackComponent->HeavyAttack(TargetedEnemy, (TriggerEvent == ETriggerEvent::Completed || TriggerEvent == ETriggerEvent::Canceled));
-}
 
 
 

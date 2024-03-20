@@ -27,6 +27,67 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+//
+// NEW APPROACH: Random animation sequence
+// 
+// const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
+//{
+//	if (CurrentAttackType != EAttackType::Heavy && CurrentAttackType != EAttackType::Light)
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackMontageToBePlayed.CurrentAttackType == %d "), (int)CurrentAttackType);
+//		return TPair<UAnimMontage*, FName>(nullptr, FName());
+//	}
+//
+//	const ASevenCharacter* SevenCharacter = GetOwnerCharacter();
+//	UAnimMontage* MontageToBePlayed;
+//	const FName CurrentlyPlayedSection = SevenCharacter->AC_Animation->GetCurrentMontageSection();
+//
+//	if (CurrentAttackType == EAttackType::Light)
+//	{
+//		MontageToBePlayed = GetOwnerCharacter()->LightAttackAttacker;
+//		// Random sequence
+//		CurrentSection = FMath::RandRange(1, MontageToBePlayed->CompositeSections.Num());
+//		if (CurrentlyPlayedSection != NAME_None  && CurrentSection == CustomMath::FNameToInt(CurrentlyPlayedSection))
+//		{
+//			// We already play this Light Attack animation, try another random try (and if still same, do nothing)...
+//			CurrentSection = FMath::RandRange(1, MontageToBePlayed->CompositeSections.Num());
+//		}
+//		
+//	}
+//	else if (CurrentAttackType == EAttackType::Heavy)
+//	{
+//		MontageToBePlayed = GetOwnerCharacter()->HeavyAttackAttacker;
+//		// Predetermined sequence
+//		if (CurrentlyPlayedSection == NAME_None)
+//		{
+//			// No Animation in progress
+//			CurrentSection = 1;
+//		}
+//		if (SevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::Attack)
+//		{
+//			// Some Attack animation is in progress
+//			CurrentSection = CustomMath::FNameToInt(CurrentlyPlayedSection);
+//			if (CurrentSection < MontageToBePlayed->CompositeSections.Num())
+//			{
+//				// We can still iterate
+//				++CurrentSection;
+//			}
+//			else
+//			{
+//				CurrentSection = 1;
+//				// TODO: HERE SHOULD BE COOLDOWN!
+//			}
+//		}
+//	}
+//	const FName SectionToPlay = CustomMath::IntToFName(CurrentSection);
+//	return TPair< UAnimMontage*, FName> (MontageToBePlayed, SectionToPlay);
+//}
+
+/*
+* 
+* OLD APPROACH -> Animation is always played in sequence
+* 
+*/
 const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 {
 	if (CurrentAttackType != EAttackType::Heavy && CurrentAttackType != EAttackType::Light)
@@ -37,7 +98,7 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 
 	const ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 	UAnimMontage* MontageToBePlayed = CurrentAttackType == EAttackType::Light ? GetOwnerCharacter()->LightAttackAttacker : GetOwnerCharacter()->HeavyAttackAttacker;
-	
+
 	if (SevenCharacter->AC_Animation->GetCurrentMontageSection() == NAME_None)
 	{
 		// No Animation in progress
@@ -57,11 +118,12 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 			CurrentSection = 1;
 			// TODO: HERE SHOULD BE COOLDOWN!
 		}
-		
+
 	}
 	const FName SectionToPlay = CustomMath::IntToFName(CurrentSection);
 	return TPair< UAnimMontage*, FName> (MontageToBePlayed, SectionToPlay);
 }
+
 
 void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, const EMontageType &NextMontage)
 {

@@ -18,20 +18,15 @@ Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - rename Combo to LightCombo or smth.
-High - move FIRE logic to attackComponent
 High - Consideration: Change OnAnimationEnded to EVENT ?
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
 High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
 Medium - Move HP to Attributes -> and find out why it's crashing
 Medium - Change logic of OnLayingDead .. it should be controlled from Controller / Animation / Character ?
-Medium - Remove Enemy class (and leave only Enemy Character class) and BirdView
-Medium - put ComboComponent into AttackComponent
 Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate) ... ALSO make it more readable ..
 Medium - IsBlocking -> update this variable NOT IN ANIMATION BP UPDATE but call event which sets it!
 Medium - Cache player who owns a camera
-Medium - Sync ECombo with int that is passed into the ComboManager
-Medium - OnAnimationEnded is triggered also for Victim -> although sometimes it's intended only for Attacker! replace with anim notifier probably
 Medium - GetDirection -> complete for evading to 8 DIRECTIONS ! Then Change IsEvadingAway to compare with 8 evades not 4
 Medium - Adjust Fire as is in FireRMB
 Medium - Put relevant functions from FInputValue to ETriggerEvent (as is in FireRMB)

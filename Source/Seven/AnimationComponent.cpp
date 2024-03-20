@@ -15,7 +15,7 @@ void UAnimationComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EndDelegate.BindUObject(this, &UAnimationComponent::OnAnimationEnded);
-	//StartDelegate.BindUObject(this, &UAnimationComponent::OnAnimationStarted);
+
 	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
 	{
 		if (UAnimInstance* AnimInstance = SevenCharacter->GetMesh()->GetAnimInstance())

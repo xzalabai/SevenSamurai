@@ -10,6 +10,7 @@ UAttributesComponent::UAttributesComponent()
 void UAttributesComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	HP = 100;
 }
 
 void UAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -28,3 +29,4 @@ void UAttributesComponent::SetHP(const int32 NewHP)
 	HP = NewHP;
 }
 
+	

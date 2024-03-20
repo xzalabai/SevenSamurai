@@ -54,7 +54,7 @@ void AWeapon::PerformTrace()
 		ActorsToIgnore, EDrawDebugTrace::Persistent,
 		OutHit,
 		true);
-	//UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.bHit:%d"), bHit ? 1 : 0);
+
 	if (bHit)
 	{
 		for (FHitResult& Hit : OutHit)
