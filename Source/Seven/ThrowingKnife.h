@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PublicEnums.h"
 #include "GameFramework/Actor.h"
 #include "ThrowingKnife.generated.h"
 
@@ -32,6 +33,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly);
 	UProjectileMovementComponent* ProjectileMovementComponent;
+
+private:
+	FAttackInfo AttackInfo;
 
 protected:
 	// Called when the game starts or when spawned

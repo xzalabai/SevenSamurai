@@ -131,6 +131,7 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 {
 	if (StoppedMontage == EMontageType::Attack && NextMontage != EMontageType::Attack)
 	{
+		// Reset if Stopped was Attack and it wasn't stopped by another attack
 		if (CurrentAttackType == EAttackType::Heavy)
 		{
 			bHeavyAttackReady = false;
@@ -139,12 +140,12 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 	
 		CurrentSection = 1;
 		CurrentAttackType = EAttackType::None;
+		LastUsedCombo = nullptr;
 	}
 	if (StoppedMontage == EMontageType::Throw)
 	{
 		CurrentAttackType = EAttackType::None;
 	}
-	LastUsedCombo = nullptr;
 }
 
 FAttackInfo UAttackComponent::GetInfoAboutAttack() const
@@ -234,8 +235,9 @@ void UAttackComponent::StartThrowKnife()
 
 void UAttackComponent::ThrowKnife()
 {
-	ASevenCharacter* Attacker = GetOwnerCharacter();
-	const TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, 0, 600, 300, true);
+	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
+
+	const TArray<ASevenCharacter*> FoundEnemies = SevenCharacter->GetEnemiesInFrontOfCharacer(-1, 0, 600, 300, true);
 
 	if (FoundEnemies.Num() == 0)
 	{
@@ -243,11 +245,13 @@ void UAttackComponent::ThrowKnife()
 		return;
 	}
 
-	FVector Vector = Attacker->GetActorLocation();
-	Vector.X = Vector.X + 100;
+	FVector Vector = SevenCharacter->GetMesh()->GetSocketLocation("hand_rSocket");
+	Vector = Vector + SevenCharacter->GetActorForwardVector() * 50;
 	const FRotator Rotation = FRotator::ZeroRotator;
-	// TODO: try to put here CONST throwingKnife
-	TObjectPtr<AThrowingKnife> ThrowingKnife = GetWorld()->SpawnActor<AThrowingKnife>(Attacker->ThrowingKnifeClass, Vector, Rotation);
+	// TODO: try to put here CONST throwingKnife, create obj pool
+	FActorSpawnParameters ActorSpawnParameters;
+	ActorSpawnParameters.Owner = GetOwnerCharacter();
+	TObjectPtr<AThrowingKnife> ThrowingKnife = GetWorld()->SpawnActor<AThrowingKnife>(SevenCharacter->ThrowingKnifeClass, Vector, Rotation, ActorSpawnParameters);
 	ThrowingKnife->FireInDirection(FoundEnemies[0]->GetActorLocation());
 }
 

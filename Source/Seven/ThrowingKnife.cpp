@@ -1,8 +1,10 @@
 #include "ThrowingKnife.h"
 #include "Components/SphereComponent.h"
 #include "NiagaraComponent.h"
+#include "SevenCharacter.h"
+#include "PublicEnums.h"
 #include "GameFramework\ProjectileMovementComponent.h"
-#include <Kismet\KismetMathLibrary.h>
+#include "Kismet\KismetMathLibrary.h"
 
 
 AThrowingKnife::AThrowingKnife()
@@ -32,6 +34,10 @@ void AThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 	TriggerCollider->OnComponentHit.AddUniqueDynamic(this, &AThrowingKnife::OnHit);
+	AActor* Own = GetOwner();
+	UE_LOG(LogTemp, Error, TEXT("[AThrowingKnife] BeginPlay %s"), *Own->GetName());
+	AttackInfo = FAttackInfo(EAttackType::Throw, -1, 20, GetOwner());
+
 }
 
 void AThrowingKnife::DestroyActor()
@@ -64,6 +70,14 @@ void AThrowingKnife::FireInDirection(const FVector& ShootDirection)
 
 void AThrowingKnife::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(OtherActor))
+	{
+		if (SevenCharacter == GetOwner())
+		{
+			return;
+		}
+		SevenCharacter->ReceivedHit(AttackInfo);
+	}
 	Destroy();
 }
 
