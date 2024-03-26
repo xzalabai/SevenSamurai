@@ -23,6 +23,7 @@ High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorect
 High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
 Medium - Move HP to Attributes -> and find out why it's crashing
+Medium - adjust Hit Reaction animations based on the direction!
 Medium - Change logic of OnLayingDead .. it should be controlled from Controller / Animation / Character ?
 Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate) ... ALSO make it more readable ..
 Medium - IsBlocking -> update this variable NOT IN ANIMATION BP UPDATE but call event which sets it!

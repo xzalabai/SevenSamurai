@@ -24,7 +24,7 @@ AThrowingKnife::AThrowingKnife()
 	ProjectileMovementComponent->SetUpdatedComponent(TriggerCollider);
 
 
-	ProjectileMovementComponent->InitialSpeed = 1000;
+	ProjectileMovementComponent->InitialSpeed = 1500;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
 
@@ -34,10 +34,7 @@ void AThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 	TriggerCollider->OnComponentHit.AddUniqueDynamic(this, &AThrowingKnife::OnHit);
-	AActor* Own = GetOwner();
-	UE_LOG(LogTemp, Error, TEXT("[AThrowingKnife] BeginPlay %s"), *Own->GetName());
-	AttackInfo = FAttackInfo(EAttackType::Throw, -1, 20, GetOwner());
-
+	AttackInfo = FAttackInfo(EAttackType::Throw, -1, 5, GetOwner());
 }
 
 void AThrowingKnife::DestroyActor()
@@ -83,6 +80,7 @@ void AThrowingKnife::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 
 void AThrowingKnife::Tick(float DeltaTime)
 {
+	UE_LOG(LogTemp, Display, TEXT("[AThrowingKnife] FireInDirection"));
 	Super::Tick(DeltaTime);
 }
 
