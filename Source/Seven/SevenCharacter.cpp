@@ -232,7 +232,7 @@ bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 	return false;
 }
 
-void ASevenCharacter::ProcessDeath()
+void ASevenCharacter::OnLayingDead()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetGenerateOverlapEvents(false);

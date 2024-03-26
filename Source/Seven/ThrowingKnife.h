@@ -23,9 +23,6 @@ public:
 	UStaticMeshComponent* MeshComponent;
 
 	UPROPERTY(EditDefaultsOnly);
-	USceneComponent* RootSceneComponent;
-
-	UPROPERTY(EditDefaultsOnly);
 	UNiagaraComponent* ParticleSystem;
 
 	UPROPERTY(EditDefaultsOnly);

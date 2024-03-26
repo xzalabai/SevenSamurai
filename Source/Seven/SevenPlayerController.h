@@ -9,9 +9,9 @@
 #include "GodView.h"
 #include "SevenPlayerController.generated.h"
 
-
 class AGodView;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUpdateStatus, const AActor* Actor, const EEnemyStatus Status);
 
 UCLASS()
 class SEVEN_API ASevenPlayerController : public APlayerController
@@ -20,7 +20,6 @@ class SEVEN_API ASevenPlayerController : public APlayerController
 public:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Actions
@@ -70,7 +69,9 @@ public:
 	void BlockStart(const FInputActionValue& Value);
 	void BlockEnd(const FInputActionValue& Value);
 
-	void UpdateStatus(const int8 CharacterID, const EEnemyStatus Status = EEnemyStatus::None);
+	FOnUpdateStatus OnUpdateStatus;
+
+	void UpdateStatus(const AActor* Actor, const EEnemyStatus Status = EEnemyStatus::None);
 	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
 	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
 	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};

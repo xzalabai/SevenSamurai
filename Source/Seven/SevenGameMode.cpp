@@ -2,13 +2,16 @@
 
 #include "SevenGameMode.h"
 #include "SevenCharacter.h"
+#include "SevenPlayerController.h"
+#include "LootGenerator.h"
+#include "Kismet\GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+
 
 ASevenGameMode::ASevenGameMode()
 {
-
+	AC_LootGenerator = CreateDefaultSubobject<ULootGenerator>(TEXT("LootGenerator"));
 }
-
 /*
 TODOs:
 
@@ -36,15 +39,12 @@ Medium - remove GET_ prefix from getters and use IS_
 
 Features:
 Combat
-- More Hits (reaction based on rotation)
 - Effects
 - Play correct Hit (from behind, side hit)
 AI
 Blocking
 - turn in place while defending
-Evading
-HP
-Throw
+Evading (small evade)
 Inventory
 Quest
 

@@ -24,13 +24,13 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
-	
-	virtual void Fire(const FInputActionValue& Value) override;
-	virtual void AttackEnd() const override;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnAttackEndDelegate OnAttackEnd;
-
+	
+	virtual void Fire(const FInputActionValue& Value) override;
+	virtual void AttackEnd() const override;
+	virtual void OnLayingDead() override;
 
 private:
 	UPROPERTY()

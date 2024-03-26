@@ -19,6 +19,13 @@ enum class EAttackType
 };
 
 UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	Gold UMETA(DisplayName = "Gold"),
+	XP UMETA(DisplayName = "XP")
+};
+
+UENUM(BlueprintType)
 enum class EMontageType : uint8
 {
 	None,

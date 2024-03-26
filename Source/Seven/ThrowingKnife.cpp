@@ -13,7 +13,6 @@ AThrowingKnife::AThrowingKnife()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
 	TriggerCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Trigger Collider"));
 	ParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
-	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Scene Component"));
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	SetRootComponent(TriggerCollider);
 
@@ -22,12 +21,8 @@ AThrowingKnife::AThrowingKnife()
 	ParticleSystem->SetupAttachment(TriggerCollider);
 
 	ProjectileMovementComponent->SetUpdatedComponent(TriggerCollider);
-
-
 	ProjectileMovementComponent->InitialSpeed = 1500;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
-
-
 }
 
 void AThrowingKnife::BeginPlay()

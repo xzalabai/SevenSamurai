@@ -176,7 +176,7 @@ protected:
 	void CheckIfBlockingBeforeParrying();
 	bool IsEvadingAway(const ASevenCharacter *Enemy);
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
-	virtual void ProcessDeath();
+	virtual void OnLayingDead();
 
 public:
 	/** Returns CameraBoom subobject **/

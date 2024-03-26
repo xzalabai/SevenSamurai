@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "SevenGameMode.generated.h"
 
+class ULootGenerator;
+
 UCLASS(minimalapi)
 class ASevenGameMode : public AGameModeBase
 {
@@ -13,6 +15,9 @@ class ASevenGameMode : public AGameModeBase
 
 public:
 	ASevenGameMode();
+	
+	UPROPERTY()
+	ULootGenerator* AC_LootGenerator;
 };
 
 

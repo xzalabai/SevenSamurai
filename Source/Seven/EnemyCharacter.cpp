@@ -16,14 +16,14 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	SevenPlayerController->UpdateStatus(GetUniqueID());
+	SevenPlayerController->UpdateStatus(this);
 }
 
 void AEnemyCharacter::IncomingAttack()
 {
 	if (SevenPlayerController)
 	{
-		SevenPlayerController->UpdateStatus(GetUniqueID(), EEnemyStatus::IncomingAttack);
+		SevenPlayerController->UpdateStatus(this, EEnemyStatus::IncomingAttack);
 	}
 }
 
@@ -31,7 +31,7 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 {
 	if (SevenPlayerController)
 	{
-		SevenPlayerController->UpdateStatus(GetUniqueID(), bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
+		SevenPlayerController->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
 	}
 }
 
@@ -63,6 +63,14 @@ void AEnemyCharacter::AttackEnd() const
 {
 	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] AttackEnd"));
 	OnAttackEnd.Broadcast();
-	SevenPlayerController->UpdateStatus(GetUniqueID(), EEnemyStatus::Cooldown);
+	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Cooldown);
 }
+
+void AEnemyCharacter::OnLayingDead()
+{
+	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Dead);
+	Super::OnLayingDead();
+}
+
+
 

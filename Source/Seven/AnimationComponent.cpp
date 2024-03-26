@@ -148,7 +148,7 @@ void UAnimationComponent::OnLayingDead()
 	PlayerMesh->SetCollisionProfileName("Ragdoll");
 	PlayerMesh->SetSimulatePhysics(true);
 	
-	GetOwnerCharacter()->ProcessDeath();
+	GetOwnerCharacter()->OnLayingDead();
 }
 
 void UAnimationComponent::OnEvadeEnded()

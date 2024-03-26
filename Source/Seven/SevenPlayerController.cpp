@@ -187,8 +187,9 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 	}
 }
 
-void ASevenPlayerController::UpdateStatus(const int8 CharacterID, const EEnemyStatus Status)
+void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
+	const int8 CharacterID = Actor->GetUniqueID();
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
 	if (Status == EEnemyStatus::IncomingAttack)
 	{
@@ -204,6 +205,8 @@ void ASevenPlayerController::UpdateStatus(const int8 CharacterID, const EEnemySt
 	{
 		Enemies[CharacterID] = Status;
 	}
+
+	OnUpdateStatus.Broadcast(Actor, Status);
 	
 	// Notify Character?
 }
