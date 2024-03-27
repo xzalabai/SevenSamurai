@@ -16,6 +16,7 @@ public:
 	AItem();
 	virtual void Tick(float DeltaTime) override;
 	void Init(const EItemType ItemType, const int Amount);
+	virtual void Use(AActor* OtherActor);
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,5 +32,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	int Amount = 0;
+
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 
 };

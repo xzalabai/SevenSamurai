@@ -22,7 +22,9 @@ UENUM(BlueprintType)
 enum class EItemType : uint8
 {
 	Gold UMETA(DisplayName = "Gold"),
+	HP UMETA(DisplayName = "HP"),
 	XP UMETA(DisplayName = "XP")
+	// Before adding new one, update also AttributesComponent Map
 };
 
 UENUM(BlueprintType)

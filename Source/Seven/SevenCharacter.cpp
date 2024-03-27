@@ -76,7 +76,7 @@ void ASevenCharacter::BeginPlay()
 	}
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
 
-	AC_Attribute->SetHP(20);
+	AC_Attribute->Set(EItemType::HP, 20);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -275,7 +275,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		
 	}
 
-	const int32 NewHP = AC_Attribute->DecreaseHP(AttackInfo.Damage);
+	const int32 NewHP = AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
 	if (NewHP == 0)
 	{
 		// Dead

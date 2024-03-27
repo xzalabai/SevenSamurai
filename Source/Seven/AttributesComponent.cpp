@@ -10,7 +10,9 @@ UAttributesComponent::UAttributesComponent()
 void UAttributesComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	HP = 100;
+	AttributesMap.Add(EItemType::Gold,0);
+	AttributesMap.Add(EItemType::HP, 100);
+	AttributesMap.Add(EItemType::XP, 0);
 }
 
 void UAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -18,15 +20,20 @@ void UAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-const int32& UAttributesComponent::DecreaseHP(const int32 Decrease)
+void UAttributesComponent::Set(const EItemType ItemType, const int32 NewHP)
 {
-	HP = FMath::Max(0, HP - Decrease);
-	return HP;
+	AttributesMap[ItemType] = NewHP;
 }
 
-void UAttributesComponent::SetHP(const int32 NewHP)
+void UAttributesComponent::Add(const EItemType ItemType, const int32 NewHP)
 {
-	HP = NewHP;
+	AttributesMap[ItemType] = AttributesMap[ItemType] + NewHP;
+}
+
+const int32& UAttributesComponent::Decrease(const EItemType ItemType, const int32 Decrease)
+{
+	AttributesMap[ItemType] = FMath::Max(0, AttributesMap[ItemType] - Decrease);
+	return AttributesMap[ItemType];
 }
 
 	
