@@ -56,6 +56,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* Special2Action;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* Special3Action;
+
 	void Space(const FInputActionValue& Value);
 	void StopSpace(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -75,6 +78,9 @@ public:
 	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
 	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
 	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
+	void OnEnemyKilled(const AActor* Actor, const EEnemyStatus Status);
+
+	ASevenCharacter* GetPossessedCharacter();
 
 private:
 	TObjectPtr<AActor> GetControlledActor();

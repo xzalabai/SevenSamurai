@@ -15,6 +15,8 @@ class SEVEN_API UAttackComponent : public UActorComponent
 	GENERATED_BODY()
 
 	friend class ASevenCharacter;
+	friend class UThrowKnife;
+	friend class UKnifeThrowCombo;
 
 private:
 	class UAnimInstance* GetOwnerAnimInstance();
@@ -47,7 +49,6 @@ public:
 	bool LightAttack(ASevenCharacter* TargetedEnemy);
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
 	void ThrowKnife();
-	void StartThrowKnife();
 	UFUNCTION(BlueprintCallable)
 	void SetIsHeavyAttackReady(bool bEnable = true);
 	bool IsComboAttack();

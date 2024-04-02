@@ -2,6 +2,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "SevenCharacter.h"
+#include "AttributesComponent.h"
 #include "ControllableInterface.h"
 #include "Kismet\GameplayStatics.h"
 
@@ -24,6 +25,7 @@ void ASevenPlayerController::BeginPlay()
 
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
+	OnUpdateStatus.AddUObject(this, &ASevenPlayerController::OnEnemyKilled);
 }
 
 void ASevenPlayerController::SetupInputComponent()
@@ -54,6 +56,7 @@ void ASevenPlayerController::SetupInputComponent()
 		
 		EnhancedInputComponent->BindAction(Special1Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special, (int8)1);
 		EnhancedInputComponent->BindAction(Special2Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special, (int8)2);
+		EnhancedInputComponent->BindAction(Special3Action, ETriggerEvent::Completed, this, &ASevenPlayerController::Special, (int8)3);
 		
 		EnhancedInputComponent->BindAction(EvadeAction, ETriggerEvent::Triggered, this, &ASevenPlayerController::Evade);
 	}
@@ -189,6 +192,8 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 
 void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
+	// This should be removed to something like SevenGameMode
+
 	const int8 CharacterID = Actor->GetUniqueID();
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
 	if (Status == EEnemyStatus::IncomingAttack)
@@ -231,6 +236,21 @@ bool ASevenPlayerController::HasAnyEnemyStatus(const EEnemyStatus& Status) const
 		}
 	}
 	return false;
+}
+
+void ASevenPlayerController::OnEnemyKilled(const AActor* Actor, const EEnemyStatus Status)
+{
+	if (Status == EEnemyStatus::Dead && Actor != GetPossessedCharacter())
+	{
+		ASevenCharacter* SevenCharacter = GetPossessedCharacter();
+		SevenCharacter->AC_Attribute->Add(EItemType::XP, 10);
+	}
+}
+
+ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()
+{
+	ASevenCharacter* PossessedCharacter = GetPawn<ASevenCharacter>();
+	return PossessedCharacter;
 }
 
 TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()

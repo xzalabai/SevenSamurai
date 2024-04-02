@@ -7,6 +7,7 @@ enum class ECombo : uint8
 	ES_None UMETA(DisplayName = "None"),
 	ES_Combo1 UMETA(DisplayName = "Combo 1"),
 	ES_Combo2 UMETA(DisplayName = "Combo 2"),
+	ES_Combo3 UMETA(DisplayName = "Combo 3"),
 };
 
 enum class EAttackType
@@ -15,7 +16,7 @@ enum class EAttackType
 	Light = 1,
 	Heavy = 2,
 	Combo = 3,
-	Throw = 4,
+	Throw = 4, // NOT USED ANYMORE, safely DELETE
 };
 
 UENUM(BlueprintType)
@@ -35,7 +36,7 @@ enum class EMontageType : uint8
 	Attack,
 	Parry,
 	HitReaction,
-	Throw,
+	Throw, // NOT USED ANYMORE, safely DELETE
 	Block,
 	Evade,
 };

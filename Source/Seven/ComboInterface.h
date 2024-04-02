@@ -16,6 +16,7 @@ class UComboInterface : public UInterface
 class SEVEN_API IComboInterface
 {
 	GENERATED_BODY()
+
 public:
 	virtual void Use(AActor* AttackerActor, AActor* VictimActor) = 0;
 	virtual void ComboAttackStart() = 0;

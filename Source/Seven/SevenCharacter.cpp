@@ -103,9 +103,6 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 
 void ASevenCharacter::Block(bool bEnable)
 {
-	AC_AttackComponent->StartThrowKnife();
-	return;
-
 	// TODO delete above
 
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);

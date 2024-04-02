@@ -224,37 +224,6 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 	}
 }
 
-
-void UAttackComponent::StartThrowKnife()
-{
-	if (GetOwnerCharacter()->AC_Animation->Play(GetOwnerCharacter()->ThrowAnimation, "Default", EMontageType::Throw, false))
-	{
-		CurrentAttackType = EAttackType::Throw;
-	}
-}
-
-void UAttackComponent::ThrowKnife()
-{
-	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
-
-	const TArray<ASevenCharacter*> FoundEnemies = SevenCharacter->GetEnemiesInFrontOfCharacer(-1, 0, 600, 300, true);
-
-	if (FoundEnemies.Num() == 0)
-	{
-		// Throw in front of you
-		return;
-	}
-
-	FVector Vector = SevenCharacter->GetMesh()->GetSocketLocation("hand_rSocket");
-	Vector = Vector + SevenCharacter->GetActorForwardVector() * 50;
-	const FRotator Rotation = FRotator::ZeroRotator;
-	// TODO: try to put here CONST throwingKnife, create obj pool
-	FActorSpawnParameters ActorSpawnParameters;
-	ActorSpawnParameters.Owner = GetOwnerCharacter();
-	TObjectPtr<AThrowingKnife> ThrowingKnife = GetWorld()->SpawnActor<AThrowingKnife>(SevenCharacter->ThrowingKnifeClass, Vector, Rotation, ActorSpawnParameters);
-	ThrowingKnife->FireInDirection(FoundEnemies[0]->GetActorLocation());
-}
-
 void UAttackComponent::SetIsHeavyAttackReady(bool bEnable)
 {
 	if (bHeavyAttackWasReleased)
@@ -302,6 +271,10 @@ void UAttackComponent::SetCombo(const int8 ID)
 	{
 		ComboActivated = ECombo::ES_Combo2;
 	}
+	if (ID == 3)
+	{
+		ComboActivated = ECombo::ES_Combo3;
+	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]SetCombo Unidentified combo."));
@@ -331,10 +304,6 @@ void UAttackComponent::OnAttackStart()
 	if ((CurrentAttackType == EAttackType::Light || CurrentAttackType == EAttackType::Heavy) && GetOwnerCharacter()->EquippedWeapon)
 	{
 		GetOwnerCharacter()->EquippedWeapon->AttackStart();
-	}
-	else if (CurrentAttackType == EAttackType::Throw)
-	{
-		ThrowKnife();
 	}
 }
 

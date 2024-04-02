@@ -27,6 +27,8 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	friend class UCombo;
 	friend class URadialCombo;
 	friend class UAttackComponent;
+	friend class UThrowKnife;
+	friend class UKnifeThrowCombo;
 
 	GENERATED_BODY()
 

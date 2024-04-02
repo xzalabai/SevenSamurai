@@ -29,7 +29,7 @@ void AThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 	TriggerCollider->OnComponentHit.AddUniqueDynamic(this, &AThrowingKnife::OnHit);
-	AttackInfo = FAttackInfo(EAttackType::Throw, -1, 5, GetOwner());
+	AttackInfo = FAttackInfo(EAttackType::Combo, -1, 5, GetOwner());
 }
 
 void AThrowingKnife::DestroyActor()
