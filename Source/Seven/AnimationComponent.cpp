@@ -171,7 +171,7 @@ bool UAnimationComponent::Block(bool bEnable)
 	SevenCharacter->bIsBlocking = bEnable;
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 250 : 600;
+	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
 
 	return true;
 }

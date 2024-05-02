@@ -340,7 +340,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 			 {
 				 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
 				 {
-					 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive())
+					 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsNPC() != IsNPC()))
 					 {
 						 FoundActors.Add(Enemy);
 					 }
@@ -451,6 +451,16 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 	{
 		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
+}
+
+void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)
+{
+	AttackToken = enemyUniqueID;
+}
+
+void ASevenCharacter::ReturnAttackToken()
+{
+	AttackToken = 0;
 }
 
 

@@ -75,6 +75,9 @@ protected:
 	UPROPERTY()
 	uint8 uniqueID = 0;
 
+	UPROPERTY()
+	uint8 AttackToken = 0;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
 protected:
@@ -120,9 +123,6 @@ public:
 	UPROPERTY()
 	UAnimationComponent* AC_Animation;
 
-	//UPROPERTY(EditDefaultsOnly)
-	//UComboManager* ComboComponent;
-
 	UPROPERTY(EditDefaultsOnly)
 	UAttributesComponent* AC_Attribute;
 
@@ -146,6 +146,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PerformWeaponTrace();
 	FORCEINLINE bool CanBePossessed() { return !bEnemy; }
+	FORCEINLINE bool IsNPC() { return bEnemy; }
 
 protected:
 	// Controllable Int
@@ -198,5 +199,12 @@ public:
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	virtual bool IsAlive() const;
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool CanStealAttackToken() { return AttackToken == 0; }
+	void StealAttackToken(const uint8 enemyUniqueID);
+	UFUNCTION(BlueprintCallable)
+	void ReturnAttackToken();
+	FORCEINLINE const uint8 GetAttackTokenOwner() const { return AttackToken; }
 };
 

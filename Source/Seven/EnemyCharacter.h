@@ -6,6 +6,7 @@
 
 
 class ASevenPlayerController;
+class UParticleSystem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
@@ -13,6 +14,8 @@ UCLASS()
 class SEVEN_API AEnemyCharacter : public ASevenCharacter
 {
 	GENERATED_BODY()
+public:
+	AEnemyCharacter();
 protected:
 	virtual void BeginPlay();
 
@@ -31,9 +34,16 @@ protected:
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void AttackEnd() const override;
 	virtual void OnLayingDead() override;
+	UFUNCTION(BlueprintCallable)
+	virtual void MoveTo(bool bToSevenCharacter = false);
+	virtual const FVector GetRandomGuardPoint();
+	UFUNCTION(BlueprintCallable)
+	bool TryStealAttackToken();
 
 private:
 	UPROPERTY()
 	TObjectPtr<ASevenPlayerController> SevenPlayerController;
 	
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* IncomingAttackParticle;
 };
