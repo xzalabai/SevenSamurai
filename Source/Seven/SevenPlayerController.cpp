@@ -45,6 +45,7 @@ void ASevenPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASevenPlayerController::Look);
 		//Action
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Fire);
+		EnhancedInputComponent->BindAction(ToggleMovementAction, ETriggerEvent::Completed, this, &ASevenPlayerController::ToggleMovement);
 		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Started, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Started);
 		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Completed, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Completed);
 		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Canceled, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Canceled);
@@ -94,6 +95,15 @@ void ASevenPlayerController::Fire(const FInputActionValue& Value)
 	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
 		ControlledEntity->Fire(Value);
+	}
+}
+
+void ASevenPlayerController::ToggleMovement(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] Fire"));
+	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
+	{
+		ControlledEntity->ToggleMovement(Value);
 	}
 }
 

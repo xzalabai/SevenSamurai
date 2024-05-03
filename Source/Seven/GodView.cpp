@@ -47,6 +47,10 @@ void AGodView::Space(const FInputActionValue& Value)
 {
 }
 
+void AGodView::ToggleMovement(const FInputActionValue& Value)
+{
+}
+
 void AGodView::Fire(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[AGodView] Fire()"));

@@ -22,6 +22,7 @@ protected:
 	virtual void Move(const FInputActionValue& Value) override;
 	virtual void Look(const FInputActionValue& Value) override;
 	virtual void Space(const FInputActionValue& Value) override;
+	virtual void ToggleMovement(const FInputActionValue& Value) override;
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void FireRMB(const ETriggerEvent& TriggerEvent) override;
 	virtual void Block(bool bEnable) override;

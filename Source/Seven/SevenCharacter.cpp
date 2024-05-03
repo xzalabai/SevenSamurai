@@ -92,6 +92,11 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 	StopJumping();
 }
 
+void ASevenCharacter::ToggleMovement(const FInputActionValue& Value)
+{
+	AC_Animation->Guard(bIsGuarding ? false : true);
+}
+
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
