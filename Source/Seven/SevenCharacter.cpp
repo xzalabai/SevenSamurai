@@ -213,12 +213,16 @@ void ASevenCharacter::PerformWeaponTrace()
 bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 {
 	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
+	if (!SevenPlayerController)
+	{
+		return false;
+	}
 	if (GetIsBlockingBeforeAttack() || !GetIsBlocking())
 	{
 		return false;
 	}
 	if (GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
-	{
+	{	
 		// Is not turned towards enemy
 		return false;
 	}
@@ -312,7 +316,7 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 void ASevenCharacter::CheckIfBlockingBeforeParrying()
 {
 	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
-	if (SevenPlayerController->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
+	if (SevenPlayerController && SevenPlayerController->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
 	{
 		bIsBlockingBeforeAttack = false;
 	}

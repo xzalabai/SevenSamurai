@@ -69,6 +69,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsEvading{ false };
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsGuarding{ false };
+
 	UPROPERTY()
 	ASevenCharacter* TargetedEnemy;
 
@@ -195,6 +198,7 @@ public:
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	FORCEINLINE bool GetIsImmortal() const { return bIsImmortal; }
 	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
+	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }
 	FORCEINLINE bool GetIsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);

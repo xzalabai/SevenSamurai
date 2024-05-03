@@ -176,6 +176,22 @@ bool UAnimationComponent::Block(bool bEnable)
 	return true;
 }
 
+bool UAnimationComponent::Guard(bool bEnable)
+{
+	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
+
+	if ((bEnable && IsAnimationRunning()) || !SevenCharacter)
+		return false;
+
+	SevenCharacter->bIsBlocking = false;
+	SevenCharacter->bIsGuarding = bEnable;
+	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
+	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
+	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 130 : 600;
+
+	return true;
+}
+
 FName UAnimationComponent::GetCurrentMontageSection()
 {
 	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())

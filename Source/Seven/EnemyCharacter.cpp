@@ -92,7 +92,7 @@ void AEnemyCharacter::OnLayingDead()
 
 void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
 {
-	AC_Animation->Block(true);
+	AC_Animation->Guard(true);
 	AAIController* EnemyController = Cast<AAIController>(GetController());
 	if (!EnemyController)
 	{

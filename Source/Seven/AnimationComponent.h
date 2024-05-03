@@ -71,6 +71,7 @@ public:
 	void NextComboTriggered(bool bEnable);
 	
 	bool Block(bool bEnable);
+	bool Guard(bool bEnable);
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
 	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontageType; }
 	FName GetCurrentMontageSection();

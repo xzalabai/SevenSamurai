@@ -33,6 +33,9 @@ public:
 	class UInputAction* WSADAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -62,6 +65,8 @@ public:
 	void Space(const FInputActionValue& Value);
 	void StopSpace(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void Sprint(const FInputActionValue& Value);
+	void StartMovement(const FInputActionValue& Value, const bool bSprint);
 	void Look(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
 	//void FireRMBStart(const FInputActionValue& Value);
