@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay();
 
 	UFUNCTION(BlueprintCallable)
-	void InitiateAttack();
+	virtual void InitiateAttack();
 
 	UFUNCTION(BlueprintCallable)
 	void IncomingAttack();
@@ -40,7 +40,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
 
-private:
 	UPROPERTY()
 	TObjectPtr<ASevenPlayerController> SevenPlayerController;
 	
