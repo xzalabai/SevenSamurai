@@ -13,17 +13,17 @@ void ULootGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 	TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	SevenPlayerController->OnUpdateStatus.AddUObject(this, &ULootGenerator::OnEnemyKilled);
+	SevenPlayerController->OnUpdateStatus.AddUObject(this, &ULootGenerator::OnCharacterKilled);
 }
 
-void ULootGenerator::OnEnemyKilled(const AActor* Actor, const EEnemyStatus Status)
+void ULootGenerator::OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status)
 {
 	if (Status != EEnemyStatus::Dead || !GoldItemSubclass)
 	{
 		return;
 	}
 
-	UE_LOG(LogTemp, Display, TEXT("[ULootGenerator] OnEnemyKilled"));
+	UE_LOG(LogTemp, Display, TEXT("[ULootGenerator] ONCharacter"));
 
 	FTransform T{ Actor->GetActorLocation() };
 	AItem* ItemToBeSpawned = GetWorld()->SpawnActorDeferred<AItem>(GoldItemSubclass, T);

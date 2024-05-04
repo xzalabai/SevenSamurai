@@ -11,6 +11,7 @@
 
 class AGodView;
 
+static uint8 UniqueIDCounter;
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUpdateStatus, const AActor* Actor, const EEnemyStatus Status);
 
 UCLASS()
@@ -80,6 +81,9 @@ public:
 	void Special(const FInputActionValue& Value, const int8 Number);
 	void BlockStart(const FInputActionValue& Value);
 	void BlockEnd(const FInputActionValue& Value);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
 
 	FOnUpdateStatus OnUpdateStatus;
 
@@ -87,7 +91,7 @@ public:
 	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
 	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
 	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
-	void OnEnemyKilled(const AActor* Actor, const EEnemyStatus Status);
+	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
 
 	ASevenCharacter* GetPossessedCharacter();
 
@@ -95,6 +99,8 @@ private:
 	TObjectPtr<AActor> GetControlledActor();
 	UPROPERTY()
 	TMap<int8, EEnemyStatus> Enemies;
+	UPROPERTY()
+	TMap<int8, EEnemyStatus> SevenCharacters;
 private:
 	UPROPERTY()
 	AGodView* GodView;

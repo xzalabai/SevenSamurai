@@ -21,6 +21,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	void OnEnemyKilled(const AActor* Actor, const EEnemyStatus Status);
+	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
 		
 };

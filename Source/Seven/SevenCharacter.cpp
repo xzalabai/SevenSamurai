@@ -66,17 +66,20 @@ ASevenCharacter::ASevenCharacter()
 void ASevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UniqueIDCounter = 0;
-	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
 	USkeletalMeshComponent* PlayerMesh = GetMesh();
 	if (EquippedWeapon)
 	{
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
+	
 
 	AC_Attribute->Set(EItemType::HP, 20);
+
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
+	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
+	SevenPlayerController->UpdateStatus(this);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -217,7 +220,7 @@ void ASevenCharacter::PerformWeaponTrace()
 
 bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 {
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
 	if (!SevenPlayerController)
 	{
 		return false;
@@ -240,6 +243,9 @@ bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
 
 void ASevenCharacter::OnLayingDead()
 {
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
+	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Dead);
+
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetGenerateOverlapEvents(false);
 	if (Controller)
@@ -320,7 +326,7 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 
 void ASevenCharacter::CheckIfBlockingBeforeParrying()
 {
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(Controller);
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
 	if (SevenPlayerController && SevenPlayerController->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
 	{
 		bIsBlockingBeforeAttack = false;
@@ -343,21 +349,32 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 
 	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), Start, End, Thickness, UEngineTypes::ConvertToTraceType(ECC_WorldDynamic), false, TArray<AActor*> { this }, EDrawDebugTrace::Persistent, HitResults, true);
 
-	 auto filter = [&]()
-		 {
-			 for (FHitResult& HitResult : HitResults)
-			 {
-				 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
-				 {
-					 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsNPC() != IsNPC()))
-					 {
-						 FoundActors.Add(Enemy);
-					 }
-				 }
-			 }
-		 };
+	 for (FHitResult& HitResult : HitResults)
+ 	 {
+ 		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
+ 		 {
+ 			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsNPC() != IsNPC()))
+ 			 {
+ 				 FoundActors.Add(Enemy);
+ 			 }
+ 		 }
+ 	 }
+  
+	 //auto filter = [&]()
+		// {
+		//	 for (FHitResult& HitResult : HitResults)
+		//	 {
+		//		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
+		//		 {
+		//			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsNPC() != IsNPC()))
+		//			 {
+		//				 FoundActors.Add(Enemy);
+		//			 }
+		//		 }
+		//	 }
+		// };
 	 
-	 filter();
+	 //filter();
 	 UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetEnemiesInFrontOfCharacer Found Enemies %d"), FoundActors.Num());
 	 return FoundActors;
 }
@@ -471,8 +488,9 @@ void ASevenCharacter::ReturnAttackToken()
 {
 	AttackToken = 0;
 }
-	
 
-
-
-
+ASevenPlayerController* ASevenCharacter::GetSevenPlayerController()
+{
+	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	return SevenPlayerController;
+}

@@ -23,9 +23,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere);
 	UNiagaraComponent* ParticleSystem;
-	
-	//UPROPERTY(VisibleAnywhere);
-	//USphereComponent* TriggerCollider;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* StartTrace;

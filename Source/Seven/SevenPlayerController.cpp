@@ -8,6 +8,7 @@
 
 void ASevenPlayerController::BeginPlay()
 {
+	UniqueIDCounter = 0;
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] BeginPlay"));
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
@@ -21,11 +22,31 @@ void ASevenPlayerController::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController] GodView actor is not present!"));
 	}
 
-	Switch(FInputActionValue{});
-
+	//Switch(FInputActionValue{});
+	// TODO: INITIAL Posses (should be moved to function!!
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
-	OnUpdateStatus.AddUObject(this, &ASevenPlayerController::OnEnemyKilled);
+	if (FoundActors.Num() > 0)
+	{
+		for (AActor* Act : FoundActors)
+		{
+			if (ASevenCharacter* Char = Cast<ASevenCharacter>(Act))
+			{
+				if (Char->CanBePossessed())
+				{
+					GodView->Enable(false);
+					UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
+					Possess(Char);
+					SetViewTargetWithBlend(Char);
+					bGodView = false;
+				}
+
+			}
+		}
+	}
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
+	OnUpdateStatus.AddUObject(this, &ASevenPlayerController::OnCharacterKilled);
 }
 
 void ASevenPlayerController::SetupInputComponent()
@@ -125,47 +146,60 @@ void ASevenPlayerController::FireRMB(const FInputActionValue& Value, const ETrig
 
 void ASevenPlayerController::Switch(const FInputActionValue& Value)
 {
-	if (bGodView)
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
+	for (AActor* SevenCharacterActor : FoundActors)
 	{
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
-		if (FoundActors.Num() > 0)
+		if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenCharacterActor))
 		{
-			for (AActor* Act : FoundActors)
+			if (SevenCharacter != GetPossessedCharacter() && SevenCharacters[SevenCharacter->GetUniqueID()] != EEnemyStatus::Dead)
 			{
-				if (ASevenCharacter* Char = Cast<ASevenCharacter>(Act))
-				{
-					if (Char->CanBePossessed())
-					{
-						GodView->Enable(false);
-						UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
-						Possess(Char);
-						SetViewTargetWithBlend(Char);
-						bGodView = false;
-					}
-					
-				}
+				SwitchSevenCharacter(SevenCharacter);
+				break;
 			}
-			
 		}
 	}
-	else
-	{
-		UnPossess();
-		// TODO Cache
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
-		if (FoundActors.Num() > 0)
-		{
-			if (ASevenCharacter* Char = Cast<ASevenCharacter>(FoundActors[0]))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
-				SetViewTargetWithBlend(GodView);
-				GodView->Enable(true);
-			}
-		}		
-		bGodView = true;
-	}
+	//if (bGodView)
+	//{
+	//	TArray<AActor*> FoundActors;
+	//	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
+	//	if (FoundActors.Num() > 0)
+	//	{
+	//		for (AActor* Act : FoundActors)
+	//		{
+	//			if (ASevenCharacter* Char = Cast<ASevenCharacter>(Act))
+	//			{
+	//				if (Char->CanBePossessed())
+	//				{
+	//					GodView->Enable(false);
+	//					UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
+	//					Possess(Char);
+	//					SetViewTargetWithBlend(Char);
+	//					bGodView = false;
+	//				}
+	//				
+	//			}
+	//		}
+	//		
+	//	}
+	//}
+	//else
+	//{
+	//	UnPossess();
+	//	// TODO Cache
+	//	TArray<AActor*> FoundActors;
+	//	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
+	//	if (FoundActors.Num() > 0)
+	//	{
+	//		if (ASevenCharacter* Char = Cast<ASevenCharacter>(FoundActors[0]))
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
+	//			SetViewTargetWithBlend(GodView);
+	//			GodView->Enable(true);
+	//		}
+	//	}		
+	//	bGodView = true;
+	//}
 }
 
 void ASevenPlayerController::Evade(const FInputActionValue& Value)
@@ -203,27 +237,47 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
 	// This should be removed to something like SevenGameMode
-
-	const int8 CharacterID = Actor->GetUniqueID();
+	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
+	const int8 CharacterID = SevenCharacter->GetUniqueID();
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
+	
 	if (Status == EEnemyStatus::IncomingAttack)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus.IncomingAttack"));
 		LatestIncomingAttacker = CharacterID;
 	}
 
-	if (!Enemies.Contains(CharacterID))
+	if (SevenCharacter && SevenCharacter->IsNPC())
 	{
-		Enemies.Add({ CharacterID, Status });
+		// Updating list of enemies
+		if (!Enemies.Contains(CharacterID))
+		{
+			Enemies.Add({ CharacterID, Status });
+		}
+		else
+		{
+			Enemies[CharacterID] = Status;
+		}
 	}
 	else
 	{
-		Enemies[CharacterID] = Status;
+		// Updating list of SevenCharacters (playable characters)
+		if (!SevenCharacters.Contains(CharacterID))
+		{
+			SevenCharacters.Add({ CharacterID, Status });
+		}
+		else
+		{
+			SevenCharacters[CharacterID] = Status;
+		}
 	}
-
-	OnUpdateStatus.Broadcast(Actor, Status);
 	
-	// Notify Character?
+	OnUpdateStatus.Broadcast(Actor, Status);
+
+	if (SevenCharacter == GetPossessedCharacter())
+	{
+		Switch(FInputActionValue());
+	}
 }
 
 const EEnemyStatus ASevenPlayerController::GetEnemyStatus(const int8 CharacterID) const
@@ -248,7 +302,7 @@ bool ASevenPlayerController::HasAnyEnemyStatus(const EEnemyStatus& Status) const
 	return false;
 }
 
-void ASevenPlayerController::OnEnemyKilled(const AActor* Actor, const EEnemyStatus Status)
+void ASevenPlayerController::OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status)
 {
 	if (Status == EEnemyStatus::Dead && Actor != GetPossessedCharacter())
 	{

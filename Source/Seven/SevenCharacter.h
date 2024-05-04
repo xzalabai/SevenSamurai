@@ -13,11 +13,10 @@ class UAnimMontage;
 class AWeapon;
 class AThrowingKnife;
 class UAnimationComponent;
+class ASevenPlayerController;
 class UAttackComponent;
 class UAttributesComponent;
 class UMotionWarpingComponent;
-
-static uint8 UniqueIDCounter = 0;
 
 UCLASS(config = Game)
 
@@ -149,7 +148,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PerformWeaponTrace();
 	FORCEINLINE bool CanBePossessed() { return !bEnemy; }
-	FORCEINLINE bool IsNPC() { return bEnemy; }
+	FORCEINLINE bool IsNPC() const { return bEnemy; }
 
 protected:
 	// Controllable Int
@@ -204,6 +203,7 @@ public:
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	virtual bool IsAlive() const;
+	ASevenPlayerController* GetSevenPlayerController();
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool CanStealAttackToken() { return AttackToken == 0; }

@@ -17,7 +17,6 @@ AThrowingKnife::AThrowingKnife()
 	SetRootComponent(TriggerCollider);
 
 	MeshComponent->SetupAttachment(TriggerCollider);
-	TriggerCollider->SetupAttachment(TriggerCollider);
 	ParticleSystem->SetupAttachment(TriggerCollider);
 
 	ProjectileMovementComponent->SetUpdatedComponent(TriggerCollider);

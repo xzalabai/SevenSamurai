@@ -11,7 +11,7 @@ void UAttributesComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	AttributesMap.Add(EItemType::Gold,0);
-	AttributesMap.Add(EItemType::HP, 100);
+	AttributesMap.Add(EItemType::HP, 30);
 	AttributesMap.Add(EItemType::XP, 0);
 }
 

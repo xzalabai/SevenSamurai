@@ -14,12 +14,10 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
-	//TriggerCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Trigger Collider"));
 	ParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Scene Component"));
 	SetRootComponent(RootSceneComponent);
 	MeshComponent->SetupAttachment(RootSceneComponent);
-	//TriggerCollider->SetupAttachment(MeshComponent);
 	ParticleSystem->SetupAttachment(RootComponent);
 
 	StartTrace = CreateDefaultSubobject<USceneComponent>(TEXT("Start Trace"));

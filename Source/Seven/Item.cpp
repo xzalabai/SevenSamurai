@@ -11,7 +11,6 @@ AItem::AItem()
 	SetRootComponent(TriggerCollider);
 	
 	MeshComponent->SetupAttachment(TriggerCollider);
-	TriggerCollider->SetupAttachment(TriggerCollider);
 }	
 
 void AItem::BeginPlay()
