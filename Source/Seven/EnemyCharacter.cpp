@@ -32,8 +32,9 @@ void AEnemyCharacter::IncomingAttack()
 	{
 		SevenPlayerController->UpdateStatus(this, EEnemyStatus::IncomingAttack);
 
-		if (const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter()))
+		if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter()))
 		{
+			SevenCharacterToAttack = SevenCharacter;
 			// Spawn emitter only if really attacking (enemy has a token)
 			if (SevenCharacter->GetAttackTokenOwner() == uniqueID)
 			{
@@ -42,7 +43,6 @@ void AEnemyCharacter::IncomingAttack()
 			}
 		}
 	}
-	
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
@@ -56,7 +56,6 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
 {
 	//Attack
-	TestM();
 	TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
 
@@ -73,8 +72,19 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 		{
 			AttackEnd();
 		}
-		TargetedEnemy->ReturnAttackToken();
 	}	
+	ReturnAttackToken();
+}
+
+void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
+{
+	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]ReceivedHit"));
+	Super::ReceivedHit(AttackInfo);
+	if (TargetedEnemy)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]ReceivedHit.ReturningAttackToken"));
+	}
+	ReturnAttackToken();
 }
 
 void AEnemyCharacter::AttackEnd() const
@@ -90,25 +100,32 @@ void AEnemyCharacter::OnLayingDead()
 	Super::OnLayingDead();
 }
 
-void AEnemyCharacter::TestM()
+void AEnemyCharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 {
-	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] AEnemyCharacter"));
-}
-
-void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
-{
-	AC_Animation->Guard(true);
+	if (bBlockingStance)
+	{
+		AC_Animation->Block(true);
+	}
+	else
+	{
+		AC_Animation->Guard(true);
+	}
+	
 	AAIController* EnemyController = Cast<AAIController>(GetController());
+	ACharacter* SevenCharacter = SevenPlayerController->GetPossessedCharacter();
+
 	if (!EnemyController)
 	{
 		return;
 	}
+
+	EnemyController->SetFocus(SevenCharacter);
 	
 	FVector FinalDestination;
 	
 	if (bToSevenCharacter)
 	{
-		if (ACharacter* SevenCharacter = SevenPlayerController->GetPossessedCharacter())
+		if (SevenCharacter)
 		{
 			FinalDestination = SevenCharacter->GetActorLocation();
 		}
@@ -136,6 +153,7 @@ const FVector AEnemyCharacter::GetRandomGuardPoint()
 
 bool AEnemyCharacter::TryStealAttackToken()
 {
+	// TODO: This will be changed to a different logic (when there are more players) keep getting SevenCharacter from SevenPlayerController for now
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter());
 	if (!SevenCharacter)
 	{
@@ -144,9 +162,20 @@ bool AEnemyCharacter::TryStealAttackToken()
 	if (SevenCharacter->CanStealAttackToken())
 	{
 		SevenCharacter->StealAttackToken(uniqueID);
+		SevenCharacterToAttack = SevenCharacter;
 		return true;
 	}
 	return false;
+}
+
+void AEnemyCharacter::ReturnAttackToken()
+{
+	if (SevenCharacterToAttack)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].ReturnAttackToken Returning Attack Token"));
+		SevenCharacterToAttack->ReturnAttackToken();
+		SevenCharacterToAttack = nullptr;
+	}
 }
 
 

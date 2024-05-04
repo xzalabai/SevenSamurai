@@ -16,6 +16,5 @@ class SEVEN_API AArcherEnemy : public AEnemyCharacter
 protected:
 	virtual void BeginPlay();
 	virtual void Fire(const FInputActionValue& Value) override;
-	UFUNCTION(BlueprintCallable)
-	virtual void TestM() override;
+
 };

@@ -23,8 +23,3 @@ void AArcherEnemy::Fire(const FInputActionValue& Value)
 		TargetedEnemy->ReturnAttackToken();
 	}
 }
-
-void AArcherEnemy::TestM()
-{
-	UE_LOG(LogTemp, Error, TEXT("[AArcherEnemy]AArcherEnemy"));
-}

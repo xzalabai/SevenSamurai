@@ -22,7 +22,7 @@ void UKnifeThrowCombo::ComboAttackStart()
 		return;
 	}
 
-	const TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, 0, 600, 300, true);
+	const TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, 0, 1600, 300, true);
 
 	if (FoundEnemies.Num() == 0)
 	{

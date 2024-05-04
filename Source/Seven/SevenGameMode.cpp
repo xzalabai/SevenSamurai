@@ -17,6 +17,7 @@ TODOs:
 
 Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
+CRITICAL - As a part of more characters, delete SevenCharacterToAttack and find out logic for marking WHO is character going to attack.
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy

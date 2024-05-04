@@ -24,7 +24,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void IncomingAttack();
-
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
 
@@ -32,17 +31,21 @@ protected:
 	FOnAttackEndDelegate OnAttackEnd;
 	
 	virtual void Fire(const FInputActionValue& Value) override;
+	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
 	virtual void AttackEnd() const override;
 	virtual void OnLayingDead() override;
-	virtual void TestM();
 	UFUNCTION(BlueprintCallable)
-	virtual void MoveTo(bool bToSevenCharacter = false);
+	virtual void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 	virtual const FVector GetRandomGuardPoint();
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
+	void ReturnAttackToken();
 
 	UPROPERTY()
 	TObjectPtr<ASevenPlayerController> SevenPlayerController;
+
+	UPROPERTY()
+	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;
 	
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* IncomingAttackParticle;
