@@ -286,7 +286,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	{
 		// Dead
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP == 0"));
-		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictimDeath : HeavyAttackVictimDeath; // TODO: Change
+		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictimDeath : HeavyAttackVictimDeath; // TODO: Change based on attack
 
 		// TODO: For now, random receivedHit animation is being played
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
@@ -296,7 +296,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	{
 		// Alive
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP != 0"));
-		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change
+		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change based on attack
 
 		// TODO: For now, random receivedHit animation is being played
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());

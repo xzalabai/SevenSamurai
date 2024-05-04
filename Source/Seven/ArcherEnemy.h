@@ -13,7 +13,9 @@ UCLASS()
 class SEVEN_API AArcherEnemy : public AEnemyCharacter
 {
 	GENERATED_BODY()
-
+protected:
+	virtual void BeginPlay();
 	virtual void Fire(const FInputActionValue& Value) override;
-
+	UFUNCTION(BlueprintCallable)
+	virtual void TestM() override;
 };

@@ -5,27 +5,26 @@
 #include "AttackComponent.h"
 #include "Kismet\KismetMathLibrary.h"
 
+void AArcherEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+}
 
-void AEnemyCharacter::Fire(const FInputActionValue& Value)
+void AArcherEnemy::Fire(const FInputActionValue& Value)
 {
 	//Attack
-
+	AC_AttackComponent->SetCombo(1);
 	TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
-
+	UE_LOG(LogTemp, Display, TEXT("[AArcherEnemy]Fire"));
 	if (TargetedEnemy)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
-		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
-
-		// Rotate character towards enemy
-		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
-		RootComponent->SetWorldRotation(PlayerRot);
-
-		if (!AC_AttackComponent->LightAttack(TargetedEnemy))
-		{
-			AttackEnd();
-		}
 		TargetedEnemy->ReturnAttackToken();
 	}
+}
+
+void AArcherEnemy::TestM()
+{
+	UE_LOG(LogTemp, Error, TEXT("[AArcherEnemy]AArcherEnemy"));
 }

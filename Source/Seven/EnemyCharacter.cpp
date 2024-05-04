@@ -56,7 +56,7 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
 {
 	//Attack
-	
+	TestM();
 	TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
 
@@ -88,6 +88,11 @@ void AEnemyCharacter::OnLayingDead()
 {
 	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Dead);
 	Super::OnLayingDead();
+}
+
+void AEnemyCharacter::TestM()
+{
+	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] AEnemyCharacter"));
 }
 
 void AEnemyCharacter::MoveTo(bool bToSevenCharacter)

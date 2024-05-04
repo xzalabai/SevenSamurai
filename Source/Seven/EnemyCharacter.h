@@ -34,6 +34,7 @@ protected:
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void AttackEnd() const override;
 	virtual void OnLayingDead() override;
+	virtual void TestM();
 	UFUNCTION(BlueprintCallable)
 	virtual void MoveTo(bool bToSevenCharacter = false);
 	virtual const FVector GetRandomGuardPoint();

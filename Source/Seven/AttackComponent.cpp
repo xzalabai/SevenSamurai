@@ -256,6 +256,10 @@ void UAttackComponent::UseCombo(const ECombo& Special)
 		Combo->Use(GetOwner(), nullptr);
 		LastUsedCombo = Combo;
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent].UseCombo Combo Cast was not succesfull"));
+	}
 	ComboActivated = ECombo::ES_None;
 }
 
@@ -267,11 +271,11 @@ void UAttackComponent::SetCombo(const int8 ID)
 	{
 		ComboActivated = ECombo::ES_Combo1;
 	}
-	if (ID == 2)
+	else if (ID == 2)
 	{
 		ComboActivated = ECombo::ES_Combo2;
 	}
-	if (ID == 3)
+	else if (ID == 3)
 	{
 		ComboActivated = ECombo::ES_Combo3;
 	}
