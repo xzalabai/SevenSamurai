@@ -37,7 +37,7 @@ void AItem::Init(const EItemType NewItemType, const int NewAmount)
 
 void AItem::Use(AActor* OtherActor)
 {
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(OtherActor);
+	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(OtherActor);
 	if (!SevenCharacter)
 	{
 		return;

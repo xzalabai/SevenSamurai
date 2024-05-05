@@ -42,6 +42,7 @@ Features:
 Combat
 - Effects
 - Play correct Hit (from behind, side hit)
+- Drop also Seven Character's items if he dies
 AI
 Blocking
 - turn in place while defending

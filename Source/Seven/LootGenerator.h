@@ -15,6 +15,8 @@ class SEVEN_API ULootGenerator : public UActorComponent
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AItem> GoldItemSubclass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AItem> RiceItemSubclass;
 
 public:	
 	ULootGenerator();
@@ -22,5 +24,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
+	const TPair<EItemType, int> GenerateLootDrop() const;
 		
 };

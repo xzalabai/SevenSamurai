@@ -22,10 +22,10 @@ enum class EAttackType
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
-	Gold UMETA(DisplayName = "Gold"),
+	Gold UMETA(DisplayName = "Gold"), // KEEP this First!
 	HP UMETA(DisplayName = "HP"),
-	XP UMETA(DisplayName = "XP")
-	// Before adding new one, update also AttributesComponent Map
+	XP UMETA(DisplayName = "XP"),
+	Rice UMETA(DisplayName = "Rice") // Keep this Last!
 };
 
 UENUM(BlueprintType)

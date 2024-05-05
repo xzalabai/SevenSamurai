@@ -16,7 +16,7 @@ class ASevenGameMode : public AGameModeBase
 public:
 	ASevenGameMode();
 	
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	ULootGenerator* AC_LootGenerator;
 };
 

@@ -20,7 +20,7 @@ void UAttackComponent::BeginPlay()
 	{
 		CombosMapping.Emplace(i + 1, NewObject<UObject>(this, GetOwnerCharacter()->Combos[i]));
 	}
-
+	Damage = 30; // TODO: Select Damage based on the samurai (and his XP).
 }
 
 
@@ -151,7 +151,8 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 FAttackInfo UAttackComponent::GetInfoAboutAttack() const
 {
 	// TODO: Damage based on weapon
-	return FAttackInfo(CurrentAttackType, 0, CurrentAttackType == EAttackType::Light ? 10 : 20, GetOwner());
+	int DamageToBeDealt = Damage * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
+	return FAttackInfo(CurrentAttackType, 0, DamageToBeDealt, GetOwner());
 }
 
 bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt)
@@ -301,6 +302,12 @@ void UAttackComponent::ComboAttackEnd()
 	}
 
 	LastUsedCombo = nullptr;
+}
+
+void UAttackComponent::SetNewWeaponDamage(const int NewDamage)
+{
+	check(NewDamage > 0);
+	Damage = NewDamage;
 }
 
 void UAttackComponent::OnAttackStart()

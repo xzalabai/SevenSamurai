@@ -10,9 +10,12 @@ UAttributesComponent::UAttributesComponent()
 void UAttributesComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	AttributesMap.Add(EItemType::Gold,0);
-	AttributesMap.Add(EItemType::HP, 30);
-	AttributesMap.Add(EItemType::XP, 0);
+
+	for (int i = static_cast<int>(EItemType::Gold); i <= static_cast<int>(EItemType::Rice); ++i) {
+		EItemType ItemType = static_cast<EItemType>(i);
+		AttributesMap.Add(ItemType, 0);
+	}
+	AttributesMap[EItemType::HP] = 30;
 }
 
 void UAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

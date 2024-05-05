@@ -28,6 +28,9 @@ private:
 	bool bHeavyAttackReady = false;
 	bool bHeavyAttackWasReleased = false;
 
+	UPROPERTY(VisibleAnywhere)
+	int Damage = 0;
+
 	EAttackType CurrentAttackType = EAttackType::None;
 
 	UPROPERTY(VisibleAnywhere)
@@ -56,6 +59,9 @@ public:
 	void SetCombo(const int8 ID);
 	void ComboAttackStart();
 	void ComboAttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void SetNewWeaponDamage(const int NewDamage);
 
 	void OnAttackStart();
 
