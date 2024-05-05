@@ -74,9 +74,6 @@ protected:
 	bool bIsGuarding{ false };
 
 	UPROPERTY()
-	ASevenCharacter* TargetedEnemy;
-
-	UPROPERTY()
 	uint8 uniqueID = 0;
 
 	UPROPERTY()

@@ -57,7 +57,7 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
 {
 	//Attack
-	TargetedEnemy = GetClosestEnemyInRange();
+	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
 
 	if (TargetedEnemy)
@@ -81,10 +81,6 @@ void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
 	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]ReceivedHit"));
 	Super::ReceivedHit(AttackInfo);
-	if (TargetedEnemy)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]ReceivedHit.ReturningAttackToken"));
-	}
 	ReturnAttackToken();
 }
 

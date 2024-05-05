@@ -107,7 +107,7 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 
 	// Attack
-	TargetedEnemy = GetClosestEnemyInRange();
+	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
 }
 
@@ -172,7 +172,7 @@ void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireRMB %d"), (uint8)TriggerEvent);
 
-	TargetedEnemy = GetClosestEnemyInRange();
+	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->HeavyAttack(TargetedEnemy, (TriggerEvent == ETriggerEvent::Completed || TriggerEvent == ETriggerEvent::Canceled));
 }
 
@@ -408,7 +408,6 @@ EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
 
 void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage)
 {
-	TargetedEnemy = nullptr;
 	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
 
 	if (StoppedMontage == EMontageType::Parry || StoppedMontage == EMontageType::Evade)

@@ -14,12 +14,8 @@ void AArcherEnemy::Fire(const FInputActionValue& Value)
 {
 	//Attack
 	AC_AttackComponent->SetCombo(1);
-	TargetedEnemy = GetClosestEnemyInRange();
+	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
 	AC_AttackComponent->LightAttack(TargetedEnemy);
 	UE_LOG(LogTemp, Display, TEXT("[AArcherEnemy]Fire"));
-	if (TargetedEnemy)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
-		TargetedEnemy->ReturnAttackToken();
-	}
+	ReturnAttackToken();
 }
