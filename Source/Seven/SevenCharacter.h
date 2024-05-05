@@ -205,6 +205,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAttackComponent* GetAttackComponent() const { return AC_AttackComponent; }
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class UAICharacter* GetAICharacter() const { return AC_AICharacter; }
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	FORCEINLINE bool GetIsImmortal() const { return bIsImmortal; }
 	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }

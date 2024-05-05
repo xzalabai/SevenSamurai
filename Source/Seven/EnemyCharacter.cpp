@@ -82,16 +82,14 @@ void AEnemyCharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 bool AEnemyCharacter::TryStealAttackToken()
 {
 	// TODO: This will be changed to a different logic (when there are more players) keep getting SevenCharacter from SevenPlayerController for now
-	ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy();
-	if (!EnemyToAttack)
+	if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
 	{
-		return false;
-	}
-	if (EnemyToAttack->CanStealAttackToken())
-	{
-		EnemyToAttack->StealAttackToken(uniqueID);
-		SevenCharacterToAttack = EnemyToAttack;
-		return true;
+		if (EnemyToAttack->CanStealAttackToken())
+		{
+			EnemyToAttack->StealAttackToken(uniqueID);
+			SevenCharacterToAttack = EnemyToAttack;
+			return true;
+		}
 	}
 	return false;
 }

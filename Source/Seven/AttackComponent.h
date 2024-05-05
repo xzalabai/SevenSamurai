@@ -47,7 +47,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	const TPair<UAnimMontage*, FName> GetAttackMontageToBePlayed();
 	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
-	FAttackInfo GetInfoAboutAttack() const;
+	FAttackInfo GetAttackInfo() const;
 	bool PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt);
 	bool LightAttack(ASevenCharacter* TargetedEnemy);
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);

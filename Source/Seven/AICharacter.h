@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "AITypes.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "AICharacter.generated.h"
 
 class ASevenCharacter;
@@ -16,7 +18,15 @@ public:
 	void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 	ASevenCharacter* SelectEnemy();
 	const FVector GetRandomGuardPoint();
+	void RequestFinished(FAIRequestID x, const FPathFollowingResult& xx);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsMovementFinished();
+	UFUNCTION(BlueprintCallable)
+	void ResetMovementFinished();
 	virtual void Fire();
+
+private:
+	bool bMovementFinished{ false };
 
 protected:
 	virtual void BeginPlay() override;

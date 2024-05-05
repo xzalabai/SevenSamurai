@@ -15,6 +15,10 @@ UAICharacter::UAICharacter()
 void UAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
+	AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
+	AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &UAICharacter::RequestFinished);
 }
 
 void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
@@ -61,8 +65,9 @@ void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 	{
 		FinalDestination = GetRandomGuardPoint();
 	}
-
-	AIController->MoveToLocation(FinalDestination, 150.0f);
+	AIController->SetMoveBlockDetection(false);
+	DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
+	AIController->MoveToLocation(FinalDestination, 80.0f);
 }	
 
 const FVector UAICharacter::GetRandomGuardPoint()
@@ -72,6 +77,22 @@ const FVector UAICharacter::GetRandomGuardPoint()
 
 	const FVector FinalDestination = GetOwner()->GetActorLocation() + Right + Backwards;
 	return FinalDestination;
+}
+
+void UAICharacter::RequestFinished(FAIRequestID x, const FPathFollowingResult& xx)
+{
+	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].FINISHED %d"), xx.IsSuccess() ? 1 : 0);
+	bMovementFinished = xx.IsSuccess();
+}
+
+bool UAICharacter::IsMovementFinished()
+{
+	return bMovementFinished;
+}
+
+void UAICharacter::ResetMovementFinished()
+{
+	bMovementFinished = false;
 }
 
 void UAICharacter::Fire()
@@ -106,8 +127,21 @@ void UAICharacter::Fire()
 
 ASevenCharacter* UAICharacter::SelectEnemy()
 {
+	ASevenCharacter* Bot = Cast<ASevenCharacter>(GetOwner());
 	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter());
-
-	return SevenCharacter;
+	
+	if (Bot && Bot->IsNPC())
+	{
+		// Find SevenCharacter
+		ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter());
+		return SevenCharacter;
+	}
+	else
+	{
+		// Find EnemyCharacter
+		ASevenCharacter* SevenCharacter = SevenPlayerController->GetAnyAliveEnemy();
+		return SevenCharacter;
+	}
+	
+	return nullptr;
 }

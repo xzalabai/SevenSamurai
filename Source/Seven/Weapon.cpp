@@ -84,6 +84,6 @@ void AWeapon::AttackStart()
 
 	TObjectPtr<ASevenCharacter> SevenCharacter = Cast<ASevenCharacter>(GetAttachParentActor());
 
-	AttackInfo = SevenCharacter->GetAttackComponent()->GetInfoAboutAttack();
+	AttackInfo = SevenCharacter->GetAttackComponent()->GetAttackInfo();
 }
 

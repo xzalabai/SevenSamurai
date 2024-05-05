@@ -254,6 +254,7 @@ void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatu
 		if (!EnemiesStatus.Contains(CharacterID))
 		{
 			EnemiesStatus.Add({ CharacterID, Status });
+			Enemies.Add(SevenCharacter);
 		}
 		else
 		{
@@ -320,6 +321,19 @@ ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()
 {
 	ASevenCharacter* PossessedCharacter = GetPawn<ASevenCharacter>();
 	return PossessedCharacter;
+}
+
+ASevenCharacter* ASevenPlayerController::GetAnyAliveEnemy()
+{
+	for (const ASevenCharacter* Enemy : Enemies)
+	{
+		if (Enemy->IsAlive())
+		{
+			return const_cast<ASevenCharacter*>(Enemy);
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController].GetAnyAliveEnemy No alive enemies left."));
+	return nullptr;
 }
 
 TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()

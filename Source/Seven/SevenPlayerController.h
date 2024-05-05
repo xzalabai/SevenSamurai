@@ -92,6 +92,7 @@ public:
 	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
 	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
 	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
+	ASevenCharacter* GetAnyAliveEnemy();
 
 	ASevenCharacter* GetPossessedCharacter();
 
@@ -103,6 +104,8 @@ private:
 	TMap<int8, EEnemyStatus> SevenCharactersStatus;
 	UPROPERTY()
 	TArray<const ASevenCharacter*> SevenCharacters;
+	UPROPERTY()
+	TArray<const ASevenCharacter*> Enemies;
 private:
 	UPROPERTY()
 	AGodView* GodView;
