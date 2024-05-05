@@ -12,6 +12,7 @@
 class UAnimMontage;
 class AWeapon;
 class AThrowingKnife;
+class UAICharacter;
 class UAnimationComponent;
 class ASevenPlayerController;
 class UAttackComponent;
@@ -25,6 +26,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	friend class UAnimationComponent;
 	friend class UCombo;
 	friend class URadialCombo;
+	friend class UAICharacter;
 	friend class UAttackComponent;
 	friend class UThrowKnife;
 	friend class UKnifeThrowCombo;
@@ -133,6 +135,9 @@ public:
 
 	UPROPERTY()
 	UAttackComponent* AC_AttackComponent;
+
+	UPROPERTY()
+	UAICharacter* AC_AICharacter;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods

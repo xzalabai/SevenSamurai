@@ -3,6 +3,7 @@
 #include "AnimationComponent.h"
 #include "SevenPlayerController.h"
 #include "ComboManager.h"
+#include "AICharacter.h"
 #include "Particles/ParticleSystem.h"
 #include "AttackComponent.h"
 #include "Kismet\GameplayStatics.h"
@@ -32,11 +33,11 @@ void AEnemyCharacter::IncomingAttack()
 	{
 		SevenPlayerController->UpdateStatus(this, EEnemyStatus::IncomingAttack);
 
-		if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter()))
+		if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
 		{
-			SevenCharacterToAttack = SevenCharacter;
+			SevenCharacterToAttack = EnemyToAttack;
 			// Spawn emitter only if really attacking (enemy has a token)
-			if (SevenCharacter->GetAttackTokenOwner() == uniqueID)
+			if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), IncomingAttackParticle,
 					GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
@@ -102,67 +103,21 @@ void AEnemyCharacter::OnLayingDead()
 
 void AEnemyCharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 {
-	if (bBlockingStance)
-	{
-		AC_Animation->Block(true);
-	}
-	else
-	{
-		AC_Animation->Guard(true);
-	}
-	
-	AAIController* EnemyController = Cast<AAIController>(GetController());
-	ACharacter* SevenCharacter = SevenPlayerController->GetPossessedCharacter();
-
-	if (!EnemyController)
-	{
-		return;
-	}
-
-	EnemyController->SetFocus(SevenCharacter);
-	
-	FVector FinalDestination;
-	
-	if (bToSevenCharacter)
-	{
-		if (SevenCharacter)
-		{
-			FinalDestination = SevenCharacter->GetActorLocation();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].MoveTo Couldn't fetch SevenCharacter"));
-		}
-	}
-	else
-	{
-		FinalDestination = GetRandomGuardPoint();
-	}
-	
-	EnemyController->MoveToLocation(FinalDestination, 150.0f);
-}
-
-const FVector AEnemyCharacter::GetRandomGuardPoint()
-{
-	const FVector Right = (FMath::RandBool() ? GetActorRightVector() : GetActorRightVector() * (-1)) * 400;
-	const FVector Backwards = GetActorForwardVector() * (-1) * 400;
-
-	const FVector FinalDestination = GetActorLocation() + Right + Backwards;
-	return FinalDestination;
+	AC_AICharacter->MoveTo(bToSevenCharacter, bBlockingStance);
 }
 
 bool AEnemyCharacter::TryStealAttackToken()
 {
 	// TODO: This will be changed to a different logic (when there are more players) keep getting SevenCharacter from SevenPlayerController for now
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter());
-	if (!SevenCharacter)
+	ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy();
+	if (!EnemyToAttack)
 	{
 		return false;
 	}
-	if (SevenCharacter->CanStealAttackToken())
+	if (EnemyToAttack->CanStealAttackToken())
 	{
-		SevenCharacter->StealAttackToken(uniqueID);
-		SevenCharacterToAttack = SevenCharacter;
+		EnemyToAttack->StealAttackToken(uniqueID);
+		SevenCharacterToAttack = EnemyToAttack;
 		return true;
 	}
 	return false;

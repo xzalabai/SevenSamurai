@@ -36,7 +36,6 @@ protected:
 	virtual void OnLayingDead() override;
 	UFUNCTION(BlueprintCallable)
 	virtual void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
-	virtual const FVector GetRandomGuardPoint();
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
 	void ReturnAttackToken();

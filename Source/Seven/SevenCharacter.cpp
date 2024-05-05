@@ -6,6 +6,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "AICharacter.h"
 #include "Weapon.h"
 #include "MotionWarpingComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -60,6 +61,7 @@ ASevenCharacter::ASevenCharacter()
 	AC_Attribute = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attribute"));
 	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	AC_AICharacter = CreateDefaultSubobject<UAICharacter>(TEXT("AICharacterComponent"));
 	
 }
 

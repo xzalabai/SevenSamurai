@@ -19,6 +19,7 @@ Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
 CRITICAL - As a part of more characters, delete SevenCharacterToAttack and find out logic for marking WHO is character going to attack.
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
+High - make sync between AIController, EnemyCharacter, TargetedEnemy, EnemyToAttack etc... so they it is being choosed in AIController and everyone follows it
 High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - rename Combo to LightCombo or smth.
