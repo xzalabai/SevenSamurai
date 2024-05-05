@@ -16,6 +16,7 @@ public:
 	void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 	ASevenCharacter* SelectEnemy();
 	const FVector GetRandomGuardPoint();
+	virtual void Fire();
 
 protected:
 	virtual void BeginPlay() override;

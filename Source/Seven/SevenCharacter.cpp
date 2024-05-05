@@ -190,7 +190,9 @@ void ASevenCharacter::AttackStart()
 
 void ASevenCharacter::AttackEnd() const
 {
-	
+	OnAttackEnd.Broadcast();
+	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
+	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Cooldown);
 }
 
 void ASevenCharacter::ComboAttackStart()
@@ -315,6 +317,18 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 bool ASevenCharacter::IsAlive() const
 {
 	return AC_Attribute->GetHP() > 0;
+}
+
+void ASevenCharacter::AI_Fire()
+{
+	AC_AICharacter->Fire();
+}
+
+void ASevenCharacter::AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance)
+{
+
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AI_MoveTo for %s"), *GetName());
+	AC_AICharacter->MoveTo(bToSevenCharacter, bBlockingStance);
 }
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
@@ -490,7 +504,7 @@ void ASevenCharacter::ReturnAttackToken()
 	AttackToken = 0;
 }
 
-ASevenPlayerController* ASevenCharacter::GetSevenPlayerController()
+ASevenPlayerController* ASevenCharacter::GetSevenPlayerController() const
 {
 	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	return SevenPlayerController;

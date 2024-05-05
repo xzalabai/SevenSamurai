@@ -15,7 +15,7 @@ void UAttributesComponent::BeginPlay()
 		EItemType ItemType = static_cast<EItemType>(i);
 		AttributesMap.Add(ItemType, 0);
 	}
-	AttributesMap[EItemType::HP] = 30;
+	AttributesMap[EItemType::HP] = 150;
 }
 
 void UAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

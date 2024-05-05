@@ -39,6 +39,7 @@ void ASevenPlayerController::BeginPlay()
 					Possess(Char);
 					SetViewTargetWithBlend(Char);
 					bGodView = false;
+					break;
 				}
 
 			}
@@ -275,7 +276,7 @@ void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatu
 	
 	OnUpdateStatus.Broadcast(Actor, Status);
 
-	if (SevenCharacter == GetPossessedCharacter())
+	if (SevenCharacter == GetPossessedCharacter() && Status == EEnemyStatus::Dead)
 	{
 		Switch(FInputActionValue());
 	}

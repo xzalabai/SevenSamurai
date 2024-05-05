@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -18,6 +16,8 @@ class ASevenPlayerController;
 class UAttackComponent;
 class UAttributesComponent;
 class UMotionWarpingComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
 UCLASS(config = Game)
 
@@ -78,6 +78,10 @@ protected:
 
 	UPROPERTY()
 	uint8 AttackToken = 0;
+
+public:
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnAttackEndDelegate OnAttackEnd;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Animation Montages
@@ -172,6 +176,10 @@ protected:
 	virtual void ComboAttackStart() override;
 	UFUNCTION(BlueprintCallable)
 	virtual void ComboAttackEnd() override;
+	UFUNCTION(BlueprintCallable)
+	virtual void AI_Fire();
+	UFUNCTION(BlueprintCallable)
+	virtual void AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 
 protected:
 	virtual void BeginPlay();
@@ -205,7 +213,7 @@ public:
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	virtual bool IsAlive() const;
-	ASevenPlayerController* GetSevenPlayerController();
+	ASevenPlayerController* GetSevenPlayerController() const;
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool CanStealAttackToken() { return AttackToken == 0; }

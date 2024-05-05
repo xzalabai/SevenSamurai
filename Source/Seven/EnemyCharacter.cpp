@@ -17,7 +17,7 @@ AEnemyCharacter::AEnemyCharacter()
 
 void AEnemyCharacter::InitiateAttack()
 {
-	Fire(FInputActionValue());
+	AC_AICharacter->Fire();
 }
 
 void AEnemyCharacter::BeginPlay()
@@ -52,29 +52,6 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 	{
 		SevenPlayerController->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
 	}
-}
-
-void AEnemyCharacter::Fire(const FInputActionValue& Value)
-{
-	//Attack
-	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
-	AC_AttackComponent->LightAttack(TargetedEnemy);
-
-	if (TargetedEnemy)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
-		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
-
-		// Rotate character towards enemy
-		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
-		RootComponent->SetWorldRotation(PlayerRot);
-
-		if (!AC_AttackComponent->LightAttack(TargetedEnemy))
-		{
-			AttackEnd();
-		}
-	}	
-	ReturnAttackToken();
 }
 
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)

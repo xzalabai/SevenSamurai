@@ -1,9 +1,11 @@
 #include "AICharacter.h"
 #include "SevenCharacter.h"
 #include "SevenPlayerController.h"
+#include "AttackComponent.h"
 #include "AnimationComponent.h"
 #include "AIController.h"
-#include <Kismet\GameplayStatics.h>
+#include "Kismet\GameplayStatics.h"
+#include "Kismet\KismetMathLibrary.h"
 
 UAICharacter::UAICharacter()
 {
@@ -70,6 +72,36 @@ const FVector UAICharacter::GetRandomGuardPoint()
 
 	const FVector FinalDestination = GetOwner()->GetActorLocation() + Right + Backwards;
 	return FinalDestination;
+}
+
+void UAICharacter::Fire()
+{
+	//Attack
+	ASevenCharacter* Bot = Cast<ASevenCharacter>(GetOwner());
+
+	if (!Bot)
+	{
+		return;
+	}
+
+	ASevenCharacter* TargetedEnemy = Bot->GetClosestEnemyInRange();
+	Bot->AC_AttackComponent->LightAttack(TargetedEnemy);
+
+	if (TargetedEnemy)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
+		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
+
+		// Rotate character towards enemy
+		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(Bot->GetActorLocation(), TargetedEnemy->GetActorLocation());
+		Bot->RootComponent->SetWorldRotation(PlayerRot);
+
+		if (!Bot->AC_AttackComponent->LightAttack(TargetedEnemy))
+		{
+			Bot->AttackEnd();
+		}
+	}
+	Bot->ReturnAttackToken();
 }
 
 ASevenCharacter* UAICharacter::SelectEnemy()
