@@ -148,11 +148,11 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 {
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
-	for (AActor* SevenCharacterActor : FoundActors)
+	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
 	{
-		if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenCharacterActor))
+		if (IsValid(SevenCharacter))
 		{
-			if (SevenCharacter != GetPossessedCharacter() && SevenCharacters[SevenCharacter->GetUniqueID()] != EEnemyStatus::Dead)
+			if (SevenCharacter != GetPossessedCharacter() && SevenCharactersStatus[SevenCharacter->GetUniqueID()] != EEnemyStatus::Dead)
 			{
 				SwitchSevenCharacter(SevenCharacter);
 				break;
@@ -250,25 +250,26 @@ void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatu
 	if (SevenCharacter && SevenCharacter->IsNPC())
 	{
 		// Updating list of enemies
-		if (!Enemies.Contains(CharacterID))
+		if (!EnemiesStatus.Contains(CharacterID))
 		{
-			Enemies.Add({ CharacterID, Status });
+			EnemiesStatus.Add({ CharacterID, Status });
 		}
 		else
 		{
-			Enemies[CharacterID] = Status;
+			EnemiesStatus[CharacterID] = Status;
 		}
 	}
 	else
 	{
-		// Updating list of SevenCharacters (playable characters)
-		if (!SevenCharacters.Contains(CharacterID))
+		// Updating list of SevenCharactersStatus (playable characters)
+		if (!SevenCharactersStatus.Contains(CharacterID))
 		{
-			SevenCharacters.Add({ CharacterID, Status });
+			SevenCharactersStatus.Add({ CharacterID, Status });
+			SevenCharacters.Add(SevenCharacter);
 		}
 		else
 		{
-			SevenCharacters[CharacterID] = Status;
+			SevenCharactersStatus[CharacterID] = Status;
 		}
 	}
 	
@@ -282,17 +283,17 @@ void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatu
 
 const EEnemyStatus ASevenPlayerController::GetEnemyStatus(const int8 CharacterID) const
 {
-	if (!Enemies.Contains(CharacterID))
+	if (!EnemiesStatus.Contains(CharacterID))
 	{
 		UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController] GetEnemyStatus Non Existing Character ID"));
 		return EEnemyStatus::None;
 	}
-	return Enemies[CharacterID];
+	return EnemiesStatus[CharacterID];
 }
 
 bool ASevenPlayerController::HasAnyEnemyStatus(const EEnemyStatus& Status) const
 {
-	for (auto &Enemy : Enemies)
+	for (auto &Enemy : EnemiesStatus)
 	{
 		if (Enemy.Value == Status)
 		{
@@ -304,10 +305,13 @@ bool ASevenPlayerController::HasAnyEnemyStatus(const EEnemyStatus& Status) const
 
 void ASevenPlayerController::OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status)
 {
-	if (Status == EEnemyStatus::Dead && Actor != GetPossessedCharacter())
+	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
+	if (Status == EEnemyStatus::Dead && KilledCharacter->IsNPC() && KilledCharacter != GetPossessedCharacter())
 	{
-		ASevenCharacter* SevenCharacter = GetPossessedCharacter();
-		SevenCharacter->AC_Attribute->Add(EItemType::XP, 10);
+		if (ASevenCharacter* SevenCharacter = GetPossessedCharacter())
+		{
+			SevenCharacter->AC_Attribute->Add(EItemType::XP, 10);
+		}
 	}
 }
 

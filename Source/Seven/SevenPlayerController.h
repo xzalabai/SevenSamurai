@@ -98,9 +98,11 @@ public:
 private:
 	TObjectPtr<AActor> GetControlledActor();
 	UPROPERTY()
-	TMap<int8, EEnemyStatus> Enemies;
+	TMap<int8, EEnemyStatus> EnemiesStatus;
 	UPROPERTY()
-	TMap<int8, EEnemyStatus> SevenCharacters;
+	TMap<int8, EEnemyStatus> SevenCharactersStatus;
+	UPROPERTY()
+	TArray<const ASevenCharacter*> SevenCharacters;
 private:
 	UPROPERTY()
 	AGodView* GodView;

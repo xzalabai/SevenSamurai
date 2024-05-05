@@ -375,7 +375,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 		// };
 	 
 	 //filter();
-	 UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetEnemiesInFrontOfCharacer Found Enemies %d"), FoundActors.Num());
+	 UE_LOG(LogTemp, Display, TEXT("ASevenCharacter.GetEnemiesInFrontOfCharacer Found EnemiesStatus %d"), FoundActors.Num());
 	 return FoundActors;
 }
 
