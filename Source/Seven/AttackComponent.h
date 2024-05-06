@@ -57,6 +57,7 @@ public:
 	bool IsComboAttack();
 	void UseCombo(const ECombo& Special);
 	void SetCombo(const int8 ID);
+	void AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo);
 	void ComboAttackStart();
 	void ComboAttackEnd();
 

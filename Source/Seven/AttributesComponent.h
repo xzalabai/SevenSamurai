@@ -17,9 +17,10 @@ public:
 	UAttributesComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	FORCEINLINE int32 GetHP() const { return AttributesMap[EItemType::HP]; }
+	FORCEINLINE int32 GetGold() const { return AttributesMap[EItemType::Gold]; }
 	void Set(const EItemType ItemType, const int32 NewHP);
 	void Add(const EItemType ItemType, const int32 NewHP);
-	const int32& Decrease(const EItemType ItemType, const int32 NewHP);
+	const int32& Decrease(const EItemType ItemType, const int32 Decrease);
 protected:
 	virtual void BeginPlay() override;
 	int32 HP = 0;

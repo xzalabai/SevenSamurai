@@ -68,7 +68,7 @@ void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 	AIController->SetMoveBlockDetection(false);
 	DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
 	AIController->MoveToLocation(FinalDestination, 80.0f);
-}	
+}
 
 const FVector UAICharacter::GetRandomGuardPoint()
 {

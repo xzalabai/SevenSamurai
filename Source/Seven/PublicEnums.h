@@ -20,6 +20,13 @@ enum class EAttackType
 };
 
 UENUM(BlueprintType)
+enum class ESevenCharacterType : uint8
+{
+	Classic = 0,
+
+};
+
+UENUM(BlueprintType)
 enum class EItemType : uint8
 {
 	Gold UMETA(DisplayName = "Gold"), // KEEP this First!

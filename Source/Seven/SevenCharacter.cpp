@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "AICharacter.h"
 #include "Weapon.h"
+#include "Combo.h"	
 #include "MotionWarpingComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "AnimationComponent.h"
@@ -89,6 +90,8 @@ void ASevenCharacter::BeginPlay()
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
 {
+	UObject* xxx = NewObject<UObject>(TestCombo->StaticClass());
+
 	Jump();
 }
 

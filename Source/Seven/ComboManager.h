@@ -1,34 +1,53 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
 #include "PublicEnums.h"
+#include "GameFramework/Actor.h"
 #include "ComboManager.generated.h"
 
+class ASevenCharacter;
 class UCombo;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SEVEN_API UComboManager : public UActorComponent
+USTRUCT(BlueprintType)
+struct FCombosWithPrices
 {
 	GENERATED_BODY()
 
+	FCombosWithPrices() = default;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UObject> Combo;
+	UPROPERTY(EditAnywhere)
+	int Price;
+};
+
+USTRUCT(BlueprintType)
+struct FSevenCharacterCombos
+{
+	GENERATED_BODY()
+
+	FSevenCharacterCombos() = default;
+	UPROPERTY(EditAnywhere)
+	TArray<FCombosWithPrices> CombosAvailable;
+};
+
+UCLASS()
+class SEVEN_API AComboManager : public AActor
+{
+	GENERATED_BODY()
+	
 public:	
-	UComboManager();
-	void UseCombo(const ECombo& Special);
+	AComboManager();
+	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintCallable)
+	void ShowSkillTree(const TArray<ASevenCharacter*> AvailableCharacters) const;
+	UFUNCTION(BlueprintCallable)
+	void BuyCombo(const ASevenCharacter* const SevenCharacter, const int Index) const;
+	UPROPERTY(EditAnywhere)
+	TMap<ESevenCharacterType, FSevenCharacterCombos> SevenCharacterCombosMapping;
 
 protected:
 	virtual void BeginPlay() override;
-	
-////////////////////////////////////////////////////////////////////////////
-// Variables
-public:
-	UPROPERTY(VisibleAnywhere)
-	ECombo ComboActivated = ECombo::ES_None;
-
-protected:
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<UCombo>> Combos;
-	
-	UPROPERTY()
-	TMap<int, UCombo*> CombosMapping;
 };
+
+

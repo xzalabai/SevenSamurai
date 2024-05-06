@@ -16,6 +16,7 @@ void UAttributesComponent::BeginPlay()
 		AttributesMap.Add(ItemType, 0);
 	}
 	AttributesMap[EItemType::HP] = 150;
+	AttributesMap[EItemType::Gold] = 150;
 }
 
 void UAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

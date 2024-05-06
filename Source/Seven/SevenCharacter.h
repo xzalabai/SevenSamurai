@@ -37,6 +37,10 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 // Variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UObject> TestCombo; //TODO: Delete!!!!!
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
@@ -48,9 +52,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* VictimDesiredPosition;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<UObject>> Combos;
 
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
@@ -149,6 +150,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AThrowingKnife> ThrowingKnifeClass;
 
+	UPROPERTY(EditAnywhere)
+	ESevenCharacterType SevenCharacterType;
+
 public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)
@@ -213,6 +217,8 @@ public:
 	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }
 	FORCEINLINE bool GetIsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	virtual bool IsAlive() const;
 	ASevenPlayerController* GetSevenPlayerController() const;

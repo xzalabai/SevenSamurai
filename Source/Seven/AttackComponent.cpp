@@ -16,10 +16,10 @@ void UAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	for (int i = 0; i < GetOwnerCharacter()->Combos.Num(); ++i)
-	{
-		CombosMapping.Emplace(i + 1, NewObject<UObject>(this, GetOwnerCharacter()->Combos[i]));
-	}
+	//for (int i = 0; i < GetOwnerCharacter()->Combos.Num(); ++i)
+	//{
+	//	CombosMapping.Emplace(i + 1, NewObject<UObject>(this, GetOwnerCharacter()->Combos[i]));
+	//}
 	Damage = 30; // TODO: Select Damage based on the samurai (and his XP).
 }
 
@@ -243,11 +243,10 @@ bool UAttackComponent::IsComboAttack()
 
 void UAttackComponent::UseCombo(const ECombo& Special)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo"));
-
-	if (GetOwnerCharacter()->Combos.Num() == 0)
+	if (CombosMapping.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent].UseCombo is Empty"));
+		ComboAttackEnd();
 		return;
 	}
 
@@ -287,6 +286,12 @@ void UAttackComponent::SetCombo(const int8 ID)
 	}
 }
 
+void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
+{
+	CombosMapping.Emplace(CombosMapping.Num() + 1, NewObject<UObject>(this, TypeOfCombo));
+	UE_LOG(LogTemp, Display, TEXT("[AComboManager]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
+}
+
 void UAttackComponent::ComboAttackStart()
 {
 	if (LastUsedCombo)
@@ -301,7 +306,7 @@ void UAttackComponent::ComboAttackEnd()
 	{
 		LastUsedCombo->ComboAttackEnd();
 	}
-
+	ComboActivated = ECombo::ES_None;
 	LastUsedCombo = nullptr;
 }
 
