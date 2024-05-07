@@ -66,7 +66,7 @@ void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 		FinalDestination = GetRandomGuardPoint();
 	}
 	AIController->SetMoveBlockDetection(false);
-	DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
+	//DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
 	AIController->MoveToLocation(FinalDestination, 80.0f);
 }
 
@@ -81,7 +81,7 @@ const FVector UAICharacter::GetRandomGuardPoint()
 
 void UAICharacter::RequestFinished(FAIRequestID x, const FPathFollowingResult& xx)
 {
-	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].FINISHED %d"), xx.IsSuccess() ? 1 : 0);
+	//UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].FINISHED %d"), xx.IsSuccess() ? 1 : 0);
 	bMovementFinished = xx.IsSuccess();
 }
 

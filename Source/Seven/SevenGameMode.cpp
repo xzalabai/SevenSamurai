@@ -47,6 +47,7 @@ Combat
 AI
 Blocking
 - turn in place while defending
+- Forbit blocking to AI when hitting it!
 Evading (small evade)
 Inventory
 Quest

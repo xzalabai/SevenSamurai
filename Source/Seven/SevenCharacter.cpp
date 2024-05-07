@@ -90,8 +90,6 @@ void ASevenCharacter::BeginPlay()
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
 {
-	UObject* xxx = NewObject<UObject>(TestCombo->StaticClass());
-
 	Jump();
 }
 
@@ -264,11 +262,12 @@ void ASevenCharacter::OnLayingDead()
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character"), Attacker->GetUniqueID());
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType);
 
 	// Parry
 	if (ParryAttack(Attacker))
 	{
+		check(ParryMontage);
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
 		AC_Animation->Play(ParryMontage, "0", EMontageType::Parry, true);
 		Attacker->AttackWasParried();
@@ -279,10 +278,21 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	// Block
 	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Blocking"));
-		const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
-		AC_Animation->Play(BlockMontage, RandomMontageStr, EMontageType::Block, true);
-		return;
+		if (AttackInfo.AttackType == EAttackType::Heavy)
+		{
+			check(BlockMontage);
+			AC_Animation->Play(BlockBroken, "1", EMontageType::HitReaction, true);
+			return;
+		}
+		else
+		{
+			check(BlockMontage);
+			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Blocking"));
+			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
+			AC_Animation->Play(BlockMontage, RandomMontageStr, EMontageType::Block, true);
+			return;
+		}
+
 	}
 
 	// Evade

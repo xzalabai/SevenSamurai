@@ -169,9 +169,10 @@ bool UAnimationComponent::Block(bool bEnable)
 		return false;
 
 	SevenCharacter->bIsBlocking = bEnable;
+	SevenCharacter->bIsGuarding = false;
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
+	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : (SevenCharacter->GetIsGuarding() ? 200 : 600);
 
 	return true;
 }
@@ -187,7 +188,7 @@ bool UAnimationComponent::Guard(bool bEnable)
 	SevenCharacter->bIsGuarding = bEnable;
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 130 : 600;
+	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
 
 	return true;
 }

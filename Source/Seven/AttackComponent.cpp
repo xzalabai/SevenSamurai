@@ -243,7 +243,7 @@ bool UAttackComponent::IsComboAttack()
 
 void UAttackComponent::UseCombo(const ECombo& Special)
 {
-	if (CombosMapping.Num() == 0)
+	if (CombosMapping.Num() == 0 || !CombosMapping.Contains((int)Special))
 	{
 		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent].UseCombo is Empty"));
 		ComboAttackEnd();

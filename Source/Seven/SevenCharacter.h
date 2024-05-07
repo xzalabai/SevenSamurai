@@ -37,10 +37,6 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 // Variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 protected:
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UObject> TestCombo; //TODO: Delete!!!!!
-
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
@@ -110,6 +106,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EvadeMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* BlockBroken;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* BlockMontage;
