@@ -63,12 +63,12 @@ ASevenCharacter::ASevenCharacter()
 	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	AC_AICharacter = CreateDefaultSubobject<UAICharacter>(TEXT("AICharacterComponent"));
-	
 }
 
 void ASevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	check(WeaponType);
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
 	USkeletalMeshComponent* PlayerMesh = GetMesh();
 	if (EquippedWeapon)

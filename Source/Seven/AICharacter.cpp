@@ -18,7 +18,11 @@ void UAICharacter::BeginPlay()
 
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
 	AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
+
+	check(AIController);
+
 	AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &UAICharacter::RequestFinished);
+	
 }
 
 void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
@@ -110,7 +114,7 @@ void UAICharacter::Fire()
 
 	if (TargetedEnemy)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
+		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
 		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 
 		// Rotate character towards enemy
