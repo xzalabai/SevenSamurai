@@ -134,7 +134,7 @@ public:
 	UPROPERTY()
 	UMotionWarpingComponent* AC_MotionWarpingComponent;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UAttackComponent* AC_AttackComponent;
 
 	UPROPERTY()

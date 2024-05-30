@@ -85,6 +85,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
 	TArray<const ASevenCharacter*> GetAIControlledAllies();
+	const TArray<const ASevenCharacter*> GetSevenCharacters();
+
 
 	FOnUpdateStatus OnUpdateStatus;
 

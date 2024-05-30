@@ -252,6 +252,11 @@ TArray<const ASevenCharacter*> ASevenPlayerController::GetAIControlledAllies()
 	return AIControlledAllies;
 }
 
+const TArray<const ASevenCharacter*> ASevenPlayerController::GetSevenCharacters()
+{
+	return SevenCharacters;
+}
+
 void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
 	// This should be removed to something like SevenGameMode

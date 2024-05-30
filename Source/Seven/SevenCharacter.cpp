@@ -60,9 +60,11 @@ ASevenCharacter::ASevenCharacter()
 	// COMPONENTS
 	AC_Animation = CreateDefaultSubobject<UAnimationComponent>(TEXT("AC_Animation"));
 	AC_Attribute = CreateDefaultSubobject<UAttributesComponent>(TEXT("AC_Attribute"));
-	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_AttackComponent"));
+	AC_AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AC_Attack"));
 	AC_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	AC_AICharacter = CreateDefaultSubobject<UAICharacter>(TEXT("AICharacterComponent"));
+
+	//AC_AttackComponent->RegisterComponent();
 }
 
 void ASevenCharacter::BeginPlay()
@@ -109,7 +111,15 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 
 	// Attack
 	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
-	AC_AttackComponent->LightAttack(TargetedEnemy);
+	if (AC_AttackComponent)
+	{
+		AC_AttackComponent->LightAttack(TargetedEnemy);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireFailed"));
+	}
+	
 }
 
 void ASevenCharacter::Block(bool bEnable)

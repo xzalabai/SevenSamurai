@@ -9,7 +9,21 @@
 class UCombo;
 class AThrowingKnife;
 
-UCLASS( ClassGroup=(Custom), BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent) )
+USTRUCT()
+struct FWeaponDetail
+{
+	GENERATED_BODY()
+	FWeaponDetail() = default;
+	FWeaponDetail(int NewDamage, EWeaponLevel NewWeaponLevel) : Damage(NewDamage), WeaponLevel(NewWeaponLevel) {}
+
+	UPROPERTY()
+	int Damage = 0;
+
+	UPROPERTY()
+	EWeaponLevel WeaponLevel = EWeaponLevel::One;
+};
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SEVEN_API UAttackComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -29,7 +43,7 @@ private:
 	bool bHeavyAttackWasReleased = false;
 
 	UPROPERTY(VisibleAnywhere)
-	int Damage = 0;
+	FWeaponDetail WeaponDetail;
 
 	EAttackType CurrentAttackType = EAttackType::None;
 
@@ -60,9 +74,10 @@ public:
 	void AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo);
 	void ComboAttackStart();
 	void ComboAttackEnd();
+	FORCEINLINE int GetWeaponDamage() const { return WeaponDetail.Damage; }
 
 	UFUNCTION(BlueprintCallable)
-	void SetNewWeaponDamage(const int NewDamage);
+	void SetWeaponDamage(const int NewDamage);
 
 	void OnAttackStart();
 
@@ -70,3 +85,5 @@ protected:
 	virtual void BeginPlay() override;
 
 };
+
+

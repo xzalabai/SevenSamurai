@@ -49,6 +49,15 @@ enum class EMontageType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EWeaponLevel : uint8
+{
+	One,
+	Two,
+	Three,
+	Four,
+};
+
+UENUM(BlueprintType)
 enum class EEnemyStatus : uint8
 {
 	None,

@@ -19,6 +19,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	int32 ActiveMissionID{ -1 };
+
+	UPROPERTY(VisibleAnywhere)
+	uint32 EnemyKilledCount;
 	
 public:	
 	AMissionHandler();
