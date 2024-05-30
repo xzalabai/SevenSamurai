@@ -134,7 +134,7 @@ public:
 	UPROPERTY()
 	UMotionWarpingComponent* AC_MotionWarpingComponent;
 
-	UPROPERTY(EditAnywhere)
+	//UPROPERTY(BlueprintReadOnly)
 	UAttackComponent* AC_AttackComponent;
 
 	UPROPERTY()

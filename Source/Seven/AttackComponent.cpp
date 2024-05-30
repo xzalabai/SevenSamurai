@@ -15,9 +15,7 @@ UAttackComponent::UAttackComponent()
 void UAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	//WeaponDetail = FWeaponDetail{ 30, EWeaponLevel::One };
-	WeaponDetail.Damage = 30;
-	WeaponDetail.WeaponLevel = EWeaponLevel::One;
+	WeaponDetail = FWeaponDetail{ 30, EWeaponLevel::One };
 }
 
 
@@ -148,7 +146,7 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	// TODO: Damage based on weapon
-	int DamageToBeDealt = WeaponDetail.Damage * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
+	int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
 	DamageToBeDealt = 200; //TODO Debug
 	return FAttackInfo(CurrentAttackType, 0, DamageToBeDealt, GetOwner());
 }
@@ -238,6 +236,11 @@ bool UAttackComponent::IsComboAttack()
 	return ComboActivated != ECombo::ES_None;
 }
 
+int UAttackComponent::GetWeaponDamage() const
+{
+	return WeaponDetail.Damage;
+}
+
 void UAttackComponent::UseCombo(const ECombo& Special)
 {
 	if (CombosMapping.Num() == 0 || !CombosMapping.Contains((int)Special))
@@ -310,7 +313,7 @@ void UAttackComponent::ComboAttackEnd()
 void UAttackComponent::SetWeaponDamage(const int NewDamage)
 {
 	check(NewDamage > 0);
-	WeaponDetail.Damage = NewDamage;
+	//WeaponDetail.Damage = NewDamage;
 }
 
 void UAttackComponent::OnAttackStart()

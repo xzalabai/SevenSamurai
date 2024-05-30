@@ -49,3 +49,17 @@ public:
 	void PerformTrace();
 	void AttackStart();
 };	
+
+USTRUCT(BlueprintType)
+struct FWeaponDetail
+{
+	GENERATED_BODY()
+	FWeaponDetail() = default;
+	FWeaponDetail(int NewDamage, EWeaponLevel NewWeaponLevel) : Damage(NewDamage), WeaponLevel(NewWeaponLevel) {}
+
+	UPROPERTY()
+	int Damage = 0;
+
+	UPROPERTY()
+	EWeaponLevel WeaponLevel = EWeaponLevel::One;
+};

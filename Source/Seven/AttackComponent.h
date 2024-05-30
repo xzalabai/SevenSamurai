@@ -4,24 +4,11 @@
 #include "Components/ActorComponent.h"
 #include "ComboInterface.h"
 #include "PublicEnums.h"
+#include "Weapon.h"
 #include "AttackComponent.generated.h"
 
 class UCombo;
 class AThrowingKnife;
-
-USTRUCT()
-struct FWeaponDetail
-{
-	GENERATED_BODY()
-	FWeaponDetail() = default;
-	FWeaponDetail(int NewDamage, EWeaponLevel NewWeaponLevel) : Damage(NewDamage), WeaponLevel(NewWeaponLevel) {}
-
-	UPROPERTY()
-	int Damage = 0;
-
-	UPROPERTY()
-	EWeaponLevel WeaponLevel = EWeaponLevel::One;
-};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SEVEN_API UAttackComponent : public UActorComponent
@@ -74,7 +61,7 @@ public:
 	void AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo);
 	void ComboAttackStart();
 	void ComboAttackEnd();
-	FORCEINLINE int GetWeaponDamage() const { return WeaponDetail.Damage; }
+	int GetWeaponDamage() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponDamage(const int NewDamage);
