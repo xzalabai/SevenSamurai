@@ -157,7 +157,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PerformWeaponTrace();
 	FORCEINLINE bool CanBePossessed() { return !bEnemy; }
-	FORCEINLINE bool IsNPC() const { return bEnemy; }
+	FORCEINLINE bool IsEnemy() const { return bEnemy; }
 
 protected:
 	// Controllable Int

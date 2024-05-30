@@ -18,22 +18,24 @@ public:
 	uint32 ID;
 
 	UPROPERTY(EditAnywhere)
-	USphereComponent* Area;
+	uint32 EnemiesCount{ 0 };
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* EnemySpawn;
+	USphereComponent* Area{ nullptr };
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* SevenCharactersPosition;
+	TArray<USceneComponent*> EnemySpawns;
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* RootSceneComponent;
+	USceneComponent* SevenCharactersPosition{ nullptr };
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* RootSceneComponent{ nullptr };
 
 	FOnCharacterOverlappedMission OnCharacterOverlappedMission;
 
 public:	
 	AMission();
-	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

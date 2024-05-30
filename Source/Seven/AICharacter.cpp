@@ -151,7 +151,7 @@ ASevenCharacter* UAICharacter::SelectEnemy()
 	ASevenCharacter* Bot = Cast<ASevenCharacter>(GetOwner());
 	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	
-	if (Bot && Bot->IsNPC())
+	if (Bot && Bot->IsEnemy())
 	{
 		// Find SevenCharacter
 		ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter());

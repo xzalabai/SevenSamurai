@@ -19,6 +19,9 @@ void AMissionHandler::BeginPlay()
 	ActiveMissionID = -1;
 	StoreMissions();
 	check(EnemyClassToSpawn);
+
+	TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	SevenPlayerController->OnUpdateStatus.AddUObject(this, &AMissionHandler::OnStatusUpdate);
 }
 
 void AMissionHandler::StoreMissions()
@@ -52,10 +55,15 @@ void AMissionHandler::MissionStarted(uint32 ID)
 	const AMission* ActiveMission = Missions[ID];
 	ActiveMissionID = ID;
 	ActiveMission->Area->SetGenerateOverlapEvents(false);
-
-	FActorSpawnParameters SpawnParams;
-	AEnemyCharacter* NewEnemy = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyClassToSpawn, ActiveMission->EnemySpawn->GetComponentLocation(), FRotator(), SpawnParams);
 	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	for (uint32 i = 0; i < ActiveMission->EnemiesCount; i++)
+	{
+		AEnemyCharacter* NewEnemy1 = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyClassToSpawn, ActiveMission->EnemySpawns[i % ActiveMission->EnemySpawns.Num()]->GetComponentLocation(), FRotator(), SpawnParams);
+	}
+	EnemyKilledCount = 0;
 	MoveAlliesToPlace();
 }
 
@@ -93,5 +101,27 @@ void AMissionHandler::MoveAlliesToPlace()
 		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 		BlackBoardComponent->SetValueAsBool(TEXT("bFollowPlayer"), false);
 		BlackBoardComponent->SetValueAsObject(TEXT("PositionToGo"), ActiveMission->SevenCharactersPosition);
+	}
+}
+
+void AMissionHandler::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
+{
+	if (ActiveMissionID == -1)
+	{
+		// No mission active
+		return;
+	}
+
+	const AMission* ActiveMission = Missions[ActiveMissionID];
+	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
+
+	if (KilledCharacter->IsEnemy())
+	{
+		EnemyKilledCount++;
+	}
+
+	if (EnemyKilledCount == ActiveMission->EnemiesCount)
+	{
+		// End of mission
 	}
 }

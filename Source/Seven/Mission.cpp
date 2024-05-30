@@ -12,32 +12,32 @@ AMission::AMission()
 	SetRootComponent(RootSceneComponent);
 
 	Area = CreateDefaultSubobject<USphereComponent>(TEXT("Area"));
-	EnemySpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Enemy Spawn"));
+	//EnemySpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Enemy Spawn"));
 	SevenCharactersPosition = CreateDefaultSubobject<USceneComponent>(TEXT("SevenCharacterPosition"));
-
+	
+	for (int i = 0; i < 3; i++)
+	{
+		FString NameFString = "EnemySpawn" + FString::FromInt(i);
+		FName Name = FName(*NameFString);
+		EnemySpawns.Add(CreateDefaultSubobject<USceneComponent>(Name));
+	}
 
 	Area->SetupAttachment(RootComponent);
-	EnemySpawn->SetupAttachment(RootComponent);
 	SevenCharactersPosition->SetupAttachment(RootComponent);
-
 }
 
 void AMission::BeginPlay()
 {
 	Super::BeginPlay();
 	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
-}
-
-void AMission::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	check(EnemiesCount > 0);
 }
 
 void AMission::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Error, TEXT("[AMission].OnOverlapBegin "));
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(OtherActor);
-	if (SevenCharacter->IsNPC() || !SevenCharacter->IsPlayerControlled())
+	if (SevenCharacter->IsEnemy() || !SevenCharacter->IsPlayerControlled())
 	{
 		return;
 	}

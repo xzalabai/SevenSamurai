@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PublicEnums.h"
 #include "MissionHandler.generated.h"
 
 class AMission;
@@ -31,6 +32,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void MovingToMissionArea();
 	void MoveAlliesToPlace();
+	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEnemyCharacter> EnemyClassToSpawn;

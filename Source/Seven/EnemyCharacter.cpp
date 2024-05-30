@@ -34,7 +34,6 @@ void AEnemyCharacter::IncomingAttack()
 
 		if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
 		{
-			SevenCharacterToAttack = EnemyToAttack;
 			// Spawn emitter only if really attacking (enemy has a token)
 			if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 			{
@@ -89,10 +88,6 @@ bool AEnemyCharacter::TryStealAttackToken()
 			SevenCharacterToAttack = EnemyToAttack;
 			return true;
 		}
-		else
-		{
-			UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].TryStealAttackToken Stealing token not successfull, current Token has: %d"), EnemyToAttack->GetAttackTokenOwner());
-		}
 	}
 	return false;
 }
@@ -104,10 +99,6 @@ void AEnemyCharacter::ReturnAttackToken()
 		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].ReturnAttackToken Returning Attack Token"));
 		SevenCharacterToAttack->ResetAttackToken();
 		SevenCharacterToAttack = nullptr;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].ReturnAttackToken Unable to return token"));
 	}
 }
 

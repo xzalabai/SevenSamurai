@@ -122,7 +122,7 @@ void ASevenPlayerController::Fire(const FInputActionValue& Value)
 
 void ASevenPlayerController::ToggleMovement(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] Fire"));
+	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] ToggleMovement"));
 	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
 	{
 		ControlledEntity->ToggleMovement(Value);
@@ -257,15 +257,14 @@ void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatu
 	// This should be removed to something like SevenGameMode
 	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
 	const int8 CharacterID = SevenCharacter->GetUniqueID();
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
+	//UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
 	
 	if (Status == EEnemyStatus::IncomingAttack)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus.IncomingAttack"));
-		LatestIncomingAttacker = CharacterID;
 	}
 
-	if (SevenCharacter && SevenCharacter->IsNPC())
+	if (SevenCharacter && SevenCharacter->IsEnemy())
 	{
 		// Updating list of enemies
 		if (!EnemiesStatus.Contains(CharacterID))
@@ -325,7 +324,7 @@ bool ASevenPlayerController::HasAnyEnemyStatus(const EEnemyStatus& Status) const
 void ASevenPlayerController::OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status)
 {
 	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
-	if (Status == EEnemyStatus::Dead && KilledCharacter->IsNPC() && KilledCharacter != GetPossessedCharacter())
+	if (Status == EEnemyStatus::Dead && KilledCharacter->IsEnemy() && KilledCharacter != GetPossessedCharacter())
 	{
 		if (ASevenCharacter* SevenCharacter = GetPossessedCharacter())
 		{

@@ -23,7 +23,7 @@ void ULootGenerator::OnCharacterKilled(const AActor* Actor, const EEnemyStatus S
 {
 	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
 
-	if (Status != EEnemyStatus::Dead || !KilledCharacter->IsNPC())
+	if (Status != EEnemyStatus::Dead || !KilledCharacter->IsEnemy())
 	{
 		return;
 	}

@@ -91,7 +91,6 @@ public:
 	void UpdateStatus(const AActor* Actor, const EEnemyStatus Status = EEnemyStatus::None);
 	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
 	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
-	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
 	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
 	ASevenCharacter* GetAnyAliveEnemy();
 	ASevenCharacter* GetPossessedCharacter();
@@ -110,6 +109,4 @@ private:
 	UPROPERTY()
 	AGodView* GodView;
 	bool bGodView = true;
-	int8 LatestIncomingAttacker;
-
 };

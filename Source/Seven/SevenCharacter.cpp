@@ -114,9 +114,7 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 
 void ASevenCharacter::Block(bool bEnable)
 {
-	// TODO delete above
-
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
+	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
 	AC_Animation->Block(bEnable);
 
 	if (bEnable)
@@ -386,7 +384,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
  	 {
  		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
  		 {
- 			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsNPC() != IsNPC()))
+ 			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsEnemy() != IsEnemy()))
  			 {
  				 FoundActors.Add(Enemy);
  			 }
@@ -399,7 +397,7 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 		//	 {
 		//		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
 		//		 {
-		//			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsNPC() != IsNPC()))
+		//			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->isEnemy() != isEnemy()))
 		//			 {
 		//				 FoundActors.Add(Enemy);
 		//			 }

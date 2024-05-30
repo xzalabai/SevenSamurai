@@ -17,7 +17,6 @@ TODOs:
 
 Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
-CRITICAL - As a part of more characters, delete SevenCharacterToAttack and find out logic for marking WHO is character going to attack.
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - make sync between AIController, EnemyCharacter, TargetedEnemy, EnemyToAttack etc... so they it is being choosed in AIController and everyone follows it
 High - Change MissionHandler and ComboManager to SubSystem
@@ -28,6 +27,7 @@ High - Consideration: Change OnAnimationEnded to EVENT ?
 High - Refactor logic of returning AttackToken (now in AICharacter there is assumption in Fire() that it is enemy
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
 High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
+High - Fix Guard left walk (character seems to go forward)
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
 Medium - Move HP to Attributes -> and find out why it's crashing
 Medium - adjust Hit Reaction animations based on the direction!
