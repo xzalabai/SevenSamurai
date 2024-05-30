@@ -84,6 +84,7 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
+	TArray<const ASevenCharacter*> GetAIControlledAllies();
 
 	FOnUpdateStatus OnUpdateStatus;
 
@@ -93,7 +94,6 @@ public:
 	FORCEINLINE int8 GetLatestIncomingAttacker() { return LatestIncomingAttacker;};
 	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
 	ASevenCharacter* GetAnyAliveEnemy();
-
 	ASevenCharacter* GetPossessedCharacter();
 
 private:

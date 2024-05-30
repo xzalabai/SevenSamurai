@@ -13,12 +13,12 @@ AMission::AMission()
 
 	Area = CreateDefaultSubobject<USphereComponent>(TEXT("Area"));
 	EnemySpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Enemy Spawn"));
-	SevenCharacterPosition = CreateDefaultSubobject<USceneComponent>(TEXT("SevenCharacterPosition"));
+	SevenCharactersPosition = CreateDefaultSubobject<USceneComponent>(TEXT("SevenCharacterPosition"));
 
 
 	Area->SetupAttachment(RootComponent);
 	EnemySpawn->SetupAttachment(RootComponent);
-	SevenCharacterPosition->SetupAttachment(RootComponent);
+	SevenCharactersPosition->SetupAttachment(RootComponent);
 
 }
 

@@ -74,6 +74,13 @@ void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 	AIController->MoveToLocation(FinalDestination, 80.0f);
 }
 
+void UAICharacter::MoveTo(const FVector& Position)
+{
+	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
+	AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
+	AIController->MoveToLocation(Position, 80.0f);
+}
+
 const FVector UAICharacter::GetRandomGuardPoint()
 {
 	const FVector Right = (FMath::RandBool() ? GetOwner()->GetActorRightVector() : GetOwner()->GetActorRightVector() * (-1)) * 400;
@@ -127,6 +134,11 @@ void UAICharacter::Fire()
 		}
 	}
 	Bot->ReturnAttackToken();
+}
+
+void UAICharacter::FollowSevenCharacter(const ASevenCharacter* SevenCharacter)
+{
+	MoveTo(true, false);
 }
 
 ASevenCharacter* UAICharacter::SelectEnemy()

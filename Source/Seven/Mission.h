@@ -24,7 +24,7 @@ public:
 	USceneComponent* EnemySpawn;
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* SevenCharacterPosition;
+	USceneComponent* SevenCharactersPosition;
 
 	UPROPERTY(EditAnywhere)
 	USceneComponent* RootSceneComponent;

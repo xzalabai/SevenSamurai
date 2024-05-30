@@ -14,7 +14,10 @@ class SEVEN_API AMissionHandler : public AActor
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	TMap<int, AMission*> Missions;
+	TMap<uint32, AMission*> Missions;
+
+	UPROPERTY(VisibleAnywhere)
+	int32 ActiveMissionID{ -1 };
 	
 public:	
 	AMissionHandler();
@@ -25,8 +28,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void MissionStarted(uint32 ID);
+	UFUNCTION(BlueprintCallable)
+	void MovingToMissionArea();
+	void MoveAlliesToPlace();
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEnemyCharacter> EnemyClassToSpawn;
-
 };

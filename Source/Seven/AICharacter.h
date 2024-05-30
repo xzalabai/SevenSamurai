@@ -16,6 +16,7 @@ class SEVEN_API UAICharacter : public UActorComponent
 public:	
 	UAICharacter();
 	void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
+	void MoveTo(const FVector& Position);
 	ASevenCharacter* SelectEnemy();
 	const FVector GetRandomGuardPoint();
 	void RequestFinished(FAIRequestID x, const FPathFollowingResult& xx);
@@ -24,7 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResetMovementFinished();
 	virtual void Fire();
-
+	void FollowSevenCharacter(const ASevenCharacter* SevenCharacter);
+	
 private:
 	bool bMovementFinished{ false };
 

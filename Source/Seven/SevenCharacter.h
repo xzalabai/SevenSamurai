@@ -183,6 +183,8 @@ protected:
 	virtual void AI_Fire();
 	UFUNCTION(BlueprintCallable)
 	virtual void AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance);
+	UFUNCTION(BlueprintCallable)
+	virtual void AI_MoveToPosition(const FVector& Position);
 
 protected:
 	virtual void BeginPlay();

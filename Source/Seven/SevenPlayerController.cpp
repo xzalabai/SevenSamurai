@@ -235,6 +235,23 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 	}
 }
 
+TArray<const ASevenCharacter*> ASevenPlayerController::GetAIControlledAllies()
+{
+	TArray<const ASevenCharacter*> AIControlledAllies;
+	ASevenCharacter* PlayerControlledAlly = GetPossessedCharacter();
+
+	for (const ASevenCharacter* Seven : SevenCharacters)
+	{
+		if (Seven == PlayerControlledAlly)
+		{
+			continue;
+		}
+		AIControlledAllies.Add(Seven);
+	}
+
+	return AIControlledAllies;
+}
+
 void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
 	// This should be removed to something like SevenGameMode

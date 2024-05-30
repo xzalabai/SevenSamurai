@@ -339,9 +339,14 @@ void ASevenCharacter::AI_Fire()
 
 void ASevenCharacter::AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 {
-
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AI_MoveTo for %s"), *GetName());
 	AC_AICharacter->MoveTo(bToSevenCharacter, bBlockingStance);
+}
+
+void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AI_MoveTo for %s"), *GetName());
+	AC_AICharacter->MoveTo(Position);
 }
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)

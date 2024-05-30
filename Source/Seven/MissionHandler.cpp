@@ -1,8 +1,12 @@
 #include "MissionHandler.h"
 #include "Mission.h"
+#include "AICharacter.h"
 #include "EnemyCharacter.h"
+#include "SevenPlayerController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet\GameplayStatics.h"
+#include "AIController.h"
 
 AMissionHandler::AMissionHandler()
 {
@@ -12,6 +16,7 @@ AMissionHandler::AMissionHandler()
 void AMissionHandler::BeginPlay()
 {
 	Super::BeginPlay();
+	ActiveMissionID = -1;
 	StoreMissions();
 	check(EnemyClassToSpawn);
 }
@@ -46,5 +51,44 @@ void AMissionHandler::MissionStarted(uint32 ID)
 	const AMission* ActiveMission = Missions[ID];
 	FActorSpawnParameters SpawnParams;
 	AEnemyCharacter* NewEnemy = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyClassToSpawn, ActiveMission->EnemySpawn->GetComponentLocation(), FRotator(), SpawnParams);
+	ActiveMissionID = ID;
 
+	MoveAlliesToPlace();
+}
+
+void AMissionHandler::MovingToMissionArea()
+{
+	ASevenPlayerController* PlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	TArray<const ASevenCharacter*> AIControlledAllies = PlayerController->GetAIControlledAllies();
+
+	for (const ASevenCharacter* AIAlly : AIControlledAllies)
+	{
+		AAIController* AIController = Cast<AAIController>(AIAlly->GetController());
+		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+		BlackBoardComponent->SetValueAsBool(TEXT("bFollowPlayer"), true);
+		BlackBoardComponent->SetValueAsObject(TEXT("PositionToGo"), PlayerController->GetPossessedCharacter());
+	}
+}
+
+void AMissionHandler::MoveAlliesToPlace()
+{
+	ASevenPlayerController* PlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (!PlayerController || ActiveMissionID == -1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UMissions].MoveSevenCharactersToPlace PlayerController or wrong ActiveMissionID"));
+		return;
+	}
+
+	const AMission* ActiveMission = Missions[ActiveMissionID];
+
+	TArray<const ASevenCharacter*> AIControlledAllies = PlayerController->GetAIControlledAllies();
+
+	for (const ASevenCharacter* AIAlly : AIControlledAllies)
+	{
+		AAIController* AIController = Cast<AAIController>(AIAlly->GetController());
+		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+		BlackBoardComponent->SetValueAsBool(TEXT("bFollowPlayer"), false);
+		BlackBoardComponent->SetValueAsObject(TEXT("PositionToGo"), ActiveMission->SevenCharactersPosition);
+	}
 }
