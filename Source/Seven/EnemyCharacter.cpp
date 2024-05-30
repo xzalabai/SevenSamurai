@@ -89,6 +89,10 @@ bool AEnemyCharacter::TryStealAttackToken()
 			SevenCharacterToAttack = EnemyToAttack;
 			return true;
 		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].TryStealAttackToken Stealing token not successfull, current Token has: %d"), EnemyToAttack->GetAttackTokenOwner());
+		}
 	}
 	return false;
 }
@@ -98,8 +102,12 @@ void AEnemyCharacter::ReturnAttackToken()
 	if (SevenCharacterToAttack)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].ReturnAttackToken Returning Attack Token"));
-		SevenCharacterToAttack->ReturnAttackToken();
+		SevenCharacterToAttack->ResetAttackToken();
 		SevenCharacterToAttack = nullptr;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].ReturnAttackToken Unable to return token"));
 	}
 }
 

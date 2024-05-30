@@ -152,7 +152,7 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	// TODO: Damage based on weapon
 	int DamageToBeDealt = Damage * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
-	DamageToBeDealt = 1; //TODO Debug
+	DamageToBeDealt = 200; //TODO Debug
 	return FAttackInfo(CurrentAttackType, 0, DamageToBeDealt, GetOwner());
 }
 

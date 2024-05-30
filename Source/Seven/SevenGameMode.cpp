@@ -25,6 +25,7 @@ High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - rename Combo to LightCombo or smth.
 High - Consideration: Change OnAnimationEnded to EVENT ?
+High - Refactor logic of returning AttackToken (now in AICharacter there is assumption in Fire() that it is enemy
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
 High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\

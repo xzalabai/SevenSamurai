@@ -228,7 +228,7 @@ public:
 	FORCEINLINE bool CanStealAttackToken() { return AttackToken == 0; }
 	void StealAttackToken(const uint8 enemyUniqueID);
 	UFUNCTION(BlueprintCallable)
-	void ReturnAttackToken();
+	void ResetAttackToken();
 	FORCEINLINE const uint8 GetAttackTokenOwner() const { return AttackToken; }
 };
 

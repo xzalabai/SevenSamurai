@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Kismet\GameplayStatics.h"
 #include "Kismet\KismetMathLibrary.h"
+#include "EnemyCharacter.h"
 
 UAICharacter::UAICharacter()
 {
@@ -83,8 +84,8 @@ void UAICharacter::MoveTo(const FVector& Position)
 
 const FVector UAICharacter::GetRandomGuardPoint()
 {
-	const FVector Right = (FMath::RandBool() ? GetOwner()->GetActorRightVector() : GetOwner()->GetActorRightVector() * (-1)) * 400;
-	const FVector Backwards = GetOwner()->GetActorForwardVector() * (-1) * 400;
+	const FVector Right = (FMath::RandBool() ? GetOwner()->GetActorRightVector() : GetOwner()->GetActorRightVector() * (-1)) * 300;
+	const FVector Backwards = GetOwner()->GetActorForwardVector() * (-1) * 300;
 
 	const FVector FinalDestination = GetOwner()->GetActorLocation() + Right + Backwards;
 	return FinalDestination;
@@ -133,7 +134,11 @@ void UAICharacter::Fire()
 			Bot->AttackEnd();
 		}
 	}
-	Bot->ReturnAttackToken();
+
+	if (AEnemyCharacter* BotEnemyCharacter = Cast<AEnemyCharacter>(GetOwner()))
+	{
+		BotEnemyCharacter->ReturnAttackToken();
+	}
 }
 
 void UAICharacter::FollowSevenCharacter(const ASevenCharacter* SevenCharacter)
@@ -158,6 +163,6 @@ ASevenCharacter* UAICharacter::SelectEnemy()
 		ASevenCharacter* SevenCharacter = SevenPlayerController->GetAnyAliveEnemy();
 		return SevenCharacter;
 	}
-	
+	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter]SelectEnemy couldn't Select Enemy"));
 	return nullptr;
 }

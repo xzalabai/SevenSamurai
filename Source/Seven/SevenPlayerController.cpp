@@ -242,7 +242,7 @@ TArray<const ASevenCharacter*> ASevenPlayerController::GetAIControlledAllies()
 
 	for (const ASevenCharacter* Seven : SevenCharacters)
 	{
-		if (Seven == PlayerControlledAlly)
+		if (Seven == PlayerControlledAlly || !Seven->IsAlive())
 		{
 			continue;
 		}

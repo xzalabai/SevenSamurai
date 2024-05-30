@@ -262,7 +262,7 @@ void ASevenCharacter::OnLayingDead()
 void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType);
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d, Damage: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType, AttackInfo.Damage);
 
 	// Parry
 	if (ParryAttack(Attacker))
@@ -292,7 +292,6 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 			AC_Animation->Play(BlockMontage, RandomMontageStr, EMontageType::Block, true);
 			return;
 		}
-
 	}
 
 	// Evade
@@ -517,7 +516,7 @@ void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)
 	AttackToken = enemyUniqueID;
 }
 
-void ASevenCharacter::ReturnAttackToken()
+void ASevenCharacter::ResetAttackToken()
 {
 	AttackToken = 0;
 }

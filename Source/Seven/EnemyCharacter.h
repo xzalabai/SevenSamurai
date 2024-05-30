@@ -12,6 +12,7 @@ UCLASS()
 class SEVEN_API AEnemyCharacter : public ASevenCharacter
 {
 	GENERATED_BODY()
+	friend class UAICharacter;
 public:
 	AEnemyCharacter();
 protected:

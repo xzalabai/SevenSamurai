@@ -48,11 +48,14 @@ void AMissionHandler::StoreMissions()
 void AMissionHandler::MissionStarted(uint32 ID)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[UMissions].MissionStarted Mission ID %d has started"), ID);
+
 	const AMission* ActiveMission = Missions[ID];
+	ActiveMissionID = ID;
+	ActiveMission->Area->SetGenerateOverlapEvents(false);
+
 	FActorSpawnParameters SpawnParams;
 	AEnemyCharacter* NewEnemy = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyClassToSpawn, ActiveMission->EnemySpawn->GetComponentLocation(), FRotator(), SpawnParams);
-	ActiveMissionID = ID;
-
+	
 	MoveAlliesToPlace();
 }
 
