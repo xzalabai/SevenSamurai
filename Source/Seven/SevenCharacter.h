@@ -13,6 +13,7 @@ class AThrowingKnife;
 class UAICharacter;
 class UAnimationComponent;
 class ASevenPlayerController;
+class USevenCharacterDA;
 class UAttackComponent;
 class UAttributesComponent;
 class UMotionWarpingComponent;
@@ -51,6 +52,9 @@ protected:
 
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(VisibleAnywhere)
+	USevenCharacterDA* SevenCharacterDA;
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bEnemy;
