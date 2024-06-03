@@ -1,6 +1,9 @@
 #include "CharacterPicker.h"
 #include "SevenCharacter.h"
 #include "SevenCharacterDA.h"
+#include "SevenPlayerController.h"
+#include "MissionHandler.h"
+#include "Kismet\GameplayStatics.h"
 
 ACharacterPicker::ACharacterPicker()
 {
@@ -11,7 +14,23 @@ ACharacterPicker::ACharacterPicker()
 void ACharacterPicker::BeginPlay()
 {
 	Super::BeginPlay();
+	AMissionHandler* MissionHandler = Cast<AMissionHandler>(UGameplayStatics::GetActorOfClass(this, AMissionHandler::StaticClass()));
+	MissionHandler->OnMissionEnd.AddUObject(this, &ACharacterPicker::OnMissionEnd);
+}
+
+void ACharacterPicker::OnMissionEnd(bool bPlayerWon)
+{
+	// Update existing entries
+	TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	const TArray<const ASevenCharacter*> AllSevenCharacters = SevenPlayerController->GetSevenCharacters();
 	
+	for (const ASevenCharacter* SevenCharacter : AllSevenCharacters)
+	{
+		if (!SevenCharacter->IsAlive())
+		{
+			AvailableCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
+		}
+	}
 }
 
 void ACharacterPicker::ShowAvailableCharacters() const
@@ -71,7 +90,7 @@ void ACharacterPicker::SpawnSevenCharacters() const
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	for (const USevenCharacterDA* CharacterToBeSpawned : SelectedCharacters)
+	for (USevenCharacterDA* CharacterToBeSpawned : SelectedCharacters)
 	{
 		if (!CharacterToBeSpawned->RepresentingClass)
 		{
@@ -83,6 +102,8 @@ void ACharacterPicker::SpawnSevenCharacters() const
 			GetActorLocation(),
 			FRotator(),
 			SpawnParams);
+		SevenCharacter->SevenCharacterDA = CharacterToBeSpawned; 
+
 	}
 }
 

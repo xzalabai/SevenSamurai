@@ -262,7 +262,7 @@ void ASevenPlayerController::UpdateStatus(const AActor* Actor, const EEnemyStatu
 	// This should be removed to something like SevenGameMode
 	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
 	const int8 CharacterID = SevenCharacter->GetUniqueID();
-	//UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
 	
 	if (Status == EEnemyStatus::IncomingAttack)
 	{

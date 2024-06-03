@@ -64,6 +64,7 @@ void AMissionHandler::MissionStarted(uint32 ID)
 		AEnemyCharacter* NewEnemy1 = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyClassToSpawn, ActiveMission->EnemySpawns[i % ActiveMission->EnemySpawns.Num()]->GetComponentLocation(), FRotator(), SpawnParams);
 	}
 	EnemyKilledCount = 0;
+	SevenCharactersKilledCount = 0;
 	MoveAlliesToPlace();
 }
 
@@ -106,7 +107,7 @@ void AMissionHandler::MoveAlliesToPlace()
 
 void AMissionHandler::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 {
-	if (ActiveMissionID == -1)
+	if (ActiveMissionID == -1 || Status != EEnemyStatus::Dead)
 	{
 		// No mission active
 		return;
@@ -119,9 +120,22 @@ void AMissionHandler::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Sta
 	{
 		EnemyKilledCount++;
 	}
+	else
+	{
+		SevenCharactersKilledCount++;
+	}
+
+	if (SevenCharactersKilledCount == ActiveMission->SevenCharacterCount)
+	{
+		// End of mission, LOSE
+		OnMissionEnd.Broadcast(false);
+		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
+	}
 
 	if (EnemyKilledCount == ActiveMission->EnemiesCount)
 	{
-		// End of mission
+		// End of mission, WIN
+		OnMissionEnd.Broadcast(true);
+		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
 	}
 }

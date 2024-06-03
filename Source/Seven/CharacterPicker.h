@@ -28,6 +28,9 @@ protected:
 
 private:
 	UFUNCTION(BlueprintCallable)
+	void OnMissionEnd(bool bPlayerWon);
+
+	UFUNCTION(BlueprintCallable)
 	void ShowAvailableCharacters() const;
 
 	UFUNCTION(BlueprintCallable)
@@ -38,4 +41,5 @@ private:
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnSevenCharacters() const;
+
 };

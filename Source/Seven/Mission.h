@@ -21,6 +21,9 @@ public:
 	uint32 EnemiesCount{ 0 };
 
 	UPROPERTY(EditAnywhere)
+	uint32 SevenCharacterCount{ 0 };
+
+	UPROPERTY(EditAnywhere)
 	USphereComponent* Area{ nullptr };
 
 	UPROPERTY(EditAnywhere)

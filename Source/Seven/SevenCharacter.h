@@ -30,6 +30,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	friend class UAICharacter;
 	friend class UAttackComponent;
 	friend class UThrowKnife;
+	friend class ACharacterPicker;
 	friend class UKnifeThrowCombo;
 
 	GENERATED_BODY()
@@ -226,6 +227,7 @@ public:
 	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	virtual bool IsAlive() const;
+	bool IsSameTeam(const ASevenCharacter* Other) const;
 	ASevenPlayerController* GetSevenPlayerController() const;
 	
 	UFUNCTION(BlueprintCallable)

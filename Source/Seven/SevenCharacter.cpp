@@ -78,7 +78,6 @@ void ASevenCharacter::BeginPlay()
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
 	
-
 	AC_Attribute->Set(EItemType::HP, 20);
 
 	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
@@ -272,6 +271,12 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d, Damage: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType, AttackInfo.Damage);
 
+	// CHEAT
+	if (IsSameTeam(Attacker))
+	{
+		return;
+	}
+
 	// Parry
 	if (ParryAttack(Attacker))
 	{
@@ -332,6 +337,11 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
 		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
 	}
+}
+
+bool ASevenCharacter::IsSameTeam(const ASevenCharacter* Other) const
+{
+	return Other->IsEnemy() == IsEnemy();
 }
 
 bool ASevenCharacter::IsAlive() const
