@@ -6,6 +6,8 @@
 
 class ASevenCharacter;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnWeaponUpgrade, const AActor* UpgradedActor);
+
 UCLASS()
 class SEVEN_API AWeaponUpgrade : public AActor
 {
@@ -19,6 +21,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpgradeWeapon(const ASevenCharacter* Character);
+
+	FOnWeaponUpgrade OnWeaponUpgrade;
 
 protected:
 	virtual void BeginPlay() override;

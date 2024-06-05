@@ -1,6 +1,8 @@
 #include "CharacterPicker.h"
 #include "SevenCharacter.h"
 #include "SevenCharacterDA.h"
+#include "Weapon.h"
+#include "WeaponUpgrade.h"
 #include "SevenPlayerController.h"
 #include "MissionHandler.h"
 #include "Kismet\GameplayStatics.h"
@@ -16,6 +18,9 @@ void ACharacterPicker::BeginPlay()
 	Super::BeginPlay();
 	AMissionHandler* MissionHandler = Cast<AMissionHandler>(UGameplayStatics::GetActorOfClass(this, AMissionHandler::StaticClass()));
 	MissionHandler->OnMissionEnd.AddUObject(this, &ACharacterPicker::OnMissionEnd);
+
+	AWeaponUpgrade* WeaponUpgrade = Cast<AWeaponUpgrade>(UGameplayStatics::GetActorOfClass(this, AWeaponUpgrade::StaticClass()));
+	WeaponUpgrade->OnWeaponUpgrade.AddUObject(this, &ACharacterPicker::OnWeaponUpgrade);
 }
 
 void ACharacterPicker::OnMissionEnd(bool bPlayerWon)
@@ -31,6 +36,20 @@ void ACharacterPicker::OnMissionEnd(bool bPlayerWon)
 			AvailableCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
 		}
 	}
+}
+
+void ACharacterPicker::OnWeaponUpgrade(const AActor* UpgradedActor)
+{
+	// No need to update anything here, since Update of Weapon for SevenCharacterDA happens via pointers in AttackComponent/SetWeaponDamage
+
+	/*const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(UpgradedActor);
+	int32 Index = AvailableCharacters.Find(SevenCharacter->SevenCharacterDA);
+	if (Index == INDEX_NONE)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ACharacterPicker].UpgradedActor NULL"));
+		return;
+	}
+	USevenCharacterDA* SevenCharacterDA = AvailableCharacters[Index];*/
 }
 
 void ACharacterPicker::ShowAvailableCharacters() const

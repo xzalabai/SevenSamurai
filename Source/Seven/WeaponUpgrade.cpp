@@ -36,5 +36,8 @@ void AWeaponUpgrade::ShowPossibleWeaponUpgrades() const
 void AWeaponUpgrade::UpgradeWeapon(const ASevenCharacter* SevenCharacter)
 {
 	// upgrade double..
-	SevenCharacter->AC_AttackComponent->SetWeaponDamage(SevenCharacter->AC_AttackComponent->GetWeaponDamage() * 2);
+	//SevenCharacter->AC_AttackComponent->SetWeaponDamage(SevenCharacter->AC_AttackComponent->GetWeaponDamage() * 2);
+	SevenCharacter->AC_AttackComponent->SetWeaponDamage(888);
+
+	OnWeaponUpgrade.Broadcast(SevenCharacter);
 }

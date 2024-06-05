@@ -1,6 +1,7 @@
 #include "AttackComponent.h"
 #include "AnimationComponent.h"
 #include "MotionWarpingComponent.h"
+#include "SevenCharacterDA.h"
 #include "Combo.h"
 #include "SevenCharacter.h"
 #include "Weapon.h"
@@ -313,7 +314,9 @@ void UAttackComponent::ComboAttackEnd()
 void UAttackComponent::SetWeaponDamage(const int NewDamage)
 {
 	check(NewDamage > 0);
-	//WeaponDetail.Damage = NewDamage;
+	WeaponDetail.Damage = NewDamage;
+	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
+	SevenCharacter->SevenCharacterDA->WeaponDetail = FWeaponDetail(WeaponDetail.Damage, WeaponDetail.WeaponLevel);
 }
 
 void UAttackComponent::OnAttackStart()

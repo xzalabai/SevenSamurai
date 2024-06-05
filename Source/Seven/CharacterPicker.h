@@ -27,8 +27,11 @@ protected:
 	TArray<USevenCharacterDA*> SelectedCharacters;
 
 private:
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
+	
+	// Listeners
 	void OnMissionEnd(bool bPlayerWon);
+	void OnWeaponUpgrade(const AActor* UpgradedActor);
 
 	UFUNCTION(BlueprintCallable)
 	void ShowAvailableCharacters() const;
