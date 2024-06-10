@@ -17,9 +17,11 @@ class SEVEN_API UCombo : public UObject, public IComboInterface
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-protected:
+public:
 	UPROPERTY(EditDefaultsOnly)
 	FName ComboName;
+
+protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackerAnimation;
@@ -34,4 +36,5 @@ public:
 	virtual void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	virtual void ComboAttackStart() override;
 	virtual void ComboAttackEnd() override;
+	virtual const FName& GetComboName() override;
 };

@@ -37,7 +37,7 @@ private:
 	void ShowAvailableCharacters() const;
 
 	UFUNCTION(BlueprintCallable)
-	void ShowSelecteCharacters() const;
+	void ShowSelectedCharacters() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SelectCharacters(TArray<int32> SelectedSlots);

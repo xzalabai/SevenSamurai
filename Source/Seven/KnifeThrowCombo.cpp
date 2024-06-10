@@ -44,3 +44,8 @@ void UKnifeThrowCombo::ComboAttackEnd()
 {
 
 }
+
+const FName& UKnifeThrowCombo::GetComboName()
+{
+	return ComboName;
+}

@@ -17,8 +17,12 @@ struct FCombosWithPrices
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UObject> Combo;
+
 	UPROPERTY(EditAnywhere)
 	int Price;
+
+	UPROPERTY(EditAnywhere)
+	FName Name;
 };
 
 USTRUCT(BlueprintType)
@@ -38,16 +42,12 @@ class SEVEN_API AComboManager : public AActor
 	
 public:	
 	AComboManager();
-	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	void ShowSkillTree(const TArray<ASevenCharacter*> AvailableCharacters) const;
 	UFUNCTION(BlueprintCallable)
 	void BuyCombo(const ASevenCharacter* const SevenCharacter, const int Index) const;
 	UPROPERTY(EditAnywhere)
 	TMap<ESevenCharacterType, FSevenCharacterCombos> SevenCharacterCombosMapping;
-
-protected:
-	virtual void BeginPlay() override;
 };
 
 

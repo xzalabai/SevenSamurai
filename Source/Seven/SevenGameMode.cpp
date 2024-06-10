@@ -32,6 +32,7 @@ High - Decide, whether all enemies will be always facing Character. If YES -> Do
 High - Fix Guard left walk (character seems to go forward)
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
 Medium - Move HP to Attributes -> and find out why it's crashing
+Medium - Handle behavior if SevenCharacter got deleted (with all combos, weapon upgrades -> might be weird for SevenCharacterDA, CharacterPicker...)
 Medium - adjust Hit Reaction animations based on the direction!
 Medium - Change logic of OnLayingDead .. it should be controlled from Controller / Animation / Character ?
 Medium - Merge all methods (look,space,move) into one with, where BindAction will have 1 parameter (delegate) ... ALSO make it more readable ..

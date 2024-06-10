@@ -33,3 +33,8 @@ void URadialCombo::ComboAttackEnd()
 	Attacker = nullptr;
 }
 
+const FName& URadialCombo::GetComboName()
+{
+	return ComboName;
+}
+

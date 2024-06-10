@@ -45,4 +45,10 @@ void UCombo::ComboAttackStart()
 
 void UCombo::ComboAttackEnd()
 {
+
+}
+
+const FName& UCombo::GetComboName()
+{
+	return ComboName;
 }

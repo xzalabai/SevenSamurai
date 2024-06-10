@@ -17,11 +17,16 @@ class SEVEN_API URadialCombo : public UObject, public IComboInterface
 	GENERATED_BODY()
 	
 	TObjectPtr<ASevenCharacter> Attacker;
+
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackerAnimation;
+
+	UPROPERTY(EditDefaultsOnly)
+	FName ComboName;
 
 	
 	virtual void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	virtual void ComboAttackStart() override;
 	virtual void ComboAttackEnd() override;
+	virtual const FName& GetComboName() override;
 };

@@ -289,7 +289,15 @@ void UAttackComponent::SetCombo(const int8 ID)
 
 void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
 {
-	CombosMapping.Emplace(CombosMapping.Num() + 1, NewObject<UObject>(this, TypeOfCombo));
+	int Index = CombosMapping.Num() + 1;
+	CombosMapping.Emplace(Index, NewObject<UObject>(this, TypeOfCombo));
+	
+	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[Index]);
+	if (Combo)
+	{
+		GetOwnerCharacter()->SevenCharacterDA->Combos.Add(Combo->GetComboName());
+	}
+	
 	UE_LOG(LogTemp, Display, TEXT("[AComboManager]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
 }
 

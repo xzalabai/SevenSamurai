@@ -69,7 +69,7 @@ void ACharacterPicker::ShowAvailableCharacters() const
 	}
 }
 
-void ACharacterPicker::ShowSelecteCharacters() const
+void ACharacterPicker::ShowSelectedCharacters() const
 {
 	FString FinalText = "SELECTED CHARACTERS: ";
 	int i = 0;

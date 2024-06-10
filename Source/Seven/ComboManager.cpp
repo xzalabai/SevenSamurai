@@ -2,22 +2,13 @@
 #include "AttributesComponent.h"
 #include "Combo.h"
 #include "AttackComponent.h"
+#include "SevenCharacterDA.h"
 #include "SevenCharacter.h"
 #include "RadialCombo.h"
 
 AComboManager::AComboManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
-}
-
-void AComboManager::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void AComboManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void AComboManager::ShowSkillTree(const TArray<ASevenCharacter*> AvailableCharacters) const
@@ -74,5 +65,6 @@ void AComboManager::BuyCombo(const ASevenCharacter* const SevenCharacter, const 
 
 	AttributesComponent->Decrease(EItemType::Gold, ComboToBePurchased.Price);
 	AttackComponent->AddComboToCharacter(ComboToBePurchased.Combo);
+
 }
 

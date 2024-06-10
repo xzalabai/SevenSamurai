@@ -34,5 +34,5 @@ public:
 	FWeaponDetail WeaponDetail;
 
 	UPROPERTY(EditAnywhere)
-	TArray<ECombo> Combos;
+	TArray<FName> Combos;
 };

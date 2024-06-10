@@ -21,6 +21,5 @@ public:
 	virtual void Use(AActor* AttackerActor, AActor* VictimActor) = 0;
 	virtual void ComboAttackStart() = 0;
 	virtual void ComboAttackEnd() = 0;
-
-public:
+	virtual const FName& GetComboName() = 0;
 };
