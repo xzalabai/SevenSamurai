@@ -333,7 +333,7 @@ void ASevenPlayerController::OnCharacterKilled(const AActor* Actor, const EEnemy
 	{
 		if (ASevenCharacter* SevenCharacter = GetPossessedCharacter())
 		{
-			SevenCharacter->AC_Attribute->Add(EItemType::XP, 10);
+			SevenCharacter->AC_Attribute->Add(EItemType::XP, 20);
 		}
 	}
 }

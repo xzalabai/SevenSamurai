@@ -25,67 +25,6 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-//
-// NEW APPROACH: Random animation sequence
-// 
-// const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
-//{
-//	if (CurrentAttackType != EAttackType::Heavy && CurrentAttackType != EAttackType::Light)
-//	{
-//		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackMontageToBePlayed.CurrentAttackType == %d "), (int)CurrentAttackType);
-//		return TPair<UAnimMontage*, FName>(nullptr, FName());
-//	}
-//
-//	const ASevenCharacter* SevenCharacter = GetOwnerCharacter();
-//	UAnimMontage* MontageToBePlayed;
-//	const FName CurrentlyPlayedSection = SevenCharacter->AC_Animation->GetCurrentMontageSection();
-//
-//	if (CurrentAttackType == EAttackType::Light)
-//	{
-//		MontageToBePlayed = GetOwnerCharacter()->LightAttackAttacker;
-//		// Random sequence
-//		CurrentSection = FMath::RandRange(1, MontageToBePlayed->CompositeSections.Num());
-//		if (CurrentlyPlayedSection != NAME_None  && CurrentSection == CustomMath::FNameToInt(CurrentlyPlayedSection))
-//		{
-//			// We already play this Light Attack animation, try another random try (and if still same, do nothing)...
-//			CurrentSection = FMath::RandRange(1, MontageToBePlayed->CompositeSections.Num());
-//		}
-//		
-//	}
-//	else if (CurrentAttackType == EAttackType::Heavy)
-//	{
-//		MontageToBePlayed = GetOwnerCharacter()->HeavyAttackAttacker;
-//		// Predetermined sequence
-//		if (CurrentlyPlayedSection == NAME_None)
-//		{
-//			// No Animation in progress
-//			CurrentSection = 1;
-//		}
-//		if (SevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::Attack)
-//		{
-//			// Some Attack animation is in progress
-//			CurrentSection = CustomMath::FNameToInt(CurrentlyPlayedSection);
-//			if (CurrentSection < MontageToBePlayed->CompositeSections.Num())
-//			{
-//				// We can still iterate
-//				++CurrentSection;
-//			}
-//			else
-//			{
-//				CurrentSection = 1;
-//				// TODO: HERE SHOULD BE COOLDOWN!
-//			}
-//		}
-//	}
-//	const FName SectionToPlay = CustomMath::IntToFName(CurrentSection);
-//	return TPair< UAnimMontage*, FName> (MontageToBePlayed, SectionToPlay);
-//}
-
-/*
-* 
-* OLD APPROACH -> Animation is always played in sequence
-* 
-*/
 const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 {
 	if (CurrentAttackType != EAttackType::Heavy && CurrentAttackType != EAttackType::Light)
@@ -136,11 +75,14 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 	
 		CurrentSection = 1;
 		CurrentAttackType = EAttackType::None;
+		CurrentAttackTypeMontage = NAME_None;
+
 		LastUsedCombo = nullptr;
 	}
 	if (StoppedMontage == EMontageType::Throw)
 	{
 		CurrentAttackType = EAttackType::None;
+		CurrentAttackTypeMontage = NAME_None;
 	}
 }
 
@@ -148,13 +90,14 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	// TODO: Damage based on weapon
 	int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
-	DamageToBeDealt = 200; //TODO Debug
-	return FAttackInfo(CurrentAttackType, 0, DamageToBeDealt, GetOwner());
+	DamageToBeDealt = 200; //TODO just for debug
+	return FAttackInfo(CurrentAttackType, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
 }
 
 bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt)
 {
 	const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
+	CurrentAttackTypeMontage = NextAttack.Value;
 	
 	if (!NextAttack.Key)
 	{
@@ -183,6 +126,7 @@ bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 	{
 		UseCombo(ComboActivated);
 		CurrentAttackType = EAttackType::Combo;
+		CurrentAttackTypeMontage = NAME_None;
 		return true;
 	}
 
@@ -206,6 +150,7 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 	{
 		// Initialization phase of attack
 		CurrentAttackType = EAttackType::Heavy;
+		CurrentAttackTypeMontage = NAME_None;
 		PlayAttack(nullptr, false, true);
 	}
 	else if (CurrentAttackType == EAttackType::Heavy && bReleased && !bHeavyAttackReady)

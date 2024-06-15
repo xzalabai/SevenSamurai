@@ -20,6 +20,18 @@ class UMotionWarpingComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
+UENUM(BlueprintType)
+enum class EReceivedHitReaction : uint8
+{
+	NotResolved,
+	Blocked,
+	Parried,
+	Evaded,
+	BlockBroken,
+	Hit,
+	Dead,
+};
+
 UCLASS(config = Game)
 
 class ASevenCharacter : public ACharacter, public IControllableInterface
@@ -193,14 +205,15 @@ protected:
 
 protected:
 	virtual void BeginPlay();
-	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1,const int32 StartOffset = 200, const int32 EndOffset = 200, const int32 Thickness = 100, const bool bCameraRelative = true);
+	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1,const int32 StartOffset = 200, const int32 EndOffset = 200, const int32 Thickness = 100, const bool bCameraRelative = true) const;
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
-	bool ParryAttack(const ASevenCharacter* Attacker);
+	bool ParryAttack(const ASevenCharacter* Attacker) const;
 	void AttackWasParried() const;
+	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo) const;
 	void CheckIfBlockingBeforeParrying();
-	bool IsEvadingAway(const ASevenCharacter *Enemy);
+	bool IsEvadingAway(const ASevenCharacter *Enemy) const;
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
 	virtual void OnLayingDead();
 

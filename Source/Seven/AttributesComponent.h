@@ -15,7 +15,6 @@ class SEVEN_API UAttributesComponent : public UActorComponent
 
 public:	
 	UAttributesComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	FORCEINLINE int32 GetHP() const { return AttributesMap[EItemType::HP]; }
 	FORCEINLINE int32 GetGold() const { return AttributesMap[EItemType::Gold]; }
 	void Set(const EItemType ItemType, const int32 NewHP);

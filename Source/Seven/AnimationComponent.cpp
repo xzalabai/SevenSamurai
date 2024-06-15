@@ -158,7 +158,6 @@ void UAnimationComponent::OnEvadeEnded()
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
 {
-	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] NextComboTriggered %d"), bEnable ? 1 : 0);
 	bNextComboTriggerEnabled = bEnable;
 }
 

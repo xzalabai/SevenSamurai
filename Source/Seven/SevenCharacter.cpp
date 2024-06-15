@@ -230,7 +230,7 @@ void ASevenCharacter::PerformWeaponTrace()
 /// Callbacks from ABP
 ///////////////////////////////////////////////////////////////////////
 
-bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker)
+bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 {
 	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
 	if (!SevenPlayerController)
@@ -266,10 +266,12 @@ void ASevenCharacter::OnLayingDead()
 	}
 }
 
-void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
+void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
+	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d, Damage: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType, AttackInfo.Damage);
+
+	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d, Damage: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType, AttackInfo.Damage);
 
 	// CHEAT
 	if (IsSameTeam(Attacker))
@@ -277,47 +279,48 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		return;
 	}
 
-	// Parry
-	if (ParryAttack(Attacker))
+	if (ReceivedHitReaction == EReceivedHitReaction::Parried)
 	{
 		check(ParryMontage);
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
 		AC_Animation->Play(ParryMontage, "0", EMontageType::Parry, true);
 		Attacker->AttackWasParried();
 		bIsImmortal = true;
+
+		AC_Attribute->Add(EItemType::XP, 10);
 		return;
 	}
-	
-	// Block
-	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+
+	if (ReceivedHitReaction == EReceivedHitReaction::Blocked)
 	{
 		if (AttackInfo.AttackType == EAttackType::Heavy)
 		{
-			check(BlockMontage);
 			AC_Animation->Play(BlockBroken, "1", EMontageType::HitReaction, true);
 			return;
 		}
 		else
 		{
-			check(BlockMontage);
-			UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Blocking"));
 			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
 			AC_Animation->Play(BlockMontage, RandomMontageStr, EMontageType::Block, true);
 			return;
 		}
 	}
 
-	// Evade
-	if (GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
+	if (ReceivedHitReaction == EReceivedHitReaction::BlockBroken)
+	{
+		AC_Animation->Play(BlockBroken, "1", EMontageType::HitReaction, true);
+		return;
+	}
+
+	if (ReceivedHitReaction == EReceivedHitReaction::Evaded)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway"));
 		bIsImmortal = true;
+		AC_Attribute->Add(EItemType::XP, 10);
 		return;
-		
 	}
 
-	const int32 NewHP = AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
-	if (NewHP == 0)
+	if (ReceivedHitReaction == EReceivedHitReaction::Dead)
 	{
 		// Dead
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP == 0"));
@@ -327,9 +330,9 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo &AttackInfo)
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
 		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
 	}
-	else
+
+	if (ReceivedHitReaction == EReceivedHitReaction::Hit)
 	{
-		// Alive
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP != 0"));
 		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change based on attack
 
@@ -388,7 +391,7 @@ void ASevenCharacter::CheckIfBlockingBeforeParrying()
 	}
 }
 
-TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID, const int32 StartOffset, const int32 EndOffset, const int32 Thickness, const bool bCameraRelative)
+TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8 EnemyID, const int32 StartOffset, const int32 EndOffset, const int32 Thickness, const bool bCameraRelative) const
 {
 	 TArray<ASevenCharacter*> FoundActors;
 	 TArray<FHitResult> HitResults;
@@ -398,13 +401,13 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
 	 const FVector Start = GetActorLocation() + DirectionOfSphere * StartOffset;
 	 const FVector End = GetActorLocation() + DirectionOfSphere * EndOffset;
 
-	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), Start, End, Thickness, UEngineTypes::ConvertToTraceType(ECC_WorldDynamic), false, TArray<AActor*> { this }, EDrawDebugTrace::Persistent, HitResults, true);
+	 bool bHit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), Start, End, Thickness, UEngineTypes::ConvertToTraceType(ECC_WorldDynamic), false, TArray<AActor*>{}, EDrawDebugTrace::Persistent, HitResults, true);
 
 	 for (FHitResult& HitResult : HitResults)
  	 {
  		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
  		 {
- 			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsEnemy() != IsEnemy()))
+ 			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsEnemy() != IsEnemy()) && Enemy->GetUniqueID() != GetUniqueID())
  			 {
  				 FoundActors.Add(Enemy);
  			 }
@@ -465,7 +468,7 @@ void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const
 	}
 }
 
-bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy)
+bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy) const
 {
 	EOctagonalDirection EvadeDirection = OctagonalDirection::GetOctagonalDirectionFName(AC_Animation->GetCurrentMontageSection());
 	//EOctagonalDirection EvadeDirection = EOctagonalDirection::None;
@@ -527,6 +530,45 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 	{
 		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
 	}
+}
+
+EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackInfo) const
+{
+	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
+
+	if (ParryAttack(Attacker))
+	{
+		return EReceivedHitReaction::Parried;
+	}
+
+	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+	{
+		if (AttackInfo.AttackTypeMontage < 3)
+		{
+			return EReceivedHitReaction::Blocked;
+		}
+		else
+		{
+			return EReceivedHitReaction::BlockBroken;
+		}
+	}
+
+	if (GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
+	{
+		return EReceivedHitReaction::Evaded;
+	}
+
+	const int32 NewHP = AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
+	if (NewHP == 0)
+	{
+		return EReceivedHitReaction::Dead;
+	}
+	else
+	{
+		return EReceivedHitReaction::Hit;
+	}
+
+	return EReceivedHitReaction::NotResolved;
 }
 
 void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)

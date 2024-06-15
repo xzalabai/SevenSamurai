@@ -30,7 +30,6 @@ void AMission::BeginPlay()
 {
 	Super::BeginPlay();
 	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
-	check(EnemiesCount > 0);
 	check(MissionType != EMissionType::NotProvided);
 	if (bSideMission)
 	{

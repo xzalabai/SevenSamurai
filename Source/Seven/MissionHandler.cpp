@@ -3,6 +3,7 @@
 #include "AICharacter.h"
 #include "EnemyCharacter.h"
 #include "SevenPlayerController.h"
+#include "GameController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet\GameplayStatics.h"
@@ -120,17 +121,30 @@ void AMissionHandler::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Sta
 
 	if (SevenCharactersKilledCount == ActiveMission->SevenCharacterCount)
 	{
-		// End of mission, LOSE
-		OnMissionEnd.Broadcast(false);
 		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
+
+		OnMissionEnd.Broadcast(false);
 		ActiveMission->MissionComplete(false);
+
+		const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+		UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+		if (GameController)
+		{
+			GameController->Restart();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[UMissions].OnMissionEnd GameController is NULLPPTR"));
+		}
+		
 	}
 
-	if (EnemyKilledCount == ActiveMission->EnemiesCount)
+	if (EnemyKilledCount == ActiveMission->EnemiesToSpawn.Num())
 	{
-		// End of mission, WIN
-		OnMissionEnd.Broadcast(true);
 		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
+		
+		OnMissionEnd.Broadcast(true);
 		ActiveMission->MissionComplete(true);
 	}
 }

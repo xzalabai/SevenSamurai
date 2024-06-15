@@ -38,9 +38,6 @@ public:
 	FName Description;
 
 	UPROPERTY(EditAnywhere)
-	uint32 EnemiesCount{ 0 };
-
-	UPROPERTY(EditAnywhere)
 	uint32 SevenCharacterCount{ 0 };
 
 	UPROPERTY(EditAnywhere)

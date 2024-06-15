@@ -33,6 +33,7 @@ private:
 	FWeaponDetail WeaponDetail;
 
 	EAttackType CurrentAttackType = EAttackType::None;
+	FName CurrentAttackTypeMontage;
 
 	UPROPERTY(VisibleAnywhere)
 	ECombo ComboActivated = ECombo::ES_None;
