@@ -2,6 +2,7 @@
 #include "Weapon.h"
 #include "AnimationComponent.h"
 #include "SevenPlayerController.h"
+#include "EnemyScenarios.h"
 #include "AICharacter.h"
 #include "Particles/ParticleSystem.h"
 #include "AttackComponent.h"
@@ -24,6 +25,9 @@ void AEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	SevenPlayerController->UpdateStatus(this);
+
+	check(EnemyScenarios);
+	check(MissionType != EMissionType::NotProvided);
 }
 
 void AEnemyCharacter::IncomingAttack()
@@ -90,6 +94,11 @@ bool AEnemyCharacter::TryStealAttackToken()
 		}
 	}
 	return false;
+}
+
+UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
+{
+	return EnemyScenarios->EnemyScenarios[MissionType];
 }
 
 void AEnemyCharacter::ReturnAttackToken()

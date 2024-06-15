@@ -41,7 +41,7 @@ void AMissionHandler::StoreMissions()
 				UE_LOG(LogTemp, Error, TEXT("[UMissions].StoreMissions Already contains same ID"));
 				continue;
 			}
-
+			
 			Missions.Add(Mission->ID, Mission);
 			Mission->OnCharacterOverlappedMission.BindUObject(this, &AMissionHandler::MissionStarted);
 		}
@@ -52,17 +52,10 @@ void AMissionHandler::MissionStarted(uint32 ID)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[UMissions].MissionStarted Mission ID %d has started"), ID);
 
-	const AMission* ActiveMission = Missions[ID];
+	const AMission* const ActiveMission = Missions[ID];
 	ActiveMissionID = ID;
-	ActiveMission->Area->SetGenerateOverlapEvents(false);
-	
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	ActiveMission->MissionStarted();
 
-	for (uint32 i = 0; i < ActiveMission->EnemiesCount; i++)
-	{
-		AEnemyCharacter* NewEnemy1 = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyClassToSpawn, ActiveMission->EnemySpawns[i % ActiveMission->EnemySpawns.Num()]->GetComponentLocation(), FRotator(), SpawnParams);
-	}
 	EnemyKilledCount = 0;
 	SevenCharactersKilledCount = 0;
 	MoveAlliesToPlace();
@@ -130,6 +123,7 @@ void AMissionHandler::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Sta
 		// End of mission, LOSE
 		OnMissionEnd.Broadcast(false);
 		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
+		ActiveMission->MissionComplete(false);
 	}
 
 	if (EnemyKilledCount == ActiveMission->EnemiesCount)
@@ -137,5 +131,6 @@ void AMissionHandler::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Sta
 		// End of mission, WIN
 		OnMissionEnd.Broadcast(true);
 		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
+		ActiveMission->MissionComplete(true);
 	}
 }

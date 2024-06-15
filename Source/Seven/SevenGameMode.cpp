@@ -31,6 +31,7 @@ High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorect
 High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Fix Guard left walk (character seems to go forward)
 High - Change int in AttackTypeMontage for enum -> where we define all sections!\
+Medium - Find better solution to store MissionType for EnemyCharacter and then resolve it based on DataAsset stored in EnemyController (expensive!)
 Medium - Move HP to Attributes -> and find out why it's crashing
 Medium - Handle behavior if SevenCharacter got deleted (with all combos, weapon upgrades -> might be weird for SevenCharacterDA, CharacterPicker...)
 Medium - adjust Hit Reaction animations based on the direction!

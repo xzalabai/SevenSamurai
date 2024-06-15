@@ -23,6 +23,7 @@ UENUM(BlueprintType)
 enum class ESevenCharacterType : uint8
 {
 	Classic = 0,
+	Halbert = 1,
 
 };
 

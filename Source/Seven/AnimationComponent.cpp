@@ -158,6 +158,7 @@ void UAnimationComponent::OnEvadeEnded()
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
 {
+	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] NextComboTriggered %d"), bEnable ? 1 : 0);
 	bNextComboTriggerEnabled = bEnable;
 }
 
@@ -204,8 +205,8 @@ FName UAnimationComponent::GetCurrentMontageSection()
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s"),
-		*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
+		*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName(), bInterrupted ? 1 :0);
 	
 	if (!bInterrupted)
 	{
@@ -220,11 +221,11 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	GetOwnerCharacter()->OnAnimationEnded(CurrentMontageType, NextMontageType);
 	GetOwnerCharacter()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType, NextMontageType);
 	
-	if (CurrentMontageType == EMontageType::Attack)
+	if (CurrentMontageType == EMontageType::Attack && !bInterrupted)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent]OnAnimationEnded.AttackEnd"));
 		GetOwnerCharacter()->AttackEnd();
-		bNextComboTriggerEnabled = false;
+		NextComboTriggered(false);
 	}
 }
 

@@ -7,6 +7,7 @@
 
 class AMission;
 class AEnemyCharacter;
+class UEnemyScenarios;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnMissionEnd, bool bPlayerWon);
 
@@ -27,7 +28,6 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	uint32 SevenCharactersKilledCount{ 0 };
-
 
 public:	
 	AMissionHandler();
