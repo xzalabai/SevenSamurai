@@ -1,15 +1,40 @@
 #include "AnimationComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SevenCharacter.h"
+#include "SevenPlayerController.h"
 #include "AttackComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Kismet\KismetMathLibrary.h"
+#include "Kismet\GameplayStatics.h"
 
 UAnimationComponent::UAnimationComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
+
+void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	if (const ASevenCharacter* SevenCharacter = GetOwnerCharacter())
+	{
+		if (SevenCharacter->CanBePossessed() && SevenCharacter->GetIsGuarding()) // TODO REMOVE FIRST CONDITION!!!
+		{
+			if (LockedEnemy)
+			{
+				UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] LockedEnemy - %d"), LockedEnemy->GetUniqueID());
+				ASevenPlayerController* PlayerController = SevenCharacter->GetSevenPlayerController(); // TODO: Why I cannot assign directly to APlayerController ??????
+				FRotator Rot = UKismetMathLibrary::FindLookAtRotation(SevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
+				Rot.Pitch = Rot.Pitch - 25.0f;
+				PlayerController->SetControlRotation(Rot);
+			}
+			else
+			{
+				Guard(false);
+			}
+		}
+		
+	}
+}
 
 void UAnimationComponent::BeginPlay()
 {
@@ -147,7 +172,7 @@ void UAnimationComponent::OnLayingDead()
 	USkeletalMeshComponent* PlayerMesh = GetOwnerCharacter()->GetMesh();
 	PlayerMesh->SetCollisionProfileName("Ragdoll");
 	PlayerMesh->SetSimulatePhysics(true);
-	
+	LockedEnemy = nullptr;
 	GetOwnerCharacter()->OnLayingDead();
 }
 
@@ -189,6 +214,19 @@ bool UAnimationComponent::Guard(bool bEnable)
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
 	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
+
+	if (bEnable)
+	{
+		const TArray<ASevenCharacter*> FoundEnemies = SevenCharacter->GetEnemiesInFrontOfCharacer(-1, 200, 1000, 100, true);
+		if (FoundEnemies.Num() > 0)
+		{
+			LockedEnemy = FoundEnemies[0];
+		}
+	}
+	else
+	{
+		LockedEnemy = nullptr;
+	}
 
 	return true;
 }
@@ -232,3 +270,5 @@ void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
 }
+
+

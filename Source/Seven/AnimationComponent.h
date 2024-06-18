@@ -36,15 +36,17 @@ class SEVEN_API UAnimationComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	UAnimationComponent();
-	virtual void BeginPlay() override;
+	friend class UAttackComponent;
 
+public:	
+	FOnMontageEnded EndDelegate;
+	FOnMontageStarted StartDelegate;
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	ASevenCharacter* LockedEnemy{ nullptr };
 
 private:
-	UAnimInstance* GetOwnerAnimInstance();
-	ASevenCharacter* GetOwnerCharacter();
-
 	bool bActiveMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
 	int8 currentMontageSection = -1;
@@ -53,10 +55,11 @@ private:
 	FAnimationToPlay AnimationToPlay;
 	
 public:		
-	FOnMontageEnded EndDelegate;
-	FOnMontageStarted StartDelegate;
+	UAnimationComponent();
+	virtual void BeginPlay() override;
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	void OnAnimationStarted(UAnimMontage* Montage);
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt = false);
 	bool Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt);
@@ -78,7 +81,10 @@ public:
 
 	TArray<AActor*> HitActors;
 
-	friend class UAttackComponent;
+private:
+	UAnimInstance* GetOwnerAnimInstance();
+	ASevenCharacter* GetOwnerCharacter();
+
 };
 
 

@@ -173,7 +173,7 @@ public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)
 	void PerformWeaponTrace();
-	FORCEINLINE bool CanBePossessed() { return !bEnemy; }
+	FORCEINLINE bool CanBePossessed() const { return !bEnemy; }
 	FORCEINLINE bool IsEnemy() const { return bEnemy; }
 
 protected:

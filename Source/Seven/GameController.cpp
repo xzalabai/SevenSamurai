@@ -7,3 +7,5 @@ void UGameController::Restart()
 
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
+
+

@@ -59,6 +59,7 @@ Inventory
 Quest
 
 Learn:
+Why I cannot assign use APlayerController* plcntrl = SevenCharacter->GetPlayerController (which returns ASevenCharacterController)  ????
 Understand why I can't make move assigment if there is no other copy assignemnt / copy constructor / move constructor present
 Understand properly what's going on in WarpAttacker!!! (Rotation of victimDesiredPoint)
 Understand why CDO is ran multiple times and we can't set value as default initialized value / or in constructor: Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
