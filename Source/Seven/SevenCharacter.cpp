@@ -17,6 +17,7 @@
 #include "AttributesComponent.h"
 #include "AttackComponent.h"
 #include "SevenPlayerController.h"
+#include "GameController.h"
 
 ASevenCharacter::ASevenCharacter()
 {
@@ -80,10 +81,12 @@ void ASevenCharacter::BeginPlay()
 	
 	AC_Attribute->Set(EItemType::HP, 20);
 
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
 	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
-	SevenPlayerController->UpdateStatus(this);
+
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -199,8 +202,10 @@ void ASevenCharacter::AttackStart()
 void ASevenCharacter::AttackEnd() const
 {
 	OnAttackEnd.Broadcast();
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
-	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Cooldown);
+	
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this, EEnemyStatus::Cooldown);
 }
 
 void ASevenCharacter::ComboAttackStart()
@@ -232,11 +237,9 @@ void ASevenCharacter::PerformWeaponTrace()
 
 bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 {
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
-	if (!SevenPlayerController)
-	{
-		return false;
-	}
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
 	if (GetIsBlockingBeforeAttack() || !GetIsBlocking())
 	{
 		return false;
@@ -246,7 +249,7 @@ bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 		// Is not turned towards enemy
 		return false;
 	}
-	if (SevenPlayerController->GetEnemyStatus(Attacker->GetUniqueID()) == EEnemyStatus::ParryAvailable)
+	if (GameController->GetEnemyStatus(Attacker->GetUniqueID()) == EEnemyStatus::ParryAvailable)
 	{
 		return true;
 	}
@@ -255,8 +258,9 @@ bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 
 void ASevenCharacter::OnLayingDead()
 {
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
-	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Dead);
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this, EEnemyStatus::Dead);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetGenerateOverlapEvents(false);
@@ -270,14 +274,16 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
 	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d, Damage: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType, AttackInfo.Damage);
 
-	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
+	// CHEAT
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
 
-	// CHEAT
 	if (IsSameTeam(Attacker))
 	{
 		return;
 	}
+
+	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
+	
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Parried)
 	{
@@ -380,8 +386,10 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 
 void ASevenCharacter::CheckIfBlockingBeforeParrying()
 {
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = GetSevenPlayerController();
-	if (SevenPlayerController && SevenPlayerController->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+	if (GameController->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
 	{
 		bIsBlockingBeforeAttack = false;
 	}

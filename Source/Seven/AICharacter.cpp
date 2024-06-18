@@ -1,7 +1,7 @@
 #include "AICharacter.h"
 #include "SevenCharacter.h"
-#include "SevenPlayerController.h"
 #include "AttackComponent.h"
+#include "GameController.h"
 #include "AnimationComponent.h"
 #include "AIController.h"
 #include "Kismet\GameplayStatics.h"
@@ -149,18 +149,21 @@ void UAICharacter::FollowSevenCharacter(const ASevenCharacter* SevenCharacter)
 ASevenCharacter* UAICharacter::SelectEnemy()
 {
 	ASevenCharacter* Bot = Cast<ASevenCharacter>(GetOwner());
-	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
 	if (Bot && Bot->IsEnemy())
 	{
 		// Find SevenCharacter
-		ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(SevenPlayerController->GetPossessedCharacter());
+
+		ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GameController->GetPossessedCharacter());
 		return SevenCharacter;
 	}
 	else
 	{
 		// Find EnemyCharacter
-		ASevenCharacter* SevenCharacter = SevenPlayerController->GetAnyAliveEnemy();
+		ASevenCharacter* SevenCharacter = GameController->GetAnyAliveEnemy();
 		return SevenCharacter;
 	}
 	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter]SelectEnemy couldn't Select Enemy"));

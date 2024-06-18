@@ -3,6 +3,7 @@
 #include "SevenCharacter.h"
 #include "Kismet\GameplayStatics.h"
 #include "Item.h"
+#include "GameController.h"
 
 ULootGenerator::ULootGenerator()
 {
@@ -13,8 +14,11 @@ ULootGenerator::ULootGenerator()
 void ULootGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	SevenPlayerController->OnUpdateStatus.AddUObject(this, &ULootGenerator::OnCharacterKilled);
+
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->OnStatusUpdate.AddUObject(this, &ULootGenerator::OnCharacterKilled);
+
 	check(GoldItemSubclass != nullptr);
 	check(RiceItemSubclass != nullptr);
 }

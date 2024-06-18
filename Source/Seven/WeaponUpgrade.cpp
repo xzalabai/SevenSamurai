@@ -1,8 +1,8 @@
 #include "WeaponUpgrade.h"
-#include "SevenPlayerController.h"
 #include "SevenCharacter.h"
 #include "AttackComponent.h"
 #include "Kismet\GameplayStatics.h"
+#include "GameController.h"
 
 AWeaponUpgrade::AWeaponUpgrade()
 {
@@ -17,8 +17,10 @@ void AWeaponUpgrade::BeginPlay()
 
 void AWeaponUpgrade::ShowPossibleWeaponUpgrades() const
 {
-	const TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	const TArray<const ASevenCharacter*> SevenCharacters = SevenPlayerController->GetSevenCharacters();
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+	const TArray<const ASevenCharacter*> SevenCharacters = GameController->GetSevenCharacters();
 
 	FString FinalText = "";
 	for (const ASevenCharacter* SevenCharacter : SevenCharacters)

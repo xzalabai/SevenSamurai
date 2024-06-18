@@ -2,7 +2,6 @@
 #include "Mission.h"
 #include "AICharacter.h"
 #include "EnemyCharacter.h"
-#include "SevenPlayerController.h"
 #include "GameController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SphereComponent.h"
@@ -21,8 +20,9 @@ void AMissionHandler::BeginPlay()
 	StoreMissions();
 	check(EnemyClassToSpawn);
 
-	TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	SevenPlayerController->OnUpdateStatus.AddUObject(this, &AMissionHandler::OnStatusUpdate);
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->OnStatusUpdate.AddUObject(this, &AMissionHandler::OnStatusUpdate);
 }
 
 void AMissionHandler::StoreMissions()
@@ -64,23 +64,23 @@ void AMissionHandler::MissionStarted(uint32 ID)
 
 void AMissionHandler::MovingToMissionArea()
 {
-	ASevenPlayerController* PlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	TArray<const ASevenCharacter*> AIControlledAllies = PlayerController->GetAIControlledAllies();
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+	TArray<const ASevenCharacter*> AIControlledAllies = GameController->GetAIControlledAllies();
 
 	for (const ASevenCharacter* AIAlly : AIControlledAllies)
 	{
 		AAIController* AIController = Cast<AAIController>(AIAlly->GetController());
 		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 		BlackBoardComponent->SetValueAsBool(TEXT("bFollowPlayer"), true);
-		BlackBoardComponent->SetValueAsObject(TEXT("PositionToGo"), PlayerController->GetPossessedCharacter());
+		BlackBoardComponent->SetValueAsObject(TEXT("PositionToGo"), GameController->GetPossessedCharacter());
 	}
 }
 
 void AMissionHandler::MoveAlliesToPlace()
 {
-	ASevenPlayerController* PlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-
-	if (!PlayerController || ActiveMissionID == -1)
+	if (ActiveMissionID == -1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UMissions].MoveSevenCharactersToPlace PlayerController or wrong ActiveMissionID"));
 		return;
@@ -88,10 +88,14 @@ void AMissionHandler::MoveAlliesToPlace()
 
 	const AMission* ActiveMission = Missions[ActiveMissionID];
 
-	TArray<const ASevenCharacter*> AIControlledAllies = PlayerController->GetAIControlledAllies();
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+	const TArray<const ASevenCharacter*>& AIControlledAllies = GameController->GetAIControlledAllies();
 
 	for (const ASevenCharacter* AIAlly : AIControlledAllies)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[UMissions].MoveSevenCharactersToPlace AIAlly move to mission area: %d"), AIAlly->GetUniqueID());
 		AAIController* AIController = Cast<AAIController>(AIAlly->GetController());
 		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 		BlackBoardComponent->SetValueAsBool(TEXT("bFollowPlayer"), false);

@@ -10,9 +10,7 @@
 #include "SevenPlayerController.generated.h"
 
 class AGodView;
-
-static uint8 UniqueIDCounter;
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUpdateStatus, const AActor* Actor, const EEnemyStatus Status);
+class UGameController;
 
 UCLASS()
 class SEVEN_API ASevenPlayerController : public APlayerController
@@ -84,29 +82,12 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
-	TArray<const ASevenCharacter*> GetAIControlledAllies();
-	const TArray<const ASevenCharacter*> GetSevenCharacters();
+	UGameController* GetGameController() const;
 
-
-	FOnUpdateStatus OnUpdateStatus;
-
-	void UpdateStatus(const AActor* Actor, const EEnemyStatus Status = EEnemyStatus::None);
-	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
-	bool HasAnyEnemyStatus(const EEnemyStatus &Status) const;
-	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
-	ASevenCharacter* GetAnyAliveEnemy();
 	ASevenCharacter* GetPossessedCharacter();
 
 private:
 	TObjectPtr<AActor> GetControlledActor();
-	UPROPERTY()
-	TMap<int8, EEnemyStatus> EnemiesStatus;
-	UPROPERTY()
-	TMap<int8, EEnemyStatus> SevenCharactersStatus;
-	UPROPERTY()
-	TArray<const ASevenCharacter*> SevenCharacters;
-	UPROPERTY()
-	TArray<const ASevenCharacter*> Enemies;
 private:
 	UPROPERTY()
 	AGodView* GodView;

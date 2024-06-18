@@ -1,7 +1,6 @@
 #include "EnemyCharacter.h"
 #include "Weapon.h"
 #include "AnimationComponent.h"
-#include "SevenPlayerController.h"
 #include "EnemyScenarios.h"
 #include "AICharacter.h"
 #include "Particles/ParticleSystem.h"
@@ -9,6 +8,7 @@
 #include "Kismet\GameplayStatics.h"
 #include "Kismet\KismetMathLibrary.h"
 #include <AIController.h>
+#include "GameController.h"
 
 AEnemyCharacter::AEnemyCharacter()
 {
@@ -23,8 +23,6 @@ void AEnemyCharacter::InitiateAttack()
 void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	SevenPlayerController->UpdateStatus(this);
 
 	check(EnemyScenarios);
 	check(MissionType != EMissionType::NotProvided);
@@ -32,28 +30,27 @@ void AEnemyCharacter::BeginPlay()
 
 void AEnemyCharacter::IncomingAttack()
 {
-	if (SevenPlayerController)
-	{
-		SevenPlayerController->UpdateStatus(this, EEnemyStatus::IncomingAttack);
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this, EEnemyStatus::IncomingAttack);
 
-		if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
+	if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
+	{
+		// Spawn emitter only if really attacking (enemy has a token)
+		if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 		{
-			// Spawn emitter only if really attacking (enemy has a token)
-			if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), IncomingAttackParticle,
-					GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
-			}
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), IncomingAttackParticle,
+				GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
 		}
 	}
+
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
 {
-	if (SevenPlayerController)
-	{
-		SevenPlayerController->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
-	}
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
 }
 
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
@@ -67,12 +64,19 @@ void AEnemyCharacter::AttackEnd() const
 {
 	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] AttackEnd"));
 	OnAttackEnd.Broadcast();
-	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Cooldown);
+
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this, EEnemyStatus::Cooldown);
+
 }
 
 void AEnemyCharacter::OnLayingDead()
 {
-	SevenPlayerController->UpdateStatus(this, EEnemyStatus::Dead);
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->UpdateStatus(this, EEnemyStatus::Dead);
+
 	Super::OnLayingDead();
 }
 

@@ -6,7 +6,6 @@
 #include "EnemyCharacter.generated.h"
 
 
-class ASevenPlayerController;
 class UParticleSystem;
 class UBehaviorTree;
 class UEnemyScenarios;
@@ -45,9 +44,6 @@ protected:
 	UBehaviorTree* GetBehaviorTree() const;
 
 	void ReturnAttackToken();
-
-	UPROPERTY()
-	TObjectPtr<ASevenPlayerController> SevenPlayerController;
 
 	UPROPERTY()
 	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;

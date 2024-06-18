@@ -1,9 +1,9 @@
 #include "CharacterPicker.h"
 #include "SevenCharacter.h"
 #include "SevenCharacterDA.h"
+#include "GameController.h"
 #include "Weapon.h"
 #include "WeaponUpgrade.h"
-#include "SevenPlayerController.h"
 #include "MissionHandler.h"
 #include "Kismet\GameplayStatics.h"
 
@@ -26,8 +26,10 @@ void ACharacterPicker::BeginPlay()
 void ACharacterPicker::OnMissionEnd(bool bPlayerWon)
 {
 	// Update existing entries
-	TObjectPtr<ASevenPlayerController> SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	const TArray<const ASevenCharacter*> AllSevenCharacters = SevenPlayerController->GetSevenCharacters();
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+	const TArray<const ASevenCharacter*>& AllSevenCharacters = GameController->GetSevenCharacters();
 	
 	for (const ASevenCharacter* SevenCharacter : AllSevenCharacters)
 	{
