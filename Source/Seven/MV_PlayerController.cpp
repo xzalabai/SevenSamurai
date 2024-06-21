@@ -50,6 +50,7 @@ void AMV_PlayerController::PerformTraceToMap() const
 	FHitResult HitResult;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
 
 	bool bHit = GetHitResultUnderCursorForObjects(ObjectTypes, false, HitResult);
 
@@ -59,7 +60,7 @@ void AMV_PlayerController::PerformTraceToMap() const
 		if (const AMV_Map* HitObject = Cast<AMV_Map>(HitResult.GetActor()))
 		{
 			DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
-			MV_AISevenCharacterController->MoveCharacterTo(HitResult.Location);
+			MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 		}
 	}
 }

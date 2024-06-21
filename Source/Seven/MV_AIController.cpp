@@ -6,5 +6,6 @@
 
 void AMV_AIController::MoveCharacterTo(const FVector& Position)
 {
-	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, Position);
+	AActor* ControlledActor = GetPawn();
+	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, ControlledActor->GetActorLocation().Z));
 }

@@ -5,6 +5,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "PaperSpriteComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "MV_EntityBase.h"
 
 AMVSevenCharacter::AMVSevenCharacter()
 {
@@ -19,16 +20,12 @@ AMVSevenCharacter::AMVSevenCharacter()
 	RenderComponent->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
 	RenderComponent->Mobility = EComponentMobility::Movable;
 	RenderComponent->SetupAttachment(RootComponent);
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-
 }
 
 void AMVSevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AMVSevenCharacter::OnComponentBeginOverlap);
 }
 
 void AMVSevenCharacter::Tick(float DeltaTime)
@@ -36,25 +33,13 @@ void AMVSevenCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMVSevenCharacter::Move(const FInputActionValue& Value)
+void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), 1);
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] OnComponentBeginOverlap %s"), *OtherActor->GetName());
 
-	// find out which way is forward
-	const FRotator Rotation = Controller->GetControlRotation();
-	//const FRotator Rotation = GetActorRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	if (AMV_EntityBase* OtherEntity = Cast<AMV_EntityBase>(OtherActor))
+	{
 
-	// get forward vector
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-	// get right vector 
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	// add movement 
-	AddMovementInput(ForwardDirection, MovementVector.Y);
-	AddMovementInput(RightDirection, MovementVector.X);
-
+	}
 }
 

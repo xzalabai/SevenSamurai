@@ -20,12 +20,6 @@ private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	UCapsuleComponent* CapsuleComponent;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	//class USpringArmComponent* CameraBoom;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	//class UCameraComponent* FollowCamera;
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UFloatingPawnMovement* MovementComponent;
@@ -36,5 +30,7 @@ protected:
 public:	
 	AMVSevenCharacter();
 	virtual void Tick(float DeltaTime) override;
-	void Move(const FInputActionValue& Value);
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 };

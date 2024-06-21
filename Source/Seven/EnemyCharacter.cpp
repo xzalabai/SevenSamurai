@@ -102,6 +102,7 @@ bool AEnemyCharacter::TryStealAttackToken()
 
 UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
 {
+	check(EnemyScenarios->EnemyScenarios.Contains(MissionType))
 	return EnemyScenarios->EnemyScenarios[MissionType];
 }
 
