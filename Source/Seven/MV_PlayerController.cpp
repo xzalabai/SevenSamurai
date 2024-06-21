@@ -1,0 +1,65 @@
+#include "MV_PlayerController.h"
+#include "EnhancedInputSubsystems.h"
+#include "MVSevenCharacter.h"
+#include "MV_AIController.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "EnhancedInputComponent.h"
+#include "MV_Map.h"
+#include "Kismet\GameplayStatics.h"
+
+AMV_PlayerController::AMV_PlayerController()
+{
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Scene Component"));
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+
+	RootComponent = SceneComponent;
+	CameraBoom->SetupAttachment(RootComponent);
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+}
+
+void AMV_PlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
+
+	MV_AISevenCharacterController = Cast<AMV_AIController>(UGameplayStatics::GetActorOfClass(this, AMV_AIController::StaticClass()));
+}
+
+void AMV_PlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
+	{
+		//Moving
+		EnhancedInputComponent->BindAction(WSADAction, ETriggerEvent::Triggered, this, &AMV_PlayerController::Move);
+	}
+}
+
+void AMV_PlayerController::Move(const FInputActionValue& Value)
+{
+}
+
+void AMV_PlayerController::PerformTraceToMap() const
+{
+	FHitResult HitResult;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+
+	bool bHit = GetHitResultUnderCursorForObjects(ObjectTypes, false, HitResult);
+
+	if (bHit)
+	{
+		// Hit Map
+		if (const AMV_Map* HitObject = Cast<AMV_Map>(HitResult.GetActor()))
+		{
+			DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
+			MV_AISevenCharacterController->MoveCharacterTo(HitResult.Location);
+		}
+	}
+}

@@ -18,6 +18,7 @@ TODOs:
 Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
+High - Put OnStatusUpdate to ASevenGameMode
 High - make sync between AIController, EnemyCharacter, TargetedEnemy, EnemyToAttack etc... so they it is being choosed in AIController and everyone follows it
 High - FIND OUT WHY AC_ATTACKCOMPONENT cannot have UPROPERTY() - bc it's null
 High - Fix weird Character rotation after some animation is performed on steep surface
@@ -28,9 +29,7 @@ High - rename Combo to LightCombo or smth.
 High - Consideration: Change OnAnimationEnded to EVENT ?
 High - Refactor logic of returning AttackToken (now in AICharacter there is assumption in Fire() that it is enemy
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
-High - Decide, whether all enemies will be always facing Character. If YES -> Do nothing. If NO -> warp animation also when enemy is in back
 High - Fix Guard left walk (character seems to go forward)
-High - Change int in AttackTypeMontage for enum -> where we define all sections!\
 Medium - Find better solution to store MissionType for EnemyCharacter and then resolve it based on DataAsset stored in EnemyController (expensive!)
 Medium - Move HP to Attributes -> and find out why it's crashing
 Medium - Handle behavior if SevenCharacter got deleted (with all combos, weapon upgrades -> might be weird for SevenCharacterDA, CharacterPicker...)
@@ -42,7 +41,7 @@ Medium - Cache player who owns a camera
 Medium - GetDirection -> complete for evading to 8 DIRECTIONS ! Then Change IsEvadingAway to compare with 8 evades not 4
 Medium - Adjust Fire as is in FireRMB
 Medium - Put relevant functions from FInputValue to ETriggerEvent (as is in FireRMB)
-Medium - remove GET_ prefix from getters and use IS_
+OBSOLETE Medium - remove GET_ prefix from getters and use IS_
 
 
 Features:
