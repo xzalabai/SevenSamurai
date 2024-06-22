@@ -1,13 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PublicEnums.h"
 #include "GameFramework/Actor.h"
 #include "Mission.generated.h"
 
 class USphereComponent;
 class AEnemyCharacter;
 
-DECLARE_DELEGATE_OneParam(FOnCharacterOverlappedMission, uint32);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMissionEnd, bool bPlayerWon);
 
 UENUM(BlueprintType)
 enum class EMissionType : uint8
@@ -52,8 +53,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	USceneComponent* RootSceneComponent{ nullptr };
 
-	FOnCharacterOverlappedMission OnCharacterOverlappedMission;
-
 	UPROPERTY(EditAnywhere)
 	AMission* SideMission;
 
@@ -63,6 +62,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
 
+	UPROPERTY(VisibleAnywhere)
+	uint32 EnemyKilledCount{ 0 };
+
+	UPROPERTY(VisibleAnywhere)
+	uint32 SevenCharactersKilledCount{ 0 };
+
+	FOnMissionEnd OnMissionEnd;
 
 public:	
 	AMission();
@@ -72,6 +78,9 @@ public:
 	void MissionComplete(bool bWin) const;
 	void ActivateMission(bool bEnable);
 	void MissionStarted() const;
+	void MoveAlliesToPlace();
+	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
+	FORCEINLINE bool IsSideMission() const { return bSideMission; };
 protected:
 	virtual void BeginPlay() override;
 };

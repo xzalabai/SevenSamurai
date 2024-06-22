@@ -4,7 +4,7 @@
 #include "GameController.h"
 #include "Weapon.h"
 #include "WeaponUpgrade.h"
-#include "MissionHandler.h"
+#include "Mission.h"
 #include "Kismet\GameplayStatics.h"
 
 ACharacterPicker::ACharacterPicker()
@@ -16,8 +16,21 @@ ACharacterPicker::ACharacterPicker()
 void ACharacterPicker::BeginPlay()
 {
 	Super::BeginPlay();
-	AMissionHandler* MissionHandler = Cast<AMissionHandler>(UGameplayStatics::GetActorOfClass(this, AMissionHandler::StaticClass()));
-	MissionHandler->OnMissionEnd.AddUObject(this, &ACharacterPicker::OnMissionEnd);
+
+
+	// Subscribe to the MAIN's mission (TODO: Subscribe to the side mission as well).
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMission::StaticClass(), OutActors);
+	for (AActor* MissionActor : OutActors)
+	{
+		AMission* Mission = Cast<AMission>(MissionActor);
+		if (!Mission->IsSideMission())
+		{
+			Mission->OnMissionEnd.AddUObject(this, &ACharacterPicker::OnMissionEnd);
+			//break; // TODO try it if it works without break (subscribing to multiple missions)
+		}
+	}
+	
 
 	AWeaponUpgrade* WeaponUpgrade = Cast<AWeaponUpgrade>(UGameplayStatics::GetActorOfClass(this, AWeaponUpgrade::StaticClass()));
 	WeaponUpgrade->OnWeaponUpgrade.AddUObject(this, &ACharacterPicker::OnWeaponUpgrade);

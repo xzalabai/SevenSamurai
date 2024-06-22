@@ -29,6 +29,7 @@ High - rename Combo to LightCombo or smth.
 High - Consideration: Change OnAnimationEnded to EVENT ?
 High - Refactor logic of returning AttackToken (now in AICharacter there is assumption in Fire() that it is enemy
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
+High - ADD Listener in CharacterPicker also to the SIDE MISSION!!!
 High - Fix Guard left walk (character seems to go forward)
 Medium - Find better solution to store MissionType for EnemyCharacter and then resolve it based on DataAsset stored in EnemyController (expensive!)
 Medium - Move HP to Attributes -> and find out why it's crashing

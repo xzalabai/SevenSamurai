@@ -9,8 +9,6 @@ class AMission;
 class AEnemyCharacter;
 class UEnemyScenarios;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnMissionEnd, bool bPlayerWon);
-
 UCLASS()
 class SEVEN_API AMissionHandler : public AActor
 {
@@ -32,19 +30,8 @@ protected:
 public:	
 	AMissionHandler();
 
-	UFUNCTION(BlueprintCallable)
-	void StoreMissions();
-
-	FOnMissionEnd OnMissionEnd;
 
 protected:
 	virtual void BeginPlay() override;
-	void MissionStarted(uint32 ID);
-	UFUNCTION(BlueprintCallable)
-	void MovingToMissionArea();
-	void MoveAlliesToPlace();
-	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
-
-	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEnemyCharacter> EnemyClassToSpawn;
 };
