@@ -1,4 +1,5 @@
 #include "MV_EntityBase.h"
+#include "MissionDA.h"
 #include "PaperSpriteComponent.h"
 #include "Components/CapsuleComponent.h"
 
@@ -16,8 +17,15 @@ AMV_EntityBase::AMV_EntityBase()
 	RenderComponent->SetupAttachment(RootComponent);
 }
 
+const UMissionDA* AMV_EntityBase::GetMissionDA() const
+{
+	return MissionDA;
+}
+
 void AMV_EntityBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	RenderComponent->SetSprite(MissionDA->Image);
 }
 

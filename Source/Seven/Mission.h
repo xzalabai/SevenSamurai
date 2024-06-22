@@ -17,6 +17,7 @@ enum class EMissionType : uint8
 	LiberatePlace,
 	TakeAmbush,
 	ReceiveAmbush,
+	BanditCamp,
 };
 
 
@@ -24,6 +25,8 @@ UCLASS()
 class SEVEN_API AMission : public AActor
 {
 	GENERATED_BODY()
+
+	friend class UGameController;
 
 public:
 	UPROPERTY(EditAnywhere)

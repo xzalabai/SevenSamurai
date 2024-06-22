@@ -10,6 +10,8 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const AActor* Actor, const
 
 class ASevenCharacter;
 class ASevenPlayerController;
+class UMissionDA;
+class AMission;
 
 static uint8 UniqueIDCounter;
 
@@ -37,6 +39,9 @@ private:
 	UPROPERTY()
 	TArray<const ASevenCharacter*> Enemies;
 
+	UPROPERTY()
+	mutable const UMissionDA* ActiveMission;
+
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
@@ -47,6 +52,8 @@ public:
 	ASevenPlayerController* GetSevenPlayerController() const;
 	TArray<const ASevenCharacter*> GetAIControlledAllies() const;
 	const TArray<const ASevenCharacter*> GetSevenCharacters() const;
+	void SetActiveMission(const UMissionDA* Mission);
+	void UpdateMissionParameters(AMission* Mission);
 
 public:
 	UFUNCTION()

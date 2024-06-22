@@ -6,6 +6,10 @@
 #include "PaperSpriteComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "MV_EntityBase.h"
+#include "MissionDA.h"
+#include "Mission.h"
+#include <Kismet\GameplayStatics.h>
+#include "GameController.h"
 
 AMVSevenCharacter::AMVSevenCharacter()
 {
@@ -39,7 +43,14 @@ void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 
 	if (AMV_EntityBase* OtherEntity = Cast<AMV_EntityBase>(OtherActor))
 	{
+		if (OtherEntity->GetMissionDA()->MissionType == EMissionType::BanditCamp)
+		{
+			const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+			UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+			GameController->SetActiveMission(OtherEntity->GetMissionDA());
 
+			UGameplayStatics::OpenLevel(this, FName("ThirdPersonMap"));
+		}
 	}
 }
 

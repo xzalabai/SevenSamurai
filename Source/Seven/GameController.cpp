@@ -1,8 +1,10 @@
 #include "GameController.h"
 #include "SevenCharacter.h"
 #include "SevenPlayerController.h"
+#include "MissionDA.h"
 #include "AttributesComponent.h"
 #include "Kismet\GameplayStatics.h"
+#include "Mission.h"
 
 void UGameController::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -94,6 +96,17 @@ TArray<const ASevenCharacter*> UGameController::GetAIControlledAllies() const
 const TArray<const ASevenCharacter*> UGameController::GetSevenCharacters() const
 {
 	return SevenCharacters;
+}
+
+void UGameController::SetActiveMission(const UMissionDA* Mission)
+{
+	ActiveMission = Mission;
+}
+
+void UGameController::UpdateMissionParameters(AMission* Mission)
+{
+	Mission->EnemiesToSpawn = ActiveMission->EnemiesToSpawn;
+	Mission->MissionType = ActiveMission->MissionType;
 }
 
 void UGameController::Restart()

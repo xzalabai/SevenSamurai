@@ -32,9 +32,15 @@ AMission::AMission()
 void AMission::BeginPlay()
 {
 	Super::BeginPlay();
+
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
+
 	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
-	check(MissionType != EMissionType::NotProvided);
 	
+	GameController->UpdateMissionParameters(this);
+
 	if (bSideMission)
 	{
 		// this will be turned on for all
@@ -45,8 +51,7 @@ void AMission::BeginPlay()
 		ActivateMission(true);
 	}
 
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+
 	GameController->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
 }
 
