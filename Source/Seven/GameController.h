@@ -3,15 +3,17 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "PublicEnums.h"
+#include "MissionDA.h"
 #include "GameController.generated.h"
+
+class ASevenCharacter;
+class USevenCharacterDA;
+class ASevenPlayerController;
+class AMission;
 
 DECLARE_MULTICAST_DELEGATE(FOnRestart);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const AActor* Actor, const EEnemyStatus Status);
-
-class ASevenCharacter;
-class ASevenPlayerController;
-class UMissionDA;
-class AMission;
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMissionUpdate, const UMissionDA* Mission, const EMissionStatus Status);
 
 static uint8 UniqueIDCounter;
 
@@ -25,12 +27,14 @@ class SEVEN_API UGameController : public UGameInstanceSubsystem
 public:
 	FOnRestart OnRestart;
 	FOnStatusUpdate OnStatusUpdate;
+	FOnMissionUpdate OnMissionUpdate;
+	UPROPERTY()
+	TArray<USevenCharacterDA*> SelectedCharacters{};
 
 private:
 	UPROPERTY()
 	TMap<int8, EEnemyStatus> EnemiesStatus;
 	
-	UPROPERTY()
 	TMap<int8, EEnemyStatus> SevenCharactersStatus;
 	
 	UPROPERTY()
@@ -54,7 +58,12 @@ public:
 	const TArray<const ASevenCharacter*> GetSevenCharacters() const;
 	void SetActiveMission(const UMissionDA* Mission);
 	void UpdateMissionParameters(AMission* Mission);
-
+	UFUNCTION(BlueprintCallable)
+	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA);
+	void MissionEnd(bool bWin);
+	void UpdateSevenCharacters();
+	UFUNCTION(BlueprintCallable)
+	const TArray<USevenCharacterDA*> GetSelectedCharacters() const;
 public:
 	UFUNCTION()
 	void Restart();

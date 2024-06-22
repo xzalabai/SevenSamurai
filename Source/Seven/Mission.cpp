@@ -33,13 +33,12 @@ void AMission::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-
-
-	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	
 	GameController->UpdateMissionParameters(this);
+	GameController->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
+
+	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
 
 	if (bSideMission)
 	{
@@ -50,9 +49,6 @@ void AMission::BeginPlay()
 	{
 		ActivateMission(true);
 	}
-
-
-	GameController->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
 }
 
 void AMission::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -63,7 +59,7 @@ void AMission::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* 
 		return;
 	}
 	MissionStarted();
-	MoveAlliesToPlace();
+	
 }
 
 void AMission::MissionComplete(bool bWin) const
@@ -80,9 +76,12 @@ void AMission::ActivateMission(bool bEnable)
 	Area->SetGenerateOverlapEvents(bEnable);
 }
 
-void AMission::MissionStarted() const
+void AMission::MissionStarted()
 {
 	Area->SetGenerateOverlapEvents(false);
+
+	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	SevenCharacterCount = GameController->SelectedCharacters.Num();
 
 	for (const TPair<int32, TSubclassOf<AEnemyCharacter>>& Pair : EnemiesToSpawn)
 	{
@@ -93,15 +92,19 @@ void AMission::MissionStarted() const
 			Enemy->MissionType = MissionType;
 			// Set AI
 			Enemy->FinishSpawning(T);
+			++EnemyCount;
+			UE_LOG(LogTemp, Display, TEXT("[AMission] Spawn Enemy: %d, %d"), Pair.Key, i);
 		}
+		
 	}
+	UE_LOG(LogTemp, Display, TEXT("[AMission].MissionStarted: %d, SevenCharactersCount: %d, EnemyCount: %d"), ID, SevenCharacterCount, EnemyCount);
+
+	MoveAlliesToPlace();
 }
 
 void AMission::MoveAlliesToPlace()
 {
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-
+	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const TArray<const ASevenCharacter*>& AIControlledAllies = GameController->GetAIControlledAllies();
 
 	for (const ASevenCharacter* AIAlly : AIControlledAllies)
@@ -116,44 +119,43 @@ void AMission::MoveAlliesToPlace()
 
 void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 {
+	if (Status != EEnemyStatus::Dead)
+	{
+		return;
+	}
+	
 	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
-	return;
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+
 	if (KilledCharacter->IsEnemy())
 	{
-		EnemyKilledCount++;
+		++EnemyKilledCount;
+
+		if (EnemyKilledCount == EnemyCount)
+		{
+			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
+
+			MissionComplete(true);
+			GameController->MissionEnd(true);
+		}
+
 	}
 	else
 	{
-		SevenCharactersKilledCount++;
-	}
+		++SevenCharactersKilledCount;
 
-	if (SevenCharactersKilledCount == SevenCharacterCount)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
-
-		OnMissionEnd.Broadcast(false);
-		MissionComplete(false);
-
-		const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-		UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-
-		if (GameController)
+		if (SevenCharactersKilledCount == SevenCharacterCount)
 		{
-			GameController->Restart();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UMissions].OnMissionEnd GameController is NULLPPTR"));
-		}
+			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
 
+			MissionComplete(false);
+			GameController->MissionEnd(false);
+		}
 	}
 
-	if (EnemyKilledCount == EnemiesToSpawn.Num())
-	{
-		UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
 
-		OnMissionEnd.Broadcast(true);
-		MissionComplete(true);
-	}
+
+
+
 }
 

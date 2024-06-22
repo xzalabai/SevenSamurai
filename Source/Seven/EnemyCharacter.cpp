@@ -73,10 +73,6 @@ void AEnemyCharacter::AttackEnd() const
 
 void AEnemyCharacter::OnLayingDead()
 {
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-	GameController->UpdateStatus(this, EEnemyStatus::Dead);
-
 	Super::OnLayingDead();
 }
 

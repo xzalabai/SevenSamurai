@@ -8,6 +8,15 @@
 class UPaperSprite;
 class USevenCharacterDA;
 
+UENUM(BlueprintType)
+enum class EMissionStatus : uint8
+{
+	Started,
+	Aborted,
+	FinishedWithWin,
+	FinishedWithLose,
+};
+
 UCLASS()
 class SEVEN_API UMissionDA : public UDataAsset
 {

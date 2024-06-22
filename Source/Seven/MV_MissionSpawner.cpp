@@ -4,6 +4,7 @@
 #include "MV_Map.h"
 #include "Kismet\KismetMathLibrary.h"
 #include "Kismet\GameplayStatics.h"
+#include "GameController.h"
 
 AMV_MissionSpawner::AMV_MissionSpawner()
 {
@@ -16,42 +17,25 @@ void AMV_MissionSpawner::BeginPlay()
 	Super::BeginPlay();
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
 	FVector Pos = GetRandomPointOnMap(Map->GetRenderComponent());
-	UE_LOG(LogTemp, Error, TEXT("MyCharacter's Location is %s"),*Pos.ToString());
+
+	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
+	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	GameController->OnMissionUpdate.AddUObject(this, &AMV_MissionSpawner::OnMissionUpdate);
+
 
 	UWorld* World = GetWorld();
-	if (World)
-	{
-		// Specify the location of the debug point
-		FVector Location = Pos;
-
-		// Define the size of the point
-		float PointSize = 10.0f;
-
-		// Define the color of the point
-		FColor PointColor = FColor::Red;
-
-		// Define the duration the point will be displayed
-		float Duration = 5.0f;
-
-		// Draw the debug point
-		DrawDebugPoint(
-			World,
-			Location,
-			PointSize,
-			PointColor,
-			false,  // Persistent lines
-			Duration
-		);
-	}
-
-	UE_LOG(LogTemp, Error, TEXT("MyCharacter's Location is %d"), AvailableMissions.Num());
+	FVector Location = Pos;
+	float PointSize = 10.0f;
+	FColor PointColor = FColor::Red;
+	float Duration = 5.0f;
+	DrawDebugPoint(World,Location,PointSize,PointColor,false, Duration);
 
 	FTransform T{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1)};
 	AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T);
 	NewMission->MissionDA = AvailableMissions[0];
 	NewMission->FinishSpawning(T);
 
-	ActiveMissions.Add(NewMission);
+	DisplayedMissions.Add(NewMission);
 }
 
 void AMV_MissionSpawner::Tick(float DeltaTime)
@@ -80,4 +64,9 @@ FVector AMV_MissionSpawner::GetRandomPointOnMap(UPaperSpriteComponent* SpriteCom
 	RandomPoint.Z = Center.Z;
 
 	return RandomPoint;
+}
+
+void AMV_MissionSpawner::OnMissionUpdate(const UMissionDA* Mission, const EMissionStatus Status)
+{
+
 }

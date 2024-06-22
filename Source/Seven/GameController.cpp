@@ -10,7 +10,7 @@ void UGameController::Initialize(FSubsystemCollectionBase& Collection)
 {
 	UniqueIDCounter = 0;
 	OnStatusUpdate.AddUObject(this, &UGameController::OnCharacterKilled);
-
+	SelectedCharacters.Empty();
 }
 
 const EEnemyStatus UGameController::GetEnemyStatus(const int8 CharacterID) const
@@ -101,18 +101,52 @@ const TArray<const ASevenCharacter*> UGameController::GetSevenCharacters() const
 void UGameController::SetActiveMission(const UMissionDA* Mission)
 {
 	ActiveMission = Mission;
+	OnMissionUpdate.Broadcast(Mission, EMissionStatus::Started);
+
+	UGameplayStatics::OpenLevel(this, FName("ThirdPersonMap"));
 }
 
 void UGameController::UpdateMissionParameters(AMission* Mission)
 {
+	if (!ActiveMission)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UGameController] UpdateMissionParameters: ActivateMission is nullptr, probably running map straight from the editor"));
+		return;
+	}
 	Mission->EnemiesToSpawn = ActiveMission->EnemiesToSpawn;
 	Mission->MissionType = ActiveMission->MissionType;
+}
+
+void UGameController::AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA)
+{
+	SelectedCharacters.Add(SevenCharacterDA);
+}
+
+void UGameController::MissionEnd(bool bWin)
+{
+	UpdateSevenCharacters();
+	UGameplayStatics::OpenLevel(this, FName("Map"));
+}
+
+void UGameController::UpdateSevenCharacters()
+{
+	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
+	{
+		if (!SevenCharacter->IsAlive())
+		{
+			SelectedCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
+		}
+	}
+}
+
+const TArray<USevenCharacterDA*> UGameController::GetSelectedCharacters() const
+{
+	return SelectedCharacters;
 }
 
 void UGameController::Restart()
 {
 	//OnRestart.Broadcast(); 
-
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
 
@@ -121,11 +155,11 @@ void UGameController::UpdateStatus(const AActor* Actor, const EEnemyStatus Statu
 	// This should be removed to something like SevenGameMode
 	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
 	const int8 CharacterID = SevenCharacter->GetUniqueID();
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus: %d"), CharacterID);
+	UE_LOG(LogTemp, Warning, TEXT("[UGameController] UpdateStatus: %d"), CharacterID);
 
 	if (Status == EEnemyStatus::IncomingAttack)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] UpdateStatus.IncomingAttack"));
+		UE_LOG(LogTemp, Warning, TEXT("[UGameController] UpdateStatus.IncomingAttack"));
 	}
 
 	if (SevenCharacter && SevenCharacter->IsEnemy())

@@ -17,40 +17,12 @@ void ACharacterPicker::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	// Subscribe to the MAIN's mission (TODO: Subscribe to the side mission as well).
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMission::StaticClass(), OutActors);
-	for (AActor* MissionActor : OutActors)
+	if (AWeaponUpgrade* WeaponUpgrade = Cast<AWeaponUpgrade>(UGameplayStatics::GetActorOfClass(this, AWeaponUpgrade::StaticClass())))
 	{
-		AMission* Mission = Cast<AMission>(MissionActor);
-		if (!Mission->IsSideMission())
-		{
-			Mission->OnMissionEnd.AddUObject(this, &ACharacterPicker::OnMissionEnd);
-			//break; // TODO try it if it works without break (subscribing to multiple missions)
-		}
+		WeaponUpgrade->OnWeaponUpgrade.AddUObject(this, &ACharacterPicker::OnWeaponUpgrade);
 	}
-	
 
-	AWeaponUpgrade* WeaponUpgrade = Cast<AWeaponUpgrade>(UGameplayStatics::GetActorOfClass(this, AWeaponUpgrade::StaticClass()));
-	WeaponUpgrade->OnWeaponUpgrade.AddUObject(this, &ACharacterPicker::OnWeaponUpgrade);
-}
-
-void ACharacterPicker::OnMissionEnd(bool bPlayerWon)
-{
-	// Update existing entries
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-
-	const TArray<const ASevenCharacter*>& AllSevenCharacters = GameController->GetSevenCharacters();
-	
-	for (const ASevenCharacter* SevenCharacter : AllSevenCharacters)
-	{
-		if (!SevenCharacter->IsAlive())
-		{
-			AvailableCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
-		}
-	}
+	SpawnSevenCharacters();
 }
 
 void ACharacterPicker::OnWeaponUpgrade(const AActor* UpgradedActor)
@@ -89,6 +61,9 @@ void ACharacterPicker::ShowSelectedCharacters() const
 	FString FinalText = "SELECTED CHARACTERS: ";
 	int i = 0;
 
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	const TArray<USevenCharacterDA*>& SelectedCharacters = GameController->SelectedCharacters;
+
 	for (const USevenCharacterDA* Seven : SelectedCharacters)
 	{
 		const FString Name = Seven->Name.ToString();
@@ -104,7 +79,8 @@ void ACharacterPicker::ShowSelectedCharacters() const
 void ACharacterPicker::SelectCharacters(TArray<int> SelectedSlots)
 {
 	SelectedSlots.Sort();
-	SelectedCharacters.Empty();
+
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 
 	if (AvailableCharacters.Num() < SelectedSlots[SelectedSlots.Num() - 1])
 	{
@@ -114,13 +90,17 @@ void ACharacterPicker::SelectCharacters(TArray<int> SelectedSlots)
 
 	for (int& SelectedSlot : SelectedSlots)
 	{
-		SelectedCharacters.Add(AvailableCharacters[SelectedSlot]);
+		GameController->SelectedCharacters.Add(AvailableCharacters[SelectedSlot]);
 	}
 }
 
 void ACharacterPicker::SpawnSevenCharacters() const
 {
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	const TArray<USevenCharacterDA*>& SelectedCharacters = GameController->SelectedCharacters;
+
 	UE_LOG(LogTemp, Display, TEXT("[ACharacterPicker].SpawnSevenCharacters, amount: %d"), SelectedCharacters.Num());
+
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -131,13 +111,18 @@ void ACharacterPicker::SpawnSevenCharacters() const
 			UE_LOG(LogTemp, Error, TEXT("[ACharacterPicker].SpawnSevenCharacters Unable to spawn %s"), *CharacterToBeSpawned->Name.ToString());
 			continue;
 		}
-		ASevenCharacter* SevenCharacter = GetWorld()->SpawnActor<ASevenCharacter>(
-			CharacterToBeSpawned->RepresentingClass,
-			GetActorLocation(),
-			FRotator(),
-			SpawnParams);
-		SevenCharacter->SevenCharacterDA = CharacterToBeSpawned; 
 
+		FTransform T{ GetActorLocation() };
+		ASevenCharacter* SevenCharacter = GetWorld()->SpawnActorDeferred<ASevenCharacter>(
+			CharacterToBeSpawned->RepresentingClass,
+			T,
+			nullptr,
+			nullptr,
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
+		);
+
+		SevenCharacter->SevenCharacterDA = CharacterToBeSpawned; 
+		SevenCharacter->FinishSpawning(T);
 	}
 }
 

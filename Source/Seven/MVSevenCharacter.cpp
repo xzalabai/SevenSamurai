@@ -47,9 +47,8 @@ void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 		{
 			const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
 			UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-			GameController->SetActiveMission(OtherEntity->GetMissionDA());
 
-			UGameplayStatics::OpenLevel(this, FName("ThirdPersonMap"));
+			GameController->SetActiveMission(OtherEntity->GetMissionDA());
 		}
 	}
 }

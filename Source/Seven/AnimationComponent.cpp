@@ -21,7 +21,6 @@ void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		{
 			if (LockedEnemy)
 			{
-				UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] LockedEnemy - %d"), LockedEnemy->GetUniqueID());
 				ASevenPlayerController* PlayerController = SevenCharacter->GetSevenPlayerController(); // TODO: Why I cannot assign directly to APlayerController ??????
 				FRotator Rot = UKismetMathLibrary::FindLookAtRotation(SevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
 				Rot.Pitch = Rot.Pitch - 25.0f;

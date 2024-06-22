@@ -22,15 +22,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<USevenCharacterDA*> AvailableCharacters;
-	
-	UPROPERTY()
-	TArray<USevenCharacterDA*> SelectedCharacters;
 
 private:
 	//UFUNCTION(BlueprintCallable)
 	
 	// Listeners
-	void OnMissionEnd(bool bPlayerWon);
 	void OnWeaponUpgrade(const AActor* UpgradedActor);
 
 	UFUNCTION(BlueprintCallable)

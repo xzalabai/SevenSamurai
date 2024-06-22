@@ -8,8 +8,6 @@
 class USphereComponent;
 class AEnemyCharacter;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnMissionEnd, bool bPlayerWon);
-
 UENUM(BlueprintType)
 enum class EMissionType : uint8
 {
@@ -42,9 +40,6 @@ public:
 	FName Description;
 
 	UPROPERTY(EditAnywhere)
-	uint32 SevenCharacterCount{ 0 };
-
-	UPROPERTY(EditAnywhere)
 	USphereComponent* Area{ nullptr };
 
 	UPROPERTY(EditAnywhere)
@@ -65,13 +60,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
 
+	UPROPERTY(EditAnywhere)
+	uint32 EnemyCount{ 0 };
+
+	UPROPERTY(EditAnywhere)
+	uint32 SevenCharacterCount{ 0 };
+
 	UPROPERTY(VisibleAnywhere)
 	uint32 EnemyKilledCount{ 0 };
 
 	UPROPERTY(VisibleAnywhere)
 	uint32 SevenCharactersKilledCount{ 0 };
-
-	FOnMissionEnd OnMissionEnd;
 
 public:	
 	AMission();
@@ -80,7 +79,7 @@ public:
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	void MissionComplete(bool bWin) const;
 	void ActivateMission(bool bEnable);
-	void MissionStarted() const;
+	void MissionStarted();
 	void MoveAlliesToPlace();
 	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
 	FORCEINLINE bool IsSideMission() const { return bSideMission; };
