@@ -6,10 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "PublicEnums.h"
-#include "GodView.h"
+#include "EnhancedInputComponent.h"
 #include "SevenPlayerController.generated.h"
-
-class AGodView;
 
 UCLASS()
 class SEVEN_API ASevenPlayerController : public APlayerController
@@ -83,11 +81,4 @@ public:
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
 
 	ASevenCharacter* GetPossessedCharacter();
-
-private:
-	TObjectPtr<AActor> GetControlledActor();
-private:
-	UPROPERTY()
-	AGodView* GodView;
-	bool bGodView = true;
 };

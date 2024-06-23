@@ -12,7 +12,7 @@ class SEVEN_API AMV_EntityBase : public AActor
 {
 	GENERATED_BODY()
 
-	friend class AMV_MissionSpawner;
+	friend class AMV_Map;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))

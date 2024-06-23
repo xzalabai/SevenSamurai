@@ -27,7 +27,7 @@ void AMV_PlayerController::BeginPlay()
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
 
-	MV_AISevenCharacterController = Cast<AMV_AIController>(UGameplayStatics::GetActorOfClass(this, AMV_AIController::StaticClass()));
+	ControlledCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 }
 
 void AMV_PlayerController::SetupInputComponent()
@@ -60,6 +60,7 @@ void AMV_PlayerController::PerformTraceToMap() const
 		if (const AMV_Map* HitObject = Cast<AMV_Map>(HitResult.GetActor()))
 		{
 			DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
+			AMV_AIController* MV_AISevenCharacterController = Cast<AMV_AIController>(ControlledCharacter->GetController());
 			MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 		}
 	}

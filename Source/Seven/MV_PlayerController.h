@@ -27,9 +27,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	AMVSevenCharacter* ControlledCharacter{ nullptr };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class AMV_AIController* MV_AISevenCharacterController;
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;

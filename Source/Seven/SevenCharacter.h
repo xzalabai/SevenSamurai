@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "ControllableInterface.h"
 #include "PublicEnums.h"
+#include "EnhancedInputComponent.h"
 #include "SevenCharacter.generated.h"
 
 
@@ -34,7 +34,7 @@ enum class EReceivedHitReaction : uint8
 
 UCLASS(config = Game)
 
-class ASevenCharacter : public ACharacter, public IControllableInterface
+class ASevenCharacter : public ACharacter
 {
 	friend class UAnimationComponent;
 	friend class UCombo;
@@ -45,6 +45,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	friend class UThrowKnife;
 	friend class ACharacterPicker;
 	friend class ASevenGameMode;
+	friend class ASevenPlayerController;
 	friend class UKnifeThrowCombo;
 
 	GENERATED_BODY()
@@ -180,24 +181,24 @@ public:
 
 protected:
 	// Controllable Int
-	virtual void Move(const FInputActionValue& Value) override;
-	virtual void Look(const FInputActionValue& Value) override;
-	virtual void Space(const FInputActionValue& Value) override;
-	virtual void Fire(const FInputActionValue& Value) override;
-	virtual void ToggleMovement(const FInputActionValue& Value) override;
-	virtual void FireRMB(const ETriggerEvent& TriggerEvent) override;
-	virtual void Block(bool bEnable) override;
-	virtual void StopSpace(const FInputActionValue& Value) override;
-	virtual void Evade(const FInputActionValue& Value) override;
-	virtual void Special(int ID) override;
+	virtual void Move(const FInputActionValue& Value);
+	virtual void Look(const FInputActionValue& Value);
+	virtual void Space(const FInputActionValue& Value);
+	virtual void Fire(const FInputActionValue& Value);
+	virtual void ToggleMovement(const FInputActionValue& Value);
+	virtual void FireRMB(const ETriggerEvent& TriggerEvent);
+	virtual void Block(bool bEnable);
+	virtual void StopSpace(const FInputActionValue& Value);
+	virtual void Evade(const FInputActionValue& Value);
+	virtual void Special(int ID);
 	UFUNCTION(BlueprintCallable)
-	virtual void AttackStart() override;
+	virtual void AttackStart();
 	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnd() const override;
+	virtual void AttackEnd() const;
 	UFUNCTION(BlueprintCallable)
-	virtual void ComboAttackStart() override;
+	virtual void ComboAttackStart();
 	UFUNCTION(BlueprintCallable)
-	virtual void ComboAttackEnd() override;
+	virtual void ComboAttackEnd();
 	UFUNCTION(BlueprintCallable)
 	virtual void AI_Fire();
 	UFUNCTION(BlueprintCallable)

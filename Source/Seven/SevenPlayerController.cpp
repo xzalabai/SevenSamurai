@@ -3,7 +3,6 @@
 #include "EnhancedInputComponent.h"
 #include "SevenCharacter.h"
 #include "AttributesComponent.h"
-#include "ControllableInterface.h"
 #include "Kismet\GameplayStatics.h"
 #include "SevenGameMode.h"
 
@@ -14,12 +13,6 @@ void ASevenPlayerController::BeginPlay()
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	}
-
-	GodView = Cast<AGodView>(UGameplayStatics::GetActorOfClass(this, AGodView::StaticClass()));
-	if (!GodView)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController] GodView actor is not present!"));
 	}
 
 	//Switch(FInputActionValue{});
@@ -34,11 +27,9 @@ void ASevenPlayerController::BeginPlay()
 			{
 				if (Char->CanBePossessed())
 				{
-					GodView->Enable(false);
 					UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
 					Possess(Char);
 					SetViewTargetWithBlend(Char);
-					bGodView = false;
 					break;
 				}
 
@@ -84,62 +75,44 @@ void ASevenPlayerController::SetupInputComponent()
 
 void ASevenPlayerController::Space(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] Space"));
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Space(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Space(Value);
 }
 
 void ASevenPlayerController::StopSpace(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] StopSpace"));
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->StopSpace(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->StopSpace(Value);
 }
 
 void ASevenPlayerController::Move(const FInputActionValue& Value)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Move(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Move(Value);
 }
 
 void ASevenPlayerController::Fire(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] Fire"));
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Fire(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Fire(Value);
 }
 
 void ASevenPlayerController::ToggleMovement(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenPlayerController] ToggleMovement"));
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->ToggleMovement(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->ToggleMovement(Value);
 }
 
 void ASevenPlayerController::Look(const FInputActionValue& Value)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Look(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Look(Value);
 }
 
 void ASevenPlayerController::FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->FireRMB(TriggerEvent);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->FireRMB(TriggerEvent);
 }
 
 void ASevenPlayerController::Switch(const FInputActionValue& Value)
@@ -164,50 +137,32 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 
 void ASevenPlayerController::Evade(const FInputActionValue& Value)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Evade(Value);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Evade(Value);
 }
 
 void ASevenPlayerController::Special(const FInputActionValue& Value, const int8 Number)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Special(Number);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Special(Number);
 }
 
 void ASevenPlayerController::BlockStart(const FInputActionValue& Value)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Block(true);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Block(true);
 }
 
 void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 {
-	if (IControllableInterface* ControlledEntity = CastChecked<IControllableInterface>(GetControlledActor()))
-	{
-		ControlledEntity->Block(false);
-	}
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	ControllerCharacter->Block(false);
 }
 
 ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()
 {
 	ASevenCharacter* PossessedCharacter = GetPawn<ASevenCharacter>();
 	return PossessedCharacter;
-}
-
-TObjectPtr<AActor> ASevenPlayerController::GetControlledActor()
-{
-	// returns either GodView or GetPawn()
-	if (GetPawn())
-	{
-		return GetPawn();
-	}
-	return GodView ? GodView : nullptr;
 }
 
 

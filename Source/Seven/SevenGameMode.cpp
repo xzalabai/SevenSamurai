@@ -175,6 +175,7 @@ TODOs:
 
 Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
+CRITICAL - Create ControllableInterface for controlling characters, so there is no CAST in PlayerController every key !!!!!!!
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Put OnStatusUpdate to ASevenGameMode
 High - Cache SevenGameMode where it's used often!!!
