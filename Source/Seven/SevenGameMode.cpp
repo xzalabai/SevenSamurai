@@ -1,7 +1,6 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "SevenGameMode.h"
 #include "SevenCharacter.h"
+#include "GameController.h"
 #include "SevenPlayerController.h"
 #include "LootGenerator.h"
 #include "Kismet\GameplayStatics.h"
@@ -12,6 +11,165 @@ ASevenGameMode::ASevenGameMode()
 {
 	AC_LootGenerator = CreateDefaultSubobject<ULootGenerator>(TEXT("LootGenerator"));
 }
+const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
+{
+	return SevenCharacters;
+}
+
+void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
+{
+	// This should be removed to something like SevenGameMode
+	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
+	const int8 CharacterID = SevenCharacter->GetUniqueID();
+
+	if (Status == EEnemyStatus::IncomingAttack)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UGameController] UpdateStatus.IncomingAttack"));
+	}
+
+	if (SevenCharacter && SevenCharacter->IsEnemy())
+	{
+		// Updating list of enemies
+		if (!EnemiesStatus.Contains(CharacterID))
+		{
+			EnemiesStatus.Add({ CharacterID, Status });
+			Enemies.Add(SevenCharacter);
+			UE_LOG(LogTemp, Warning, TEXT("[UGameController] UpdateStatus.ADD To Enemies: %d"), CharacterID);
+		}
+		else
+		{
+			EnemiesStatus[CharacterID] = Status;
+		}
+	}
+	else
+	{
+		// Updating list of SevenCharactersStatus (playable characters)
+		if (!SevenCharactersStatus.Contains(CharacterID))
+		{
+			SevenCharactersStatus.Add({ CharacterID, Status });
+			SevenCharacters.Add(SevenCharacter);
+		}
+		else
+		{
+			SevenCharactersStatus[CharacterID] = Status;
+		}
+	}
+
+	OnStatusUpdate.Broadcast(Actor, Status);
+
+	if (SevenCharacter == GetPossessedCharacter() && Status == EEnemyStatus::Dead)
+	{
+		ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		SevenPlayerController->Switch(FInputActionValue());
+	}
+}
+
+ASevenCharacter* ASevenGameMode::GetAnyAliveEnemy()
+{
+	for (const ASevenCharacter* Enemy : Enemies)
+	{
+		if (Enemy->IsAlive())
+		{
+			return const_cast<ASevenCharacter*>(Enemy);
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController].GetAnyAliveEnemy No alive enemies left."));
+	return nullptr;
+}
+
+ASevenCharacter* ASevenGameMode::GetPossessedCharacter() const
+{
+	const ASevenPlayerController* SevenPlayerController = GetSevenPlayerController();
+	ASevenCharacter* PossessedCharacter = SevenPlayerController->GetPawn<ASevenCharacter>();
+	return PossessedCharacter;
+}
+
+ASevenPlayerController* ASevenGameMode::GetSevenPlayerController() const
+{
+	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (SevenPlayerController)
+	{
+		return SevenPlayerController;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UGameController].SevenPlayerController is NULLPTR"));
+		return nullptr;
+	}
+}
+
+TMap<int8, EEnemyStatus> ASevenGameMode::GetSevenCharactersStatus() const
+{
+	return SevenCharactersStatus;
+}
+
+TArray<const ASevenCharacter*> ASevenGameMode::GetAIControlledAllies() const
+{
+	TArray<const ASevenCharacter*> AIControlledAllies;
+	const ASevenCharacter* PlayerControlledAlly = GetPossessedCharacter();
+
+	for (const ASevenCharacter* Seven : SevenCharacters)
+	{
+		if (Seven == PlayerControlledAlly || !Seven->IsAlive())
+		{
+			continue;
+		}
+		AIControlledAllies.Add(Seven);
+	}
+
+	return AIControlledAllies;
+}
+
+bool ASevenGameMode::HasAnyEnemyStatus(const EEnemyStatus& Status) const
+{
+	for (auto& Enemy : EnemiesStatus)
+	{
+		if (Enemy.Value == Status)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+const EEnemyStatus ASevenGameMode::GetEnemyStatus(const int8 CharacterID) const
+{
+	return (EnemiesStatus.Contains(CharacterID) ? EnemiesStatus[CharacterID] : SevenCharactersStatus[CharacterID]);
+}
+
+void ASevenGameMode::UpdateSevenCharacters()
+{
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+
+	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
+	{
+		if (!SevenCharacter->IsAlive())
+		{
+			GameController->SelectedCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
+		}
+	}
+}
+
+void ASevenGameMode::MissionEnd(bool bWin)
+{
+	UpdateSevenCharacters();
+	UGameplayStatics::OpenLevel(this, FName("Map"));
+}
+
+void ASevenGameMode::UpdateMissionParameters(AMission* Mission)
+{
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+
+	if (!GameController->ActiveMission)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UGameController] UpdateMissionParameters: ActivateMission is nullptr, probably running map straight from the editor"));
+		return;
+	}
+	Mission->EnemiesToSpawn = GameController->ActiveMission->EnemiesToSpawn;
+	Mission->MissionType = GameController->ActiveMission->MissionType;
+}
+
+
 /*
 TODOs:
 
@@ -19,6 +177,7 @@ Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Put OnStatusUpdate to ASevenGameMode
+High - Cache SevenGameMode where it's used often!!!
 High - make sync between AIController, EnemyCharacter, TargetedEnemy, EnemyToAttack etc... so they it is being choosed in AIController and everyone follows it
 High - FIND OUT WHY AC_ATTACKCOMPONENT cannot have UPROPERTY() - bc it's null
 High - Fix weird Character rotation after some animation is performed on steep surface
@@ -33,6 +192,7 @@ High - Fix broken - block broken!!! it does nothing if you break block and attac
 High - Move OnUpdateStatus stuff from GameController to something specific for the mission - other subsystem
 High - ADD Listener in CharacterPicker also to the SIDE MISSION!!!
 High - Fix Guard left walk (character seems to go forward)
+Medium - Refactor maps and arrays in SevenGameMode, there is no need to have so many: enemies, enemiesstatus, sevencharacters, sevencharacterstatus
 Medium - Find better solution to store MissionType for EnemyCharacter and then resolve it based on DataAsset stored in EnemyController (expensive!)
 Medium - Move HP to Attributes -> and find out why it's crashing
 Medium - Handle behavior if SevenCharacter got deleted (with all combos, weapon upgrades -> might be weird for SevenCharacterDA, CharacterPicker...)

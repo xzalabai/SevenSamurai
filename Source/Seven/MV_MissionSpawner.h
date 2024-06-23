@@ -35,6 +35,4 @@ public:
 	AMV_MissionSpawner();
 	virtual void Tick(float DeltaTime) override;
 	FVector GetRandomPointOnMap(UPaperSpriteComponent* SpriteComponent) const;
-	void OnMissionUpdate(const UMissionDA* Mission, const EMissionStatus Status);
-
 };

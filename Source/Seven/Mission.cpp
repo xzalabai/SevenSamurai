@@ -4,6 +4,7 @@
 #include "SevenCharacter.h"
 #include "EnemyCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "SevenGameMode.h"
 #include "GameController.h"
 #include "AIController.h"
 
@@ -33,10 +34,10 @@ void AMission::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	
-	GameController->UpdateMissionParameters(this);
-	GameController->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
+	SevenGameMode->UpdateMissionParameters(this);
+	SevenGameMode->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
 
 	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
 
@@ -104,8 +105,8 @@ void AMission::MissionStarted()
 
 void AMission::MoveAlliesToPlace()
 {
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	const TArray<const ASevenCharacter*>& AIControlledAllies = GameController->GetAIControlledAllies();
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	const TArray<const ASevenCharacter*>& AIControlledAllies = SevenGameMode->GetAIControlledAllies();
 
 	for (const ASevenCharacter* AIAlly : AIControlledAllies)
 	{
@@ -125,7 +126,7 @@ void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 	}
 	
 	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
-	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	if (KilledCharacter->IsEnemy())
 	{
@@ -136,7 +137,7 @@ void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
 
 			MissionComplete(true);
-			GameController->MissionEnd(true);
+			SevenGameMode->MissionEnd(true);
 		}
 
 	}
@@ -149,7 +150,7 @@ void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
 
 			MissionComplete(false);
-			GameController->MissionEnd(false);
+			SevenGameMode->MissionEnd(false);
 		}
 	}
 

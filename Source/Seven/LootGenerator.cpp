@@ -3,7 +3,7 @@
 #include "SevenCharacter.h"
 #include "Kismet\GameplayStatics.h"
 #include "Item.h"
-#include "GameController.h"
+#include "SevenGameMode.h"
 
 ULootGenerator::ULootGenerator()
 {
@@ -15,9 +15,8 @@ void ULootGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-	GameController->OnStatusUpdate.AddUObject(this, &ULootGenerator::OnCharacterKilled);
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SevenGameMode->OnStatusUpdate.AddUObject(this, &ULootGenerator::OnCharacterKilled);
 
 	check(GoldItemSubclass != nullptr);
 	check(RiceItemSubclass != nullptr);
@@ -58,8 +57,6 @@ void ULootGenerator::OnCharacterKilled(const AActor* Actor, const EEnemyStatus S
 
 const TPair<EItemType, int> ULootGenerator::GenerateLootDrop() const
 {
-	// TODO:Magic
-
 	TPair<EItemType, int> Loot{EItemType::Rice, 1};
 	return Loot;
 }

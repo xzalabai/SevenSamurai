@@ -10,7 +10,6 @@
 #include "SevenPlayerController.generated.h"
 
 class AGodView;
-class UGameController;
 
 UCLASS()
 class SEVEN_API ASevenPlayerController : public APlayerController
@@ -82,7 +81,6 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
-	UGameController* GetGameController() const;
 
 	ASevenCharacter* GetPossessedCharacter();
 

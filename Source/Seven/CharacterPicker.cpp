@@ -16,27 +16,7 @@ ACharacterPicker::ACharacterPicker()
 void ACharacterPicker::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (AWeaponUpgrade* WeaponUpgrade = Cast<AWeaponUpgrade>(UGameplayStatics::GetActorOfClass(this, AWeaponUpgrade::StaticClass())))
-	{
-		WeaponUpgrade->OnWeaponUpgrade.AddUObject(this, &ACharacterPicker::OnWeaponUpgrade);
-	}
-
 	SpawnSevenCharacters();
-}
-
-void ACharacterPicker::OnWeaponUpgrade(const AActor* UpgradedActor)
-{
-	// No need to update anything here, since Update of Weapon for SevenCharacterDA happens via pointers in AttackComponent/SetWeaponDamage
-
-	/*const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(UpgradedActor);
-	int32 Index = AvailableCharacters.Find(SevenCharacter->SevenCharacterDA);
-	if (Index == INDEX_NONE)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[ACharacterPicker].UpgradedActor NULL"));
-		return;
-	}
-	USevenCharacterDA* SevenCharacterDA = AvailableCharacters[Index];*/
 }
 
 void ACharacterPicker::ShowAvailableCharacters() const

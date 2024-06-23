@@ -5,7 +5,7 @@
 #include "AttributesComponent.h"
 #include "ControllableInterface.h"
 #include "Kismet\GameplayStatics.h"
-#include "GameController.h"
+#include "SevenGameMode.h"
 
 void ASevenPlayerController::BeginPlay()
 {
@@ -144,8 +144,10 @@ void ASevenPlayerController::FireRMB(const FInputActionValue& Value, const ETrig
 
 void ASevenPlayerController::Switch(const FInputActionValue& Value)
 {	
-	const TArray<const ASevenCharacter*>& SevenCharacters = GetGameController()->GetSevenCharacters();
-	const TMap<int8, EEnemyStatus>& SevenCharactersStatus = GetGameController()->SevenCharactersStatus;
+	const ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	const TArray<const ASevenCharacter*>& SevenCharacters = SevenGameMode->GetSevenCharacters();
+	const TMap<int8, EEnemyStatus>& SevenCharactersStatus = SevenGameMode->GetSevenCharactersStatus();
 
 	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
 	{
@@ -190,14 +192,6 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 	{
 		ControlledEntity->Block(false);
 	}
-}
-
-UGameController* ASevenPlayerController::GetGameController() const
-{
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-
-	return GameController;
 }
 
 ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()

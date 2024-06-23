@@ -20,7 +20,6 @@ void AMV_MissionSpawner::BeginPlay()
 
 	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
 	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-	GameController->OnMissionUpdate.AddUObject(this, &AMV_MissionSpawner::OnMissionUpdate);
 
 
 	UWorld* World = GetWorld();
@@ -64,9 +63,4 @@ FVector AMV_MissionSpawner::GetRandomPointOnMap(UPaperSpriteComponent* SpriteCom
 	RandomPoint.Z = Center.Z;
 
 	return RandomPoint;
-}
-
-void AMV_MissionSpawner::OnMissionUpdate(const UMissionDA* Mission, const EMissionStatus Status)
-{
-
 }

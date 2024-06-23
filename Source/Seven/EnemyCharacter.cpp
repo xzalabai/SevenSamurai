@@ -7,8 +7,8 @@
 #include "AttackComponent.h"
 #include "Kismet\GameplayStatics.h"
 #include "Kismet\KismetMathLibrary.h"
-#include <AIController.h>
-#include "GameController.h"
+#include "AIController.h"
+#include "SevenGameMode.h"
 
 AEnemyCharacter::AEnemyCharacter()
 {
@@ -30,9 +30,8 @@ void AEnemyCharacter::BeginPlay()
 
 void AEnemyCharacter::IncomingAttack()
 {
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-	GameController->UpdateStatus(this, EEnemyStatus::IncomingAttack);
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SevenGameMode->UpdateStatus(this, EEnemyStatus::IncomingAttack);
 
 	if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
 	{
@@ -48,9 +47,8 @@ void AEnemyCharacter::IncomingAttack()
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
 {
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-	GameController->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SevenGameMode->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
 }
 
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
@@ -65,9 +63,8 @@ void AEnemyCharacter::AttackEnd() const
 	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] AttackEnd"));
 	OnAttackEnd.Broadcast();
 
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
-	GameController->UpdateStatus(this, EEnemyStatus::Cooldown);
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SevenGameMode->UpdateStatus(this, EEnemyStatus::Cooldown);
 
 }
 

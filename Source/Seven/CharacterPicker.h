@@ -26,9 +26,6 @@ protected:
 private:
 	//UFUNCTION(BlueprintCallable)
 	
-	// Listeners
-	void OnWeaponUpgrade(const AActor* UpgradedActor);
-
 	UFUNCTION(BlueprintCallable)
 	void ShowAvailableCharacters() const;
 

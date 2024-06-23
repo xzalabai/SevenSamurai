@@ -44,6 +44,7 @@ class ASevenCharacter : public ACharacter, public IControllableInterface
 	friend class UAttackComponent;
 	friend class UThrowKnife;
 	friend class ACharacterPicker;
+	friend class ASevenGameMode;
 	friend class UKnifeThrowCombo;
 
 	GENERATED_BODY()

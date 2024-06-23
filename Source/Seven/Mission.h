@@ -23,8 +23,8 @@ UCLASS()
 class SEVEN_API AMission : public AActor
 {
 	GENERATED_BODY()
-
-	friend class UGameController;
+	
+	friend class SevenGameMode;
 
 public:
 	UPROPERTY(EditAnywhere)
