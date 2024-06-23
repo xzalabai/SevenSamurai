@@ -6,15 +6,16 @@
 
 class UCapsuleComponent;
 class UMissionDA;
+class AMV_Map;
 
 UCLASS()
-class SEVEN_API AMV_EntityBase : public AActor
+class SEVEN_API AMV_EntityBase : public APawn
 {
 	GENERATED_BODY()
 
 	friend class AMV_Map;
 
-private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperSpriteComponent> RenderComponent;
 

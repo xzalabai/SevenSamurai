@@ -2,6 +2,16 @@
 #include "MissionDA.h"
 #include "PaperSpriteComponent.h"
 #include "Components/CapsuleComponent.h"
+#include <Kismet\GameplayStatics.h>
+
+void AMV_EntityBase::BeginPlay()
+{
+	Super::BeginPlay();
+	if (MissionDA)
+	{
+		RenderComponent->SetSprite(MissionDA->Image);
+	}
+}
 
 AMV_EntityBase::AMV_EntityBase()
 {
@@ -20,12 +30,5 @@ AMV_EntityBase::AMV_EntityBase()
 const UMissionDA* AMV_EntityBase::GetMissionDA() const
 {
 	return MissionDA;
-}
-
-void AMV_EntityBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	RenderComponent->SetSprite(MissionDA->Image);
 }
 

@@ -9,7 +9,8 @@
 void AMV_Map::BeginPlay()
 {
 	Super::BeginPlay();
-	FVector Pos = GetRandomPointOnMap(GetRenderComponent());
+
+	FVector Pos = GetRandomPointOnMap();
 
 	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
 	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
@@ -23,13 +24,15 @@ void AMV_Map::BeginPlay()
 	DrawDebugPoint(World, Location, PointSize, PointColor, false, Duration);
 
 	FTransform T{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
-	AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T);
+	AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 	NewMission->MissionDA = AvailableMissions[0];
 	NewMission->FinishSpawning(T);
 }
 
-FVector AMV_Map::GetRandomPointOnMap(UPaperSpriteComponent* SpriteComponent) const
+FVector AMV_Map::GetRandomPointOnMap() const
 {
+	const UPaperSpriteComponent* SpriteComponent = GetRenderComponent();
+
 	if (!SpriteComponent)
 	{
 		return FVector::ZeroVector;

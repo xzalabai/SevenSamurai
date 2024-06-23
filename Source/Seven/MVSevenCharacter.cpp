@@ -45,9 +45,13 @@ void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 	{
 		if (OtherEntity->GetMissionDA()->MissionType == EMissionType::BanditCamp)
 		{
-			const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-			UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+			UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+			GameController->SetActiveMission(OtherEntity->GetMissionDA());
+		}
 
+		if (OtherEntity->GetMissionDA()->MissionType == EMissionType::Enemy)
+		{
+			UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 			GameController->SetActiveMission(OtherEntity->GetMissionDA());
 		}
 	}

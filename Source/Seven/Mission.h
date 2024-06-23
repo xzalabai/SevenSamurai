@@ -16,6 +16,7 @@ enum class EMissionType : uint8
 	TakeAmbush,
 	ReceiveAmbush,
 	BanditCamp,
+	Enemy,
 };
 
 

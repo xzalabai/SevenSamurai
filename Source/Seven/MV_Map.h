@@ -25,7 +25,7 @@ private:
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	FVector GetRandomPointOnMap(UPaperSpriteComponent* SpriteComponent) const;
+public:
+	FVector GetRandomPointOnMap() const;
 	
 };
