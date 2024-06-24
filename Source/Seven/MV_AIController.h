@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveToRandomPosition();
 
+	UFUNCTION(BlueprintCallable)
+	void MoveToSevenCharacter();
+
 private:
 	void RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult);
 

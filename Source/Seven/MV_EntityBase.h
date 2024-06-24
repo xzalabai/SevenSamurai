@@ -23,7 +23,7 @@ protected:
 	UCapsuleComponent* CapsuleComponent;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
-	UMissionDA* MissionDA;
+	const UMissionDA* MissionDA;
 
 protected:
 	// Called when the game starts or when spawned

@@ -1,6 +1,8 @@
 #include "MV_AIController.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "MVSevenCharacter.h"
 #include "MV_Map.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "MV_EntityBase.h"
 #include <Kismet\GameplayStatics.h>
 
@@ -25,8 +27,19 @@ void AMV_AIController::MoveToRandomPosition()
 	UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveToRandomPosition"));
 	const AMV_EntityBase* Entity = Cast<AMV_EntityBase>(GetPawn());
 	FVector Position = Map->GetRandomPointOnMap();
-	//MoveCharacterTo(Map->GetRandomPointOnMap());
-	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, GetPawn()->GetActorLocation().Z));
+	MoveCharacterTo(Map->GetRandomPointOnMap());
+	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, GetPawn()->GetActorLocation().Z));
+}
+
+void AMV_AIController::MoveToSevenCharacter()
+{
+	TObjectPtr<AMVSevenCharacter> MVSevenCharacter = Map->GetMVSevenCharacter();
+	AActor* Act = Cast<AActor>(MVSevenCharacter.Get()); // TODO: WHY??????????
+
+	//UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
+	//BlackBoardComponent->SetValueAsBool(TEXT("bChaseSevenCharacter"), true);
+
+	MoveToActor(MVSevenCharacter.Get());
 }
 
 void AMV_AIController::RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult)

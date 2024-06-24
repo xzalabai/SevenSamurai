@@ -2,55 +2,93 @@
 #include "GameController.h"
 #include "PaperSpriteActor.h"
 #include "PaperSpriteComponent.h"
+#include "MV_Enemy.h"
 #include "MV_EntityBase.h"
+#include "MVSevenCharacter.h"
 #include <Kismet\KismetMathLibrary.h>
+#include <Kismet\GameplayStatics.h>
 
 
 void AMV_Map::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FVector Pos = GetRandomPointOnMap();
+	PrimaryActorTick.bCanEverTick = true;
+	SetActorTickInterval(1.0f);
 
-	const UGameInstance* GameInstance = Cast<UGameInstance>(GetWorld()->GetGameInstance());
-	UGameController* GameController = Cast<UGameController>(GameInstance->GetSubsystem<UGameController>());
+	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn = GameController->RetrieveActiveEntities();
+	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 
+	if (EntitiesToSpawn.Num() == 0)
+	{
+		// First run
 
-	UWorld* World = GetWorld();
-	FVector Location = Pos;
-	float PointSize = 10.0f;
-	FColor PointColor = FColor::Red;
-	float Duration = 5.0f;
-	DrawDebugPoint(World, Location, PointSize, PointColor, false, Duration);
+		// Spawn Village
+		FVector Pos = GetRandomPointOnMap();
+		DrawDebugPoint(GetWorld(), Pos, 10.0f, FColor::Red, false, 5.0f);
+		FTransform T{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
+		AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+		NewMission->MissionDA = AvailableMissions[0];
+		NewMission->FinishSpawning(T);
+		ActiveEntities.Add(NewMission);
 
-	FTransform T{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
-	AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-	NewMission->MissionDA = AvailableMissions[0];
-	NewMission->FinishSpawning(T);
+		// Spawn Enemy
+		Pos = GetRandomPointOnMap();
+		DrawDebugPoint(GetWorld(), Pos, 10.0f, FColor::Red, false, 5.0f);
+		T = FTransform{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
+		AMV_Enemy* Enemy = GetWorld()->SpawnActorDeferred<AMV_Enemy>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+		Enemy->MissionDA = AvailableMissions[1];
+		Enemy->FinishSpawning(T);
+		ActiveEntities.Add(Enemy);
+	}
+	else
+	{
+		for (const FAMV_EntityBaseInfo& EntityToSpawn : EntitiesToSpawn)
+		{
+			FTransform T{ FRotator(0, -180, -90), EntityToSpawn.Position, FVector(1,1,1) };
+
+			if (EntityToSpawn.MissionDA->MissionType == EMissionType::BanditCamp)
+			{
+				AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+				NewMission->MissionDA = EntityToSpawn.MissionDA;
+				NewMission->FinishSpawning(T);
+			}
+			if (EntityToSpawn.MissionDA->MissionType == EMissionType::Enemy)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("MyCharacter's Location is %s"),
+					*EntityToSpawn.Position.ToString());
+
+				AMV_Enemy* Enemy = GetWorld()->SpawnActorDeferred<AMV_Enemy>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+				Enemy->MissionDA = EntityToSpawn.MissionDA;
+				Enemy->FinishSpawning(T);
+			}
+		}
+
+	}
+
+	
+}
+
+void AMV_Map::Tick(float DeltaTime)
+{
+	
 }
 
 FVector AMV_Map::GetRandomPointOnMap() const
 {
 	const UPaperSpriteComponent* SpriteComponent = GetRenderComponent();
-
-	if (!SpriteComponent)
-	{
-		return FVector::ZeroVector;
-	}
-
-	// Get the bounds of the sprite
 	FBoxSphereBounds SpriteBounds = SpriteComponent->CalcBounds(SpriteComponent->GetComponentTransform());
-
-	// Get the center and extent of the bounding box
 	FVector Center = SpriteBounds.Origin;
 	FVector Extent = SpriteBounds.BoxExtent;
-
-	// Generate a random point within the bounding box
 	FVector RandomPoint = UKismetMathLibrary::RandomPointInBoundingBox(Center, Extent);
-
-	// Since this is a 2D sprite, we should ensure the Z value matches the sprite's Z location
 	RandomPoint.Z = Center.Z;
 
 	return RandomPoint;
 
+}
+
+TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
+{
+	return MVSevenCharacter;
 }

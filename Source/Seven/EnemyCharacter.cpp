@@ -65,7 +65,6 @@ void AEnemyCharacter::AttackEnd() const
 
 	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this, EEnemyStatus::Cooldown);
-
 }
 
 void AEnemyCharacter::OnLayingDead()

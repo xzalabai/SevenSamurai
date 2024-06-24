@@ -24,11 +24,6 @@ void AItem::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	Use(OtherActor);
 }
 
-void AItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AItem::Init(const EItemType NewItemType, const int NewAmount)
 {
 	ItemType = NewItemType;

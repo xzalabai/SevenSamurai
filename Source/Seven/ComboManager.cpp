@@ -8,7 +8,7 @@
 
 AComboManager::AComboManager()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AComboManager::ShowSkillTree(const TArray<ASevenCharacter*> AvailableCharacters) const

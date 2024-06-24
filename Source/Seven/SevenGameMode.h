@@ -51,7 +51,6 @@ public:
 	TArray<const ASevenCharacter*> GetAIControlledAllies() const;
 	bool HasAnyEnemyStatus(const EEnemyStatus& Status) const;
 	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
-	void UpdateSevenCharacters();
 	void MissionEnd(bool bWin);
 	void UpdateMissionParameters(AMission* Mission);
 };

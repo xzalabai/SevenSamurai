@@ -137,23 +137,10 @@ const EEnemyStatus ASevenGameMode::GetEnemyStatus(const int8 CharacterID) const
 	return (EnemiesStatus.Contains(CharacterID) ? EnemiesStatus[CharacterID] : SevenCharactersStatus[CharacterID]);
 }
 
-void ASevenGameMode::UpdateSevenCharacters()
-{
-	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-
-	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
-	{
-		if (!SevenCharacter->IsAlive())
-		{
-			GameController->SelectedCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
-		}
-	}
-}
-
 void ASevenGameMode::MissionEnd(bool bWin)
 {
-	UpdateSevenCharacters();
-	UGameplayStatics::OpenLevel(this, FName("Map"));
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	GameController->MissionEnd(SevenCharacters, bWin);
 }
 
 void ASevenGameMode::UpdateMissionParameters(AMission* Mission)
@@ -195,6 +182,7 @@ High - ADD Listener in CharacterPicker also to the SIDE MISSION!!!
 High - Fix Guard left walk (character seems to go forward)
 Medium - Refactor maps and arrays in SevenGameMode, there is no need to have so many: enemies, enemiesstatus, sevencharacters, sevencharacterstatus
 Medium - Find better solution to store MissionType for EnemyCharacter and then resolve it based on DataAsset stored in EnemyController (expensive!)
+Medium - Move things that are getters (GetActorOfClass from Map to GameController, and then in AMV_Map::BeginPlay just retrieve it from GameController...
 Medium - Move HP to Attributes -> and find out why it's crashing
 Medium - Handle behavior if SevenCharacter got deleted (with all combos, weapon upgrades -> might be weird for SevenCharacterDA, CharacterPicker...)
 Medium - adjust Hit Reaction animations based on the direction!

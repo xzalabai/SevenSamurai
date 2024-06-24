@@ -14,7 +14,6 @@ class SEVEN_API AItem : public AActor
 	
 public:	
 	AItem();
-	virtual void Tick(float DeltaTime) override;
 	void Init(const EItemType ItemType, const int Amount);
 	virtual void Use(AActor* OtherActor);
 
