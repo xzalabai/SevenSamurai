@@ -24,14 +24,23 @@ void AMV_Map::BeginPlay()
 	{
 		// First run
 
+		// RESET EVERYTHING
+		// TODO: do it better!
+		for (UMissionDA* MissionDA : AvailableMissions)
+		{
+			MissionDA->bCompleted = false;
+			MissionDA->bStarted = false;
+		}
+
 		// Spawn Village
 		FVector Pos = GetRandomPointOnMap();
 		DrawDebugPoint(GetWorld(), Pos, 10.0f, FColor::Red, false, 5.0f);
 		FTransform T{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
-		AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-		NewMission->MissionDA = AvailableMissions[0];
-		NewMission->FinishSpawning(T);
-		ActiveEntities.Add(NewMission);
+		AMV_EntityBase* Village = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+		Village->MissionDA = AvailableMissions[0];
+		Village->FinishSpawning(T);
+		ActiveEntities.Add(Village);
+		//Villages.Add(Village);
 
 		// Spawn Enemy
 		Pos = GetRandomPointOnMap();
@@ -48,17 +57,20 @@ void AMV_Map::BeginPlay()
 		{
 			FTransform T{ FRotator(0, -180, -90), EntityToSpawn.Position, FVector(1,1,1) };
 
-			if (EntityToSpawn.MissionDA->MissionType == EMissionType::BanditCamp)
+			if (EntityToSpawn.MissionDA->MissionType == EMissionType::LiberatePlace)
 			{
 				AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 				NewMission->MissionDA = EntityToSpawn.MissionDA;
 				NewMission->FinishSpawning(T);
 			}
-			if (EntityToSpawn.MissionDA->MissionType == EMissionType::Enemy)
+			else if (EntityToSpawn.MissionDA->MissionType == EMissionType::BanditCamp)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("MyCharacter's Location is %s"),
-					*EntityToSpawn.Position.ToString());
-
+				AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+				NewMission->MissionDA = EntityToSpawn.MissionDA;
+				NewMission->FinishSpawning(T);
+			}
+			else if (EntityToSpawn.MissionDA->MissionType == EMissionType::Enemy)
+			{
 				AMV_Enemy* Enemy = GetWorld()->SpawnActorDeferred<AMV_Enemy>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 				Enemy->MissionDA = EntityToSpawn.MissionDA;
 				Enemy->FinishSpawning(T);

@@ -17,4 +17,8 @@ public:
 
 public:
 	AMV_Enemy();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 };

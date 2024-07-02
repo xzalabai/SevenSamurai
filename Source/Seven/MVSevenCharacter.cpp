@@ -41,19 +41,9 @@ void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 {
 	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] OnComponentBeginOverlap %s"), *OtherActor->GetName());
 
-	if (AMV_EntityBase* OtherEntity = Cast<AMV_EntityBase>(OtherActor))
+	if (IMV_OverlapInterface* OtherEntity = Cast<IMV_OverlapInterface>(OtherActor))
 	{
-		if (OtherEntity->GetMissionDA()->MissionType == EMissionType::BanditCamp)
-		{
-			UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-			GameController->SetActiveMission(OtherEntity->GetMissionDA());
-		}
-
-		if (OtherEntity->GetMissionDA()->MissionType == EMissionType::Enemy)
-		{
-			UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-			GameController->SetActiveMission(OtherEntity->GetMissionDA());
-		}
+		OtherEntity->OnOverlapAction();
 	}
 }
 

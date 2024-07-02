@@ -23,7 +23,10 @@ private:
 	TArray<UMissionDA*> AvailableMissions;
 
 	UPROPERTY();
-	TArray<const AMV_EntityBase*> ActiveEntities;
+	TArray<AMV_EntityBase*> ActiveEntities;
+
+	UPROPERTY()
+	TArray<const AMV_EntityBase*> Villages;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AMV_EntityBase> MissionClass;

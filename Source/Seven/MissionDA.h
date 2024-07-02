@@ -44,4 +44,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	USevenCharacterDA* SpecialCharacter;
 
+	UPROPERTY(EditAnywhere)
+	bool bCompleted{ false };
+
+	UPROPERTY(EditAnywhere)
+	bool bStarted{ false };
+
 };

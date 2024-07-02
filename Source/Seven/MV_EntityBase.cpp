@@ -3,11 +3,16 @@
 #include "PaperSpriteComponent.h"
 #include "Components/CapsuleComponent.h"
 #include <Kismet\GameplayStatics.h>
+#include "GameController.h"
 
 void AMV_EntityBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (MissionDA)
+	if (MissionDA->bCompleted && AfterMissionImage)
+	{
+		RenderComponent->SetSprite(AfterMissionImage);
+	}
+	else if (MissionDA)
 	{
 		RenderComponent->SetSprite(MissionDA->Image);
 	}
@@ -27,8 +32,17 @@ AMV_EntityBase::AMV_EntityBase()
 	RenderComponent->SetupAttachment(RootComponent);
 }
 
-const UMissionDA* AMV_EntityBase::GetMissionDA() const
+UMissionDA* AMV_EntityBase::GetMissionDA() const
 {
 	return MissionDA;
+}
+
+void AMV_EntityBase::OnOverlapAction()
+{
+	if (!MissionDA->bCompleted)
+	{
+		UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+		GameController->SetStartedEntity(this, GetMissionDA());
+	}
 }
 

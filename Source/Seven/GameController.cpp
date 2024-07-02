@@ -8,19 +8,45 @@
 #include "Kismet\GameplayStatics.h"
 #include "Mission.h"
 
-void UGameController::StoreActiveEntities(const TArray<const AMV_EntityBase*> ActiveEntities)
+void UGameController::StoreActiveEntities(const TArray<AMV_EntityBase*> ActiveEntities)
 {
-	for (const AMV_EntityBase* EntityBase : ActiveEntities)
+	for (AMV_EntityBase* EntityBase : ActiveEntities)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MyCharacter's Location is %s"),
-			*EntityBase->GetActorLocation().ToString());
 		ActiveEntitiesInfo.Add(FAMV_EntityBaseInfo(EntityBase->GetActorLocation(), EntityBase->GetMissionDA()));
 	}
+
+
 }
 
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const
 {
 	return ActiveEntitiesInfo;
+}
+
+const FAMV_EntityBaseInfo& UGameController::GetStartedEntity() const
+{
+	for (const FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
+	{
+		if (Entity.MissionDA->bStarted)
+		{
+			return Entity;
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("[UGameController].GetStartedEntity HAVEN'T FOUND STARTED MISSION!!!"));
+	return ActiveEntitiesInfo[0];
+}
+
+FAMV_EntityBaseInfo& UGameController::GetStartedEntity()
+{
+	for (FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
+	{
+		if (Entity.MissionDA->bStarted)
+		{
+			return Entity;
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("[UGameController].GetStartedEntity HAVEN'T FOUND STARTED MISSION!!!"));
+	return ActiveEntitiesInfo[0];
 }
 
 void UGameController::Initialize(FSubsystemCollectionBase& Collection)
@@ -29,21 +55,48 @@ void UGameController::Initialize(FSubsystemCollectionBase& Collection)
 	SelectedCharacters.Empty();
 }
 
-void UGameController::SetActiveMission(const UMissionDA* Mission)
+void UGameController::SetStartedEntity(AMV_EntityBase* EntityToStart, const UMissionDA* Mission)
 {
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
+	// TODO: REFACTOR, make it more efficient pls ... 
+	// do not REODER now.
 	StoreActiveEntities(Map->ActiveEntities);
-
-	ActiveMission = Mission;
+	for (FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
+	{
+		if (Entity.MissionDA == Mission)
+		{
+			Entity.MissionDA->bStarted = true;
+		}
+	}
 	UGameplayStatics::OpenLevel(this, FName("ThirdPersonMap"));
 }
 
 void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin)
 {
 	UpdateSevenCharactersState(SevenCharacters);
-	UGameplayStatics::OpenLevel(this, FName("Map"));
-	// TODO: NOW AFTER MAP IS READY, PLACE ENTITIES
 	
+	if (bWin)
+	{
+		// Change to completed
+		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character WON! Changing the Entity to be open!"));
+		FAMV_EntityBaseInfo& Entity = GetStartedEntity();
+		Entity.MissionDA->bCompleted = true;
+		Entity.MissionDA->bStarted = false;
+		// TODO: Process reward!
+
+
+		if (Entity.MissionDA->SpecialCharacter)
+		{
+			SelectedCharacters.Add(Entity.MissionDA->SpecialCharacter);
+		}
+	}
+	else
+	{
+		// flee away with a character
+		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character LOST!"));
+	}
+
+	UGameplayStatics::OpenLevel(this, FName("Map"));	
 }
 
 void UGameController::UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters)

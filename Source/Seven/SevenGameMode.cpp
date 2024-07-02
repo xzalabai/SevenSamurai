@@ -146,14 +146,9 @@ void ASevenGameMode::MissionEnd(bool bWin)
 void ASevenGameMode::UpdateMissionParameters(AMission* Mission)
 {
 	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-
-	if (!GameController->ActiveMission)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UGameController] UpdateMissionParameters: ActivateMission is nullptr, probably running map straight from the editor"));
-		return;
-	}
-	Mission->EnemiesToSpawn = GameController->ActiveMission->EnemiesToSpawn;
-	Mission->MissionType = GameController->ActiveMission->MissionType;
+	const FAMV_EntityBaseInfo& StartedEntity = GameController->GetStartedEntity();
+	Mission->EnemiesToSpawn = StartedEntity.MissionDA->EnemiesToSpawn;
+	Mission->MissionType = StartedEntity.MissionDA->MissionType;
 }
 
 
