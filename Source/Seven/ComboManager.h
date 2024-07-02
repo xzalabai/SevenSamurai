@@ -39,15 +39,6 @@ UCLASS()
 class SEVEN_API AComboManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	AComboManager();
-	UFUNCTION(BlueprintCallable)
-	void ShowSkillTree(const TArray<ASevenCharacter*> AvailableCharacters) const;
-	UFUNCTION(BlueprintCallable)
-	void BuyCombo(const ASevenCharacter* const SevenCharacter, const int Index) const;
-	UPROPERTY(EditAnywhere)
-	TMap<ESevenCharacterType, FSevenCharacterCombos> SevenCharacterCombosMapping;
 };
 
 

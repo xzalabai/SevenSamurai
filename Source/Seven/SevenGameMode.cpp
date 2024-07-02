@@ -160,11 +160,11 @@ CRITICAL - TURN OFF OPTIMIZATION
 CRITICAL - Create ControllableInterface for controlling characters, so there is no CAST in PlayerController every key !!!!!!!
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Put OnStatusUpdate to ASevenGameMode
+High - Remove ComboManager and move newly created structs to PublicEnums (I guess)
 High - Cache SevenGameMode where it's used often!!!
 High - make sync between AIController, EnemyCharacter, TargetedEnemy, EnemyToAttack etc... so they it is being choosed in AIController and everyone follows it
 High - FIND OUT WHY AC_ATTACKCOMPONENT cannot have UPROPERTY() - bc it's null
 High - Fix weird Character rotation after some animation is performed on steep surface
-High - Change MissionHandler and ComboManager to SubSystem
 High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - rename Combo to LightCombo or smth.

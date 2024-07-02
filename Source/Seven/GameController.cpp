@@ -14,8 +14,6 @@ void UGameController::StoreActiveEntities(const TArray<AMV_EntityBase*> ActiveEn
 	{
 		ActiveEntitiesInfo.Add(FAMV_EntityBaseInfo(EntityBase->GetActorLocation(), EntityBase->GetMissionDA()));
 	}
-
-
 }
 
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const

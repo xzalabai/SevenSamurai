@@ -57,9 +57,9 @@ struct FWeaponDetail
 	FWeaponDetail() = default;
 	FWeaponDetail(int NewDamage, EWeaponLevel NewWeaponLevel) : Damage(NewDamage), WeaponLevel(NewWeaponLevel) {}
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	int Damage = 0;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	EWeaponLevel WeaponLevel = EWeaponLevel::One;
 };

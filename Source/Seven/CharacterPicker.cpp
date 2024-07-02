@@ -3,7 +3,6 @@
 #include "SevenCharacterDA.h"
 #include "GameController.h"
 #include "Weapon.h"
-#include "WeaponUpgrade.h"
 #include "Mission.h"
 #include "Kismet\GameplayStatics.h"
 

@@ -16,7 +16,19 @@ UAttackComponent::UAttackComponent()
 void UAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	WeaponDetail = FWeaponDetail{ 30, EWeaponLevel::One };
+	// TODO: Doesn't apply for ENEMY!!!!
+	if (USevenCharacterDA* SevenCharacterDA = GetOwnerCharacter()->SevenCharacterDA)
+	{
+		for (TSubclassOf<UObject> UObjectSubclass : SevenCharacterDA->CombosObj)
+		{
+			AddComboToCharacter(UObjectSubclass);
+		}
+		WeaponDetail = SevenCharacterDA->WeaponDetail;
+	}
+	else
+	{
+		WeaponDetail = FWeaponDetail(200, EWeaponLevel::One);
+	}
 }
 
 
@@ -89,8 +101,9 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	// TODO: Damage based on weapon
-	int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
-	DamageToBeDealt = 200; //TODO just for debug
+	//int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
+	//DamageToBeDealt = 200; //TODO just for debug
+	int DamageToBeDealt = WeaponDetail.Damage;
 	return FAttackInfo(CurrentAttackType, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
 }
 
@@ -243,7 +256,7 @@ void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
 		GetOwnerCharacter()->SevenCharacterDA->Combos.Add(Combo->GetComboName());
 	}
 	
-	UE_LOG(LogTemp, Display, TEXT("[AComboManager]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
 }
 
 void UAttackComponent::ComboAttackStart()
