@@ -4,6 +4,7 @@
 #include "PaperSpriteComponent.h"
 #include "MV_Enemy.h"
 #include "MV_EntityBase.h"
+#include "MV_Village.h"
 #include "MVSevenCharacter.h"
 #include <Kismet\KismetMathLibrary.h>
 #include <Kismet\GameplayStatics.h>
@@ -36,7 +37,7 @@ void AMV_Map::BeginPlay()
 		FVector Pos = GetRandomPointOnMap();
 		DrawDebugPoint(GetWorld(), Pos, 10.0f, FColor::Red, false, 5.0f);
 		FTransform T{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
-		AMV_EntityBase* Village = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+		AMV_Village* Village = GetWorld()->SpawnActorDeferred<AMV_Village>(VillageClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 		Village->MissionDA = AvailableMissions[0];
 		Village->FinishSpawning(T);
 		ActiveEntities.Add(Village);
@@ -59,7 +60,7 @@ void AMV_Map::BeginPlay()
 
 			if (EntityToSpawn.MissionDA->MissionType == EMissionType::LiberatePlace)
 			{
-				AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+				AMV_Village* NewMission = GetWorld()->SpawnActorDeferred<AMV_Village>(VillageClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 				NewMission->MissionDA = EntityToSpawn.MissionDA;
 				NewMission->FinishSpawning(T);
 			}

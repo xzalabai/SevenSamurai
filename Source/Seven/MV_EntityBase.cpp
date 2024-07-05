@@ -10,11 +10,11 @@ void AMV_EntityBase::BeginPlay()
 	Super::BeginPlay();
 	if (MissionDA->bCompleted && AfterMissionImage)
 	{
-		RenderComponent->SetSprite(AfterMissionImage);
+		UpdateImage(AfterMissionImage);
 	}
 	else if (MissionDA)
 	{
-		RenderComponent->SetSprite(MissionDA->Image);
+		UpdateImage(MissionDA->Image);
 	}
 }
 
@@ -37,6 +37,11 @@ UMissionDA* AMV_EntityBase::GetMissionDA() const
 	return MissionDA;
 }
 
+void AMV_EntityBase::UpdateImage(UPaperSprite* NewSprite) const
+{
+	RenderComponent->SetSprite(NewSprite);
+}
+
 void AMV_EntityBase::OnOverlapAction()
 {
 	if (!MissionDA->bCompleted)
@@ -44,5 +49,10 @@ void AMV_EntityBase::OnOverlapAction()
 		UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 		GameController->SetStartedEntity(this, GetMissionDA());
 	}
+}
+
+void AMV_EntityBase::OnPossessed()
+{
+	UE_LOG(LogTemp, Display, TEXT("[AMV_EntityBase] OnPossessed"));
 }
 

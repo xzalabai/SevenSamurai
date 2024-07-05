@@ -34,12 +34,17 @@ void AMV_AIController::MoveToRandomPosition()
 void AMV_AIController::MoveToSevenCharacter()
 {
 	TObjectPtr<AMVSevenCharacter> MVSevenCharacter = Map->GetMVSevenCharacter();
-	AActor* Act = Cast<AActor>(MVSevenCharacter.Get()); // TODO: WHY??????????
-
 	//UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
-	//BlackBoardComponent->SetValueAsBool(TEXT("bChaseSevenCharacter"), true);
+	//BlackBoardComponent->SetValueAsBool(TEXT("bChaseSevenCharacter"), true);	
 
 	MoveToActor(MVSevenCharacter.Get());
+}
+
+void AMV_AIController::EnableMoving(const bool bEnable)
+{
+	UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
+	BlackBoardComponent->SetValueAsBool(TEXT("bCanMove"), bEnable);
+	StopMovement();
 }
 
 void AMV_AIController::RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult)

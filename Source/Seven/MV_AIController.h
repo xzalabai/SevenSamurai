@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveToSevenCharacter();
 
+	void EnableMoving(const bool bEnable);
+
 private:
 	void RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult);
 

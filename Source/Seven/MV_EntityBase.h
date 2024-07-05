@@ -35,6 +35,8 @@ protected:
 public:	
 	AMV_EntityBase();
 	UMissionDA* GetMissionDA() const;
+	void UpdateImage(UPaperSprite* NewSprite) const;
 	virtual void OnOverlapAction() override;
-
+	UFUNCTION(BlueprintCallable)
+	virtual void OnPossessed();
 };

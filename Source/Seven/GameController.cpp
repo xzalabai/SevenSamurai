@@ -66,7 +66,7 @@ void UGameController::SetStartedEntity(AMV_EntityBase* EntityToStart, const UMis
 			Entity.MissionDA->bStarted = true;
 		}
 	}
-	UGameplayStatics::OpenLevel(this, FName("ThirdPersonMap"));
+	OpenLevel(FName("ThirdPersonMap"));
 }
 
 void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin)
@@ -94,7 +94,7 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character LOST!"));
 	}
 
-	UGameplayStatics::OpenLevel(this, FName("Map"));	
+	OpenLevel(FName("Map"));	
 }
 
 void UGameController::UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters)
@@ -116,4 +116,9 @@ void UGameController::AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA
 const TArray<USevenCharacterDA*> UGameController::GetSelectedCharacters() const
 {
 	return SelectedCharacters;
+}
+
+void UGameController::OpenLevel(const FName& LevelName)
+{
+	UGameplayStatics::OpenLevel(this, LevelName);
 }

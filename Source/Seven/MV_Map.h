@@ -32,6 +32,9 @@ private:
 	TSubclassOf<AMV_EntityBase> MissionClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AMV_EntityBase> VillageClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AMV_Enemy> EnemyClass;
 
 	UPROPERTY()

@@ -5,6 +5,7 @@
 #include "MV_Enemy.generated.h"
 
 class UFloatingPawnMovement;
+class UMissionDA;
 
 UCLASS()
 class SEVEN_API AMV_Enemy : public AMV_EntityBase
@@ -15,10 +16,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UFloatingPawnMovement* MovementComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
+	TObjectPtr<class UPaperSprite> EnemyCampImage;
+
 public:
 	AMV_Enemy();
+	virtual void OnPossessed() override;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+	virtual void Camp(const bool bEnable);
 };

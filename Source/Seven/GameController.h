@@ -61,6 +61,7 @@ public:
 	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA);
 	UFUNCTION(BlueprintCallable)
 	const TArray<USevenCharacterDA*> GetSelectedCharacters() const;
+	void OpenLevel(const FName& LevelName);
 
 private:
 	FAMV_EntityBaseInfo& GetStartedEntity();

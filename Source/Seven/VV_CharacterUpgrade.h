@@ -2,8 +2,35 @@
 
 #include "CoreMinimal.h"
 #include "VV_EntityBase.h"
-#include "ComboManager.h"
+#include "PublicEnums.h"
 #include "VV_CharacterUpgrade.generated.h"
+
+USTRUCT(BlueprintType)
+struct FCombosWithPrices
+{
+	GENERATED_BODY()
+
+	FCombosWithPrices() = default;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UObject> Combo;
+
+	UPROPERTY(EditAnywhere)
+	int Price;
+
+	UPROPERTY(EditAnywhere)
+	FName Name;
+};
+
+USTRUCT(BlueprintType)
+struct FSevenCharacterCombos
+{
+	GENERATED_BODY()
+
+	FSevenCharacterCombos() = default;
+	UPROPERTY(EditAnywhere)
+	TArray<FCombosWithPrices> CombosAvailable;
+};
 
 UCLASS()
 class SEVEN_API AVV_CharacterUpgrade : public AVV_EntityBase
