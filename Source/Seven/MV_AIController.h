@@ -41,5 +41,7 @@ protected:
 	virtual void BeginPlay() override;
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsMovementFinished();
+	UFUNCTION(BlueprintCallable)
+	void Camp(const bool bEnable) const;
 
 };

@@ -25,10 +25,9 @@ private:
 public:
 	AMV_Enemy();
 	virtual void OnPossessed() override;
+	virtual void Camp(const bool bEnable);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UFUNCTION(BlueprintCallable)
-	virtual void Camp(const bool bEnable);
 };

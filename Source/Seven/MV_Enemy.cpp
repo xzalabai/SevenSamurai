@@ -47,7 +47,7 @@ void AMV_Enemy::Camp(const bool bEnable)
 	}
 	
 	AMV_AIController* MV_AIController = Cast<AMV_AIController>(GetController());
-	MV_AIController->EnableMoving(false);
+	MV_AIController->EnableMoving(!bEnable);
 }
 
 
