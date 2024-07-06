@@ -8,8 +8,9 @@
 #include "Kismet\GameplayStatics.h"
 #include "Mission.h"
 
-void UGameController::StoreActiveEntities(const TArray<const AMV_EntityBase*> ActiveEntities)
+void UGameController::StoreActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities)
 {
+	ActiveEntitiesInfo.Empty();
 	for (const AMV_EntityBase* EntityBase : ActiveEntities)
 	{
 		ActiveEntitiesInfo.Add(FAMV_EntityBaseInfo(EntityBase->GetActorLocation(), EntityBase->GetMissionDA()));

@@ -26,46 +26,11 @@ void AMV_Map::BeginPlay()
 
 	if (EntitiesToSpawn.Num() == 0)
 	{
-		// FIRST RUN
-
-		// Spawn 3 villages, on designated points
-
-		for (int i = 0; i < 2; i++)
-		{
-			FVector Pos = GetRandomPointOnMap();
-			FTransform T = FTransform{ FRotator(0, -180, -90), FVector(Pos.X, Pos.Y, Pos.Z + 1), FVector(1,1,1) };
-			AMV_Village* NewMission = GetWorld()->SpawnActorDeferred<AMV_Village>(VillageClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-			NewMission->MissionDA = AvailableVillages[i];
-			NewMission->FinishSpawning(T);
-			ActiveEntities.Add(NewMission);
-		}
+		GenerateEntites();
 	}
 	else
 	{
-		for (const FAMV_EntityBaseInfo& EntityToSpawn : EntitiesToSpawn)
-		{
-			FTransform T{ FRotator(0, -180, -90), EntityToSpawn.Position, FVector(1,1,1) };
-
-			if (EntityToSpawn.MissionDA->MissionType == EMissionType::LiberatePlace)
-			{
-				AMV_Village* NewMission = GetWorld()->SpawnActorDeferred<AMV_Village>(VillageClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-				NewMission->MissionDA = EntityToSpawn.MissionDA;
-				NewMission->FinishSpawning(T);
-			}
-			else if (EntityToSpawn.MissionDA->MissionType == EMissionType::EnemyCamp || EntityToSpawn.MissionDA->MissionType == EMissionType::Enemy)
-			{
-				AMV_Enemy* Enemy = GetWorld()->SpawnActorDeferred<AMV_Enemy>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-				Enemy->MissionDA = EntityToSpawn.MissionDA;
-				Enemy->FinishSpawning(T);
-			}
-			else
-			{
-				AMV_EntityBase* NewMission = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-				NewMission->MissionDA = EntityToSpawn.MissionDA;
-				NewMission->FinishSpawning(T);
-			}
-		}
-
+		LoadStoredEntities(EntitiesToSpawn);
 	}
 }
 
@@ -80,7 +45,7 @@ void AMV_Map::Tick(float DeltaTime)
 		case 5:
 			Time.DayPart = EDayPart::Morning;
 			OnDayPeriodChange.Broadcast(Time.DayPart);
-			SpawnEnemy();
+			GenerateNewEnemy();
 			break;
 		case 10:
 			Time.DayPart = EDayPart::Day;
@@ -89,7 +54,7 @@ void AMV_Map::Tick(float DeltaTime)
 		case 17:
 			Time.DayPart = EDayPart::Evening;
 			OnDayPeriodChange.Broadcast(Time.DayPart);
-			SpawnEnemy();
+			GenerateNewEnemy();
 			break;
 		case 20:
 			Time.DayPart = EDayPart::Night;
@@ -137,22 +102,17 @@ TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 	return MVSevenCharacter;
 }
 
-void AMV_Map::SpawnEnemy()
+void AMV_Map::GenerateNewEnemy()
 {
-	const FVector RandomPoint = GetRandomPointOnMap();
-	const FTransform T = FTransform{ FRotator(0, -180, -90), FVector(RandomPoint.X, RandomPoint.Y, RandomPoint.Z + 1), FVector(1.5, 1.5, 1.5) };
-	AMV_Enemy* Enemy = GetWorld()->SpawnActorDeferred<AMV_Enemy>(
-		EnemyClass,
-		T,
-		nullptr,
-		nullptr,
-		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
-	);
-
-	AvailableEnemies.Emplace(NewObject<UMissionDA>());
-	UMissionDA* EnemyTemplate = AvailableEnemies[0];
-	UMissionDA* NewEnemy = AvailableEnemies[AvailableEnemies.Num() - 1];
+	// Get random location
+	FVector RandomPoint = GetRandomPointOnMap();
+	RandomPoint.Z += 1;
 	
+	// Generate random enemy
+	AvailableEnemies.Emplace(NewObject<UMissionDA>());
+	const UMissionDA* EnemyTemplate = AvailableEnemies[0];
+	UMissionDA* NewEnemy = AvailableEnemies[AvailableEnemies.Num() - 1];
+
 	NewEnemy->Name = "RandomGuy";
 	NewEnemy->Description = "Random Guy Description";
 	NewEnemy->Image = EnemyTemplate->Image;
@@ -162,8 +122,46 @@ void AMV_Map::SpawnEnemy()
 	NewEnemy->Reward = EnemyTemplate->Reward;
 	NewEnemy->SpecialCharacter = nullptr;
 
-	Enemy->MissionDA = NewEnemy;
-	Enemy->FinishSpawning(T);
+	SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemy));
+}
 
-	ActiveEntities.Add(Enemy);
+void AMV_Map::GenerateEntites()
+{
+	// Generate Villages
+	for (int i = 0; i < 2; i++)
+	{
+		FVector RandomPointOnMap = GetRandomPointOnMap();
+		RandomPointOnMap.Z += 1;
+		SpawnEntity(FAMV_EntityBaseInfo(RandomPointOnMap, AvailableVillages[i]));
+	}
+}
+
+void AMV_Map::SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn)
+{
+	const FTransform T{ FRotator(0, -180, -90), EntityToSpawn.Position, FVector(1,1,1) };
+	AMV_EntityBase* NewEntity{ nullptr };
+	if (EntityToSpawn.MissionDA->MissionType == EMissionType::LiberatePlace)
+	{
+		NewEntity = GetWorld()->SpawnActorDeferred<AMV_Village>(VillageClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+	}
+	else if (EntityToSpawn.MissionDA->MissionType == EMissionType::EnemyCamp || EntityToSpawn.MissionDA->MissionType == EMissionType::Enemy)
+	{
+		NewEntity = GetWorld()->SpawnActorDeferred<AMV_Enemy>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+	}
+	else
+	{
+		NewEntity = GetWorld()->SpawnActorDeferred<AMV_EntityBase>(MissionClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+	}
+
+	NewEntity->MissionDA = EntityToSpawn.MissionDA;
+	NewEntity->FinishSpawning(T);
+	ActiveEntities.Add(NewEntity);
+}
+
+void AMV_Map::LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn)
+{
+	for (const FAMV_EntityBaseInfo& EntityToSpawn : EntitiesToSpawn)
+	{
+		SpawnEntity(EntityToSpawn);
+	}
 }

@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "PaperSpriteActor.h"
 #include "PublicEnums.h"
+#include "GameController.h"
 #include "MissionDA.h"
 #include "MV_Map.generated.h"
 
@@ -82,6 +83,9 @@ public:
 	TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
 
 private:
-	void SpawnEnemy();
+	void GenerateNewEnemy();
+	void GenerateEntites();
+	void SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
+	void LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
 	
 };

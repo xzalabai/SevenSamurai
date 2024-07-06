@@ -12,7 +12,12 @@ void AMV_AIController::BeginPlay()
 	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AMV_AIController::RequestFinished);
 	
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
-	Map->OnDayPeriodChange.AddUObject(this, &AMV_AIController::OnDayPeriodChange);
+	if (Map)
+	{
+		// Can be nullptr in case of VillageView
+		Map->OnDayPeriodChange.AddUObject(this, &AMV_AIController::OnDayPeriodChange);
+	}
+	
 
 }
 
