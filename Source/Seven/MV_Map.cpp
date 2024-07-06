@@ -70,7 +70,6 @@ void AMV_Map::Tick(float DeltaTime)
 		if (GetActiveEnemies() < 4)
 		{
 			// just for DEBUG
-			GenerateNewEnemy();
 		}
 
 		if (Time.Day == 31)
@@ -89,14 +88,15 @@ void AMV_Map::Tick(float DeltaTime)
 	UE_LOG(LogTemp, Error, TEXT("[AMV_Map].Tick hour - %d, day - %d month - %d, year - %d"), Time.Hour, Time.Day, Time.Month, Time.Year);
 }
 
-FVector AMV_Map::GetRandomPointOnMap() const
+FVector AMV_Map::GetRandomPointOnMap(const bool bShift) const
 {
 	const UPaperSpriteComponent* SpriteComponent = GetRenderComponent();
 	FBoxSphereBounds SpriteBounds = SpriteComponent->CalcBounds(SpriteComponent->GetComponentTransform());
 	FVector Center = SpriteBounds.Origin;
 	FVector Extent = SpriteBounds.BoxExtent;
 	FVector RandomPoint = UKismetMathLibrary::RandomPointInBoundingBox(Center, Extent);
-	RandomPoint.Z = Center.Z;
+
+	RandomPoint.Z = Center.Z + (bShift ? 1 : 0);
 
 	return RandomPoint;
 }
@@ -106,43 +106,53 @@ TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 	return MVSevenCharacter;
 }
 
-void AMV_Map::GenerateNewEnemy()
+void AMV_Map::GenerateEntity(EMissionType MissionType)
 {
-	// Get random location
-	FVector RandomPoint = GetRandomPointOnMap();
-	RandomPoint.Z += 1;
-	
-	// Generate random enemy
-	AvailableEnemies.Emplace(NewObject<UMissionDA>());
-	const UMissionDA* EnemyTemplate = AvailableEnemies[0];
-	UMissionDA* NewEnemy = AvailableEnemies[AvailableEnemies.Num() - 1];
+	FVector RandomPoint = GetRandomPointOnMap(true);
+	UMissionDA* NewEnemyMission = NewObject<UMissionDA>();
 
-	NewEnemy->Name = "RandomGuy";
-	NewEnemy->Description = "Random Guy Description";
-	NewEnemy->Image = EnemyTemplate->Image;
-	NewEnemy->MissionCompleteImage = EnemyTemplate->MissionCompleteImage;
-	NewEnemy->MissionType = EnemyTemplate->MissionType;
-	NewEnemy->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn;
-	NewEnemy->Reward = EnemyTemplate->Reward;
-	NewEnemy->SpecialCharacter = nullptr;
+	if (MissionType == EMissionType::NotProvided)
+	{
+		uint32 RandomMissionIndex = FMath::RandRange(0, AvailableMissions.Num() - 1);
+		NewEnemyMission = AvailableMissions[RandomMissionIndex];
+	}
+	else if (MissionType == EMissionType::Enemy)
+	{
+		const UMissionDA* EnemyTemplate = AvailableEnemies[0];
 
-	SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemy));
+		NewEnemyMission->Name = "RandomGuy";
+		NewEnemyMission->Description = "Random Guy Description";
+		NewEnemyMission->Image = EnemyTemplate->Image;
+		NewEnemyMission->MissionCompleteImage = EnemyTemplate->MissionCompleteImage;
+		NewEnemyMission->MissionType = EnemyTemplate->MissionType;
+		NewEnemyMission->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn;
+		NewEnemyMission->Reward = EnemyTemplate->Reward;
+		NewEnemyMission->SpecialCharacter = nullptr;
+
+	}
+	GeneratedMissions.Add(NewEnemyMission);
+	SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemyMission));
 }
 
 void AMV_Map::GenerateEntites()
 {
-	// Generate Villages
+	// Generate Enemies
 	for (int i = 0; i < 3; i++)
 	{
-		GenerateNewEnemy();
+		GenerateEntity(EMissionType::Enemy);
 	}
 
-	// Generate Enemies
+	// Generate Villages
 	for (int i = 0; i < 2; i++)
 	{
-		FVector RandomPointOnMap = GetRandomPointOnMap();
-		RandomPointOnMap.Z += 1;
+		FVector RandomPointOnMap = GetRandomPointOnMap(true);
 		SpawnEntity(FAMV_EntityBaseInfo(RandomPointOnMap, AvailableVillages[i]));
+	}
+
+	// Generate Random Entities around ...
+	for (int i = 0; i < 10; i++)
+	{
+		GenerateEntity();
 	}
 }
 

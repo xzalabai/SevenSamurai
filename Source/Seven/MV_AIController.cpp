@@ -34,7 +34,7 @@ void AMV_AIController::MoveToRandomPosition()
 	UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveToRandomPosition"));
 	const AMV_EntityBase* Entity = Cast<AMV_EntityBase>(GetPawn());
 	FVector Position = Map->GetRandomPointOnMap();
-	MoveCharacterTo(Map->GetRandomPointOnMap());
+	MoveCharacterTo(Position);
 	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, GetPawn()->GetActorLocation().Z));
 }
 

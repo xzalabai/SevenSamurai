@@ -52,7 +52,13 @@ private:
 	TArray<UMissionDA*> AvailableVillages;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
+	TArray<UMissionDA*> AvailableMissions;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TArray<UMissionDA*> AvailableEnemies;
+
+	UPROPERTY()
+	TArray<UMissionDA*> GeneratedMissions;
 
 	UPROPERTY();
 	TArray<const AMV_EntityBase*> ActiveEntities;
@@ -78,12 +84,12 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	FVector GetRandomPointOnMap() const;
+	FVector GetRandomPointOnMap(const bool bShift = false) const;
 	AMV_Map();
 	TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
 
 private:
-	void GenerateNewEnemy();
+	void GenerateEntity(EMissionType MissionType = EMissionType::NotProvided);
 	void GenerateEntites();
 	void SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
 	void LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
