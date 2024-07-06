@@ -45,7 +45,6 @@ void AMV_Map::Tick(float DeltaTime)
 		case 5:
 			Time.DayPart = EDayPart::Morning;
 			OnDayPeriodChange.Broadcast(Time.DayPart);
-			GenerateNewEnemy();
 			break;
 		case 10:
 			Time.DayPart = EDayPart::Day;
@@ -54,7 +53,6 @@ void AMV_Map::Tick(float DeltaTime)
 		case 17:
 			Time.DayPart = EDayPart::Evening;
 			OnDayPeriodChange.Broadcast(Time.DayPart);
-			GenerateNewEnemy();
 			break;
 		case 20:
 			Time.DayPart = EDayPart::Night;
@@ -68,6 +66,12 @@ void AMV_Map::Tick(float DeltaTime)
 	{
 		++Time.Day;
 		Time.Hour = 0;
+
+		if (GetActiveEnemies() < 4)
+		{
+			// just for DEBUG
+			GenerateNewEnemy();
+		}
 
 		if (Time.Day == 31)
 		{
@@ -128,6 +132,12 @@ void AMV_Map::GenerateNewEnemy()
 void AMV_Map::GenerateEntites()
 {
 	// Generate Villages
+	for (int i = 0; i < 3; i++)
+	{
+		GenerateNewEnemy();
+	}
+
+	// Generate Enemies
 	for (int i = 0; i < 2; i++)
 	{
 		FVector RandomPointOnMap = GetRandomPointOnMap();
@@ -164,4 +174,19 @@ void AMV_Map::LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSp
 	{
 		SpawnEntity(EntityToSpawn);
 	}
+}
+
+int32 AMV_Map::GetActiveEnemies() const
+{
+	int Amount = 0;
+
+	for (const AMV_EntityBase* const &ActiveEntity : ActiveEntities)
+	{
+		if (ActiveEntity->MissionDA->MissionType == EMissionType::EnemyCamp || ActiveEntity->MissionDA->MissionType == EMissionType::Enemy)
+		{
+			++Amount;
+		}
+	}
+
+	return Amount;
 }

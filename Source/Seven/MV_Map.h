@@ -87,5 +87,6 @@ private:
 	void GenerateEntites();
 	void SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
 	void LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
+	int32 GetActiveEnemies() const;
 	
 };

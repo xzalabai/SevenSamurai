@@ -17,8 +17,6 @@ void AMV_AIController::BeginPlay()
 		// Can be nullptr in case of VillageView
 		Map->OnDayPeriodChange.AddUObject(this, &AMV_AIController::OnDayPeriodChange);
 	}
-	
-
 }
 
 void AMV_AIController::MoveCharacterTo(const FVector& Position)
