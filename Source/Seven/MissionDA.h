@@ -33,6 +33,9 @@ public:
 	TObjectPtr<UPaperSprite> Image;
 
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<UPaperSprite> MissionCompleteImage;
+
+	UPROPERTY(EditAnywhere)
 	EMissionType MissionType;
 
 	UPROPERTY(EditAnywhere)

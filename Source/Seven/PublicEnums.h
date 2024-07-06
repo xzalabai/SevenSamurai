@@ -20,6 +20,16 @@ enum class EAttackType
 };
 
 UENUM(BlueprintType)
+enum class EDayPart : uint8
+{
+	NotProvided,
+	Morning,
+	Day,
+	Evening,
+	Night
+};
+
+UENUM(BlueprintType)
 enum class ESevenCharacterType : uint8
 {
 	Classic = 0,

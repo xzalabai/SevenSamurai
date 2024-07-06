@@ -159,6 +159,7 @@ Refactor:
 CRITICAL - TURN OFF OPTIMIZATION
 CRITICAL - Create ControllableInterface for controlling characters, so there is no CAST in PlayerController every key !!!!!!!
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
+High - Remove all GetActorOfClass (also in blueprints - BP_MV_PlayerController etc
 High - Put OnStatusUpdate to ASevenGameMode
 High - Remove ComboManager and move newly created structs to PublicEnums (I guess)
 High - Cache SevenGameMode where it's used often!!!
@@ -167,6 +168,7 @@ High - FIND OUT WHY AC_ATTACKCOMPONENT cannot have UPROPERTY() - bc it's null
 High - Fix weird Character rotation after some animation is performed on steep surface
 High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
+High - Make an Array of all new generated missions -> which persists the whole game (so the missions are not holding only due to some reference ...)
 High - rename Combo to LightCombo or smth.
 High - Consideration: Change OnAnimationEnded to EVENT ?
 High - Refactor logic of returning AttackToken (now in AICharacter there is assumption in Fire() that it is enemy
@@ -175,6 +177,7 @@ High - Fix broken - block broken!!! it does nothing if you break block and attac
 High - Move OnUpdateStatus stuff from GameController to something specific for the mission - other subsystem
 High - ADD Listener in CharacterPicker also to the SIDE MISSION!!!
 High - Fix Guard left walk (character seems to go forward)
+Medium - Remove Dynamic_multicast_Delegate and replace with Multicast_delegate
 Medium - Refactor maps and arrays in SevenGameMode, there is no need to have so many: enemies, enemiesstatus, sevencharacters, sevencharacterstatus
 Medium - Find better solution to store MissionType for EnemyCharacter and then resolve it based on DataAsset stored in EnemyController (expensive!)
 Medium - Move things that are getters (GetActorOfClass from Map to GameController, and then in AMV_Map::BeginPlay just retrieve it from GameController...

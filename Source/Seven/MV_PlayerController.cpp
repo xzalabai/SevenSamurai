@@ -60,14 +60,14 @@ void AMV_PlayerController::PerformTraceToMap() const
 		// Hit Map
 		if (const AMV_Map* HitObject = Cast<AMV_Map>(HitResult.GetActor()))
 		{
-			DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
+			//DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
 			AMV_AIController* MV_AISevenCharacterController = Cast<AMV_AIController>(ControlledCharacter->GetController());
 			MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 		}
 
 		if (const AVV_Map* HitObject = Cast<AVV_Map>(HitResult.GetActor()))
 		{
-			DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
+			//DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.0f);
 			AMV_AIController* MV_AISevenCharacterController = Cast<AMV_AIController>(ControlledCharacter->GetController());
 			MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 		}

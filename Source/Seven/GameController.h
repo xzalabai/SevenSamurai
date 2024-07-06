@@ -49,7 +49,7 @@ private:
 	UPROPERTY()
 	TArray<FAMV_EntityBaseInfo> ActiveEntitiesInfo;
 
-	void StoreActiveEntities(const TArray<AMV_EntityBase*> ActiveEntities);
+	void StoreActiveEntities(const TArray<const AMV_EntityBase*> ActiveEntities);
 public:
 	const TArray<FAMV_EntityBaseInfo> RetrieveActiveEntities() const;
 	const FAMV_EntityBaseInfo& GetStartedEntity() const;

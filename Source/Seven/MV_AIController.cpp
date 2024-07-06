@@ -10,7 +10,10 @@ void AMV_AIController::BeginPlay()
 {
 	Super::BeginPlay();
 	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AMV_AIController::RequestFinished);
+	
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
+	Map->OnDayPeriodChange.AddUObject(this, &AMV_AIController::OnDayPeriodChange);
+
 }
 
 void AMV_AIController::MoveCharacterTo(const FVector& Position)
@@ -50,6 +53,12 @@ void AMV_AIController::EnableMoving(const bool bEnable)
 void AMV_AIController::RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult)
 {
 	bMovementFinished = PathFollowingResult.IsSuccess();
+}
+
+void AMV_AIController::OnDayPeriodChange(EDayPart DayPart)
+{
+	UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
+	//BlackBoardComponent->SetValueAsBool(TEXT("bNight"), DayPart == EDayPart::Night ? true : false);
 }
 
 bool AMV_AIController::IsMovementFinished()

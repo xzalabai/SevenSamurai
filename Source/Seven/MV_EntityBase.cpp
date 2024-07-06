@@ -8,9 +8,9 @@
 void AMV_EntityBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (MissionDA->bCompleted && AfterMissionImage)
+	if (MissionDA->bCompleted && MissionDA->MissionCompleteImage)
 	{
-		UpdateImage(AfterMissionImage);
+		UpdateImage(MissionDA->MissionCompleteImage);
 	}
 	else if (MissionDA)
 	{
@@ -39,7 +39,15 @@ UMissionDA* AMV_EntityBase::GetMissionDA() const
 
 void AMV_EntityBase::UpdateImage(UPaperSprite* NewSprite) const
 {
-	RenderComponent->SetSprite(NewSprite);
+	if (NewSprite)
+	{
+		RenderComponent->SetSprite(NewSprite);
+	}
+	else
+	{
+		RenderComponent->SetSprite(MissionDA->Image);
+	}
+	
 }
 
 void AMV_EntityBase::OnOverlapAction()

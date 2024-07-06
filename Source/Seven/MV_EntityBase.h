@@ -8,6 +8,8 @@
 class UCapsuleComponent;
 class UMissionDA;
 class AMV_Map;
+class UPaperSprite;
+class UPaperSpriteComponent;
 
 UCLASS()
 class SEVEN_API AMV_EntityBase : public APawn, public IMV_OverlapInterface
@@ -18,10 +20,7 @@ class SEVEN_API AMV_EntityBase : public APawn, public IMV_OverlapInterface
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperSpriteComponent> RenderComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperSprite> AfterMissionImage;
+	TObjectPtr< UPaperSpriteComponent> RenderComponent;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	UCapsuleComponent* CapsuleComponent;
@@ -35,7 +34,7 @@ protected:
 public:	
 	AMV_EntityBase();
 	UMissionDA* GetMissionDA() const;
-	void UpdateImage(UPaperSprite* NewSprite) const;
+	void UpdateImage(UPaperSprite* NewSprite=nullptr) const;
 	virtual void OnOverlapAction() override;
 	UFUNCTION(BlueprintCallable)
 	virtual void OnPossessed();

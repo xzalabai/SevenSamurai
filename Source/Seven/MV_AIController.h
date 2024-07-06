@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "PublicEnums.h"
 #include "MV_AIController.generated.h"
 
 class AMV_Map;
@@ -34,9 +35,11 @@ public:
 
 private:
 	void RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult);
+	void OnDayPeriodChange(EDayPart DayPart);
 
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsMovementFinished();
+
 };

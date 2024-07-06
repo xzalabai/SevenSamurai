@@ -19,6 +19,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperSprite> EnemyCampImage;
 
+private:
+	UMissionDA* CacheMission;
+
 public:
 	AMV_Enemy();
 	virtual void OnPossessed() override;
