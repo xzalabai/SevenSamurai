@@ -40,7 +40,7 @@ void AMV_AIController::MoveToRandomPosition()
 
 void AMV_AIController::MoveToSevenCharacter()
 {
-	TObjectPtr<AMVSevenCharacter> MVSevenCharacter = Map->GetMVSevenCharacter();
+	const TObjectPtr<AMVSevenCharacter> MVSevenCharacter = Map->GetMVSevenCharacter();
 	//UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
 	//BlackBoardComponent->SetValueAsBool(TEXT("bChaseSevenCharacter"), true);	
 

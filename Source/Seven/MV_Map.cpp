@@ -4,6 +4,7 @@
 #include "Quest.h"
 #include "MV_QuestGiver.h"
 #include "PaperSpriteComponent.h"
+#include "MV_Area.h"
 #include "PublicEnums.h"
 #include "MV_Enemy.h"
 #include "MV_EntityBase.h"
@@ -18,20 +19,17 @@ AMV_Map::AMV_Map()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	SetActorTickInterval(2.0f);
-
-	for (int i = 0; i < 3; i++)
-	{
-		//FName Name = CustomMath::ConcatFNameAndInt(FName("Area"), i);
-		FName Name = TEXT("AREA") + i;
-		UBoxComponent* BoxComponent = CreateDefaultSubobject<UBoxComponent>(Name);
-		BoxComponent->SetupAttachment(RootComponent);
-		Areas.Add(BoxComponent);
-	}
 }
 
 void AMV_Map::BeginPlay()
 {
 	Super::BeginPlay();
+
+	for (int i = 0; i < Areas.Num(); i++)
+	{
+		Areas[i]->Map = this;
+		Areas[i]->UniqueAreaID = i;
+	}
 
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn = GameController->RetrieveActiveEntities();
@@ -79,7 +77,7 @@ void AMV_Map::Tick(float DeltaTime)
 
 	if (Time.Hour == 10)
 	{
-		GenerateQuestGiver();
+		GenerateQuestGiver(MVSevenCharacter->GetCurrentAreaID());
 	}
 
 	if (Time.Hour == 24)
@@ -110,13 +108,13 @@ void AMV_Map::Tick(float DeltaTime)
 	UE_LOG(LogTemp, Error, TEXT("[AMV_Map].Tick hour - %d, day - %d month - %d, year - %d"), Time.Hour, Time.Day, Time.Month, Time.Year);
 }
 
-FVector AMV_Map::GetRandomPointOnMap(const UBoxComponent* const Area, const bool bShift, const int32 OverlapRadius) const
+FVector AMV_Map::GetRandomPointOnMap(const AMV_Area* const Area, const bool bShift, const int32 OverlapRadius) const
 {
 	bool bCanOverlap = (OverlapRadius == -1);
 	FVector RandomPoint;
 	const FBoxSphereBounds SpriteBounds = GetRenderComponent()->CalcBounds(GetRenderComponent()->GetComponentTransform());
-	const FVector Origin = Area ? Area->Bounds.Origin : SpriteBounds.Origin;
-	const FVector Extent = Area ? Area->Bounds.BoxExtent : SpriteBounds.BoxExtent;
+	const FVector Origin = Area ? Area->BoxComponent->Bounds.Origin : SpriteBounds.Origin;
+	const FVector Extent = Area ? Area->BoxComponent->Bounds.BoxExtent : SpriteBounds.BoxExtent;
 
 	for (int i = 0; i < 20; i++)
 	{
@@ -139,7 +137,7 @@ FVector AMV_Map::GetRandomPointOnMap(const UBoxComponent* const Area, const bool
 	return RandomPoint;
 }
 
-TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
+const TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 {
 	return MVSevenCharacter;
 }
@@ -199,7 +197,7 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 	// Creates new Quest (alongside with a new Mission - goal of the Quest).
 
 	const FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
-	const AMV_EntityBase* NewEntity = GenerateEntity(-1);
+	const AMV_EntityBase* NewEntity = GenerateEntity(Index);
 	FString NewName = "This is your mission quest: " + NewEntity->GetMissionDA()->GetName();
 
 	UQuest* Quest = NewObject<UQuest>();
@@ -307,4 +305,10 @@ int32 AMV_Map::GetActiveEnemies() const
 	}
 
 	return Amount;
+}
+
+const int32 AMV_Map::GetSevenCharactersArea() const
+{
+
+	return 1;
 }

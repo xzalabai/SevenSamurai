@@ -14,6 +14,7 @@ class AMV_QuestGiver;
 class AMV_Village;
 class AMVSevenCharacter;
 class UBoxComponent;
+class AMV_Area;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnDayPeriodChange, EDayPart /* DayPart */)
 
@@ -84,21 +85,20 @@ private:
 	UPROPERTY()
 	TObjectPtr<AMVSevenCharacter> MVSevenCharacter;
 
-	UPROPERTY(EditAnywhere)
-	TArray<UBoxComponent*> Areas;
-
 	UPROPERTY()
 	FTime Time{};
 
+	UPROPERTY(EditAnywhere)
+	TArray<AMV_Area*> Areas;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	FVector GetRandomPointOnMap(const UBoxComponent* const Area = nullptr, const bool bShift = false, const int32 OverlapRadius = -1) const;
+	FVector GetRandomPointOnMap(const AMV_Area* const Area = nullptr, const bool bShift = false, const int32 OverlapRadius = -1) const;
 	AMV_Map();
-	TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
+	const TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
 
 private:
 	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, EMissionType MissionType = EMissionType::NotProvided);
@@ -110,5 +110,6 @@ private:
 	void LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn);
 	bool IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const;
 	int32 GetActiveEnemies() const;
+	const int32 GetSevenCharactersArea() const;
 	
 };

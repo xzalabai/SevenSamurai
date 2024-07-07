@@ -15,7 +15,6 @@ AVV_EntityBase::AVV_EntityBase()
 	RenderComponent->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
 	RenderComponent->Mobility = EComponentMobility::Movable;
 	RenderComponent->SetupAttachment(RootComponent);
-
 }
 
 void AVV_EntityBase::BeginPlay()

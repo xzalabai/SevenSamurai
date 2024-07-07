@@ -15,7 +15,7 @@ class SEVEN_API AVV_Map : public APaperSpriteActor
 	TObjectPtr<AMVSevenCharacter> MVSevenCharacter;
 
 public:
-	TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
+	const TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
 	virtual void BeginPlay() override;
 	
 };

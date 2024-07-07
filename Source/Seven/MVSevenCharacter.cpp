@@ -47,3 +47,8 @@ void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 	}
 }
 
+void AMVSevenCharacter::SetCurrentAreaID(const int8 NewAreaID)
+{
+	CurrentAreaID = NewAreaID;
+}
+

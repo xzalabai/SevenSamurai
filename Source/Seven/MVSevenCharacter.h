@@ -20,6 +20,9 @@ private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	UCapsuleComponent* CapsuleComponent;
 
+	UPROPERTY()
+	int8 CurrentAreaID{ -1 };
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UFloatingPawnMovement* MovementComponent;
@@ -28,6 +31,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	void SetCurrentAreaID(const int8 NewAreaID);
+	FORCEINLINE int8 GetCurrentAreaID() const { return CurrentAreaID; };
 	AMVSevenCharacter();
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION()

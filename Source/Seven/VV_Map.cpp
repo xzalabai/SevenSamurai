@@ -11,7 +11,7 @@ void AVV_Map::BeginPlay()
 	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 }
 
-TObjectPtr<AMVSevenCharacter> AVV_Map::GetMVSevenCharacter() const
+const TObjectPtr<AMVSevenCharacter> AVV_Map::GetMVSevenCharacter() const
 {
 	return MVSevenCharacter;
 }
