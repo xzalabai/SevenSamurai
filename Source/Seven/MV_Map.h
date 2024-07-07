@@ -10,6 +10,7 @@ class UMissionDA;
 class UPaperSpriteComponent;
 class AMV_EntityBase;
 class AMV_Enemy;
+class AMV_QuestGiver;
 class AMV_Village;
 class AMVSevenCharacter;
 class UBoxComponent;
@@ -42,6 +43,7 @@ UCLASS()
 class SEVEN_API AMV_Map : public APaperSpriteActor
 {
 	friend class UGameController;
+	friend class AMVGameMode;
 
 	GENERATED_BODY()
 
@@ -59,7 +61,10 @@ private:
 	TArray<UMissionDA*> AvailableEnemies;
 
 	UPROPERTY()
-	TArray<UMissionDA*> GeneratedMissions;
+	TArray<const AMV_QuestGiver*> ActiveQuestGivers{};
+
+	UPROPERTY()
+	TArray<UMissionDA*> GeneratedMissions; // TOdo is it needed? We are saving it only to have reference count..
 
 	UPROPERTY();
 	TArray<const AMV_EntityBase*> ActiveEntities;
@@ -72,6 +77,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AMV_Enemy> EnemyClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AMV_QuestGiver> QuestGiverClass;
 
 	UPROPERTY()
 	TObjectPtr<AMVSevenCharacter> MVSevenCharacter;
@@ -93,10 +101,13 @@ public:
 	TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
 
 private:
-	void GenerateEntity(const int8 Index = -1, EMissionType MissionType = EMissionType::NotProvided);
+	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, EMissionType MissionType = EMissionType::NotProvided);
+	void GenerateQuestGiver(const int8 Index = -1);
 	void GenerateEntites();
-	void SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
-	void LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
+	void SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn = FAMV_QuestInfo());
+	const AMV_EntityBase* SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
+	void LoadSavedEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
+	void LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn);
 	bool IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const;
 	int32 GetActiveEnemies() const;
 	

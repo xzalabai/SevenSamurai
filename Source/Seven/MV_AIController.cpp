@@ -22,7 +22,7 @@ void AMV_AIController::BeginPlay()
 
 void AMV_AIController::MoveCharacterTo(const FVector& Position)
 {
-	UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveCharacterTo"));
+	//UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveCharacterTo"));
 
 	AActor* ControlledActor = GetPawn();
 	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, ControlledActor->GetActorLocation().Z));
@@ -31,7 +31,7 @@ void AMV_AIController::MoveCharacterTo(const FVector& Position)
 
 void AMV_AIController::MoveToRandomPosition()
 {
-	UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveToRandomPosition"));
+	//UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveToRandomPosition"));
 	const AMV_EntityBase* Entity = Cast<AMV_EntityBase>(GetPawn());
 	FVector Position = Map->GetRandomPointOnMap();
 	MoveCharacterTo(Position);
@@ -65,7 +65,6 @@ void AMV_AIController::OnDayPeriodChange(EDayPart DayPart)
 {
 	if (UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent())
 	{
-		UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].OnDayPeriodChange CAMP!"));
 		BlackBoardComponent->SetValueAsBool(TEXT("bCanCamp"), DayPart == EDayPart::Night ? true : false);
 	}
 	else

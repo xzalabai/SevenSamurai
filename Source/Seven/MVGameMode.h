@@ -6,12 +6,11 @@
 #include "GameFramework/GameMode.h"
 #include "MVGameMode.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class SEVEN_API AMVGameMode : public AGameMode
 {
 	GENERATED_BODY()
+
+public:
 	
 };

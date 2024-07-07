@@ -8,7 +8,7 @@
 void AMV_EntityBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (MissionDA->bCompleted && MissionDA->MissionCompleteImage)
+	if (MissionDA && MissionDA->bCompleted && MissionDA->MissionCompleteImage)
 	{
 		UpdateImage(MissionDA->MissionCompleteImage);
 	}

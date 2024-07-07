@@ -11,10 +11,26 @@ class ASevenCharacter;
 class USevenCharacterDA;
 class ASevenPlayerController;
 class AMV_Map;
+class UQuest;
+class AMV_QuestGiver;
 class AMission;
 class AMV_EntityBase;
 
 static uint8 UniqueIDCounter;
+
+USTRUCT(BlueprintType)
+struct FAMV_QuestInfo
+{
+	GENERATED_BODY()
+	FAMV_QuestInfo() = default;
+	FAMV_QuestInfo(FVector NewPosition, const UQuest* NewQuest) : Position(NewPosition), Quest(NewQuest) {}
+
+	UPROPERTY()
+	FVector Position{ 0,0,0 };
+
+	UPROPERTY()
+	const UQuest* Quest{ nullptr };
+};
 
 USTRUCT(BlueprintType)
 struct FAMV_EntityBaseInfo
@@ -49,12 +65,20 @@ private:
 	UPROPERTY()
 	TArray<FAMV_EntityBaseInfo> ActiveEntitiesInfo;
 
-	void StoreActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
+	UPROPERTY()
+	TArray<FAMV_QuestInfo> ActiveQuestInfo;
+
+	void SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
+	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
+
+	void SaveGame();
 public:
-	const TArray<FAMV_EntityBaseInfo> RetrieveActiveEntities() const;
-	const FAMV_EntityBaseInfo& GetStartedEntity() const;
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	void SetStartedEntity(AMV_EntityBase* EntityToStart, const UMissionDA* Mission);
+	const TArray<FAMV_EntityBaseInfo> RetrieveActiveEntities() const;
+	const TArray<FAMV_QuestInfo> RetrieveActiveQuests() const;
+	void SetStartedEntity(AMV_EntityBase* EntityToStart, UMissionDA* Mission);
+	const FAMV_EntityBaseInfo& GetStartedEntity() const;
+
 	void MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin);
 	void UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters);
 	UFUNCTION(BlueprintCallable)

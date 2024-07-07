@@ -1,6 +1,8 @@
 #include "MV_Map.h"
 #include "GameController.h"
 #include "PaperSpriteActor.h"
+#include "Quest.h"
+#include "MV_QuestGiver.h"
 #include "PaperSpriteComponent.h"
 #include "PublicEnums.h"
 #include "MV_Enemy.h"
@@ -33,6 +35,7 @@ void AMV_Map::BeginPlay()
 
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn = GameController->RetrieveActiveEntities();
+	const TArray<FAMV_QuestInfo>& QuestGiversToSoawn = GameController->RetrieveActiveQuests();
 	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 
 	if (EntitiesToSpawn.Num() == 0)
@@ -41,7 +44,8 @@ void AMV_Map::BeginPlay()
 	}
 	else
 	{
-		LoadStoredEntities(EntitiesToSpawn);
+		LoadSavedEntities(EntitiesToSpawn);
+		LoadSavedQuests(QuestGiversToSoawn);
 	}
 }
 
@@ -73,10 +77,17 @@ void AMV_Map::Tick(float DeltaTime)
 			break;
 	}
 
+	if (Time.Hour == 10)
+	{
+		GenerateQuestGiver();
+	}
+
 	if (Time.Hour == 24)
 	{
 		++Time.Day;
 		Time.Hour = 0;
+
+		
 
 		if (GetActiveEnemies() < 4)
 		{
@@ -133,7 +144,7 @@ TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 	return MVSevenCharacter;
 }
 
-void AMV_Map::GenerateEntity(const int8 Index, EMissionType MissionType)
+const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType MissionType)
 {
 	FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
 	
@@ -180,7 +191,22 @@ void AMV_Map::GenerateEntity(const int8 Index, EMissionType MissionType)
 	}
 
 	GeneratedMissions.Add(NewEnemyMission);
-	SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemyMission));
+	return SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemyMission));
+}
+
+void AMV_Map::GenerateQuestGiver(const int8 Index)
+{
+	// Creates new Quest (alongside with a new Mission - goal of the Quest).
+
+	const FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
+	const AMV_EntityBase* NewEntity = GenerateEntity(-1);
+	FString NewName = "This is your mission quest: " + NewEntity->GetMissionDA()->GetName();
+
+	UQuest* Quest = NewObject<UQuest>();
+	Quest->Name = FName(*NewName);
+	Quest->Mission = NewEntity->GetMissionDA();
+
+	SpawnQuestGiver(FAMV_QuestInfo(RandomPoint, Quest));
 }
 
 void AMV_Map::GenerateEntites()
@@ -199,12 +225,23 @@ void AMV_Map::GenerateEntites()
 		// Generate Random Entities around ...
 		for (int j = 0; j < 20; j++)
 		{
-			GenerateEntity(i);
+			//GenerateEntity(i);
 		}
 	}
 }
 
-void AMV_Map::SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn)
+void AMV_Map::SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn)
+{
+	const FTransform T{ FRotator(0, -180, -90), QuestGiverToSpawn.Position, FVector(1,1,1) };
+
+	AMV_QuestGiver* MV_QuestGiver = GetWorld()->SpawnActorDeferred<AMV_QuestGiver>(QuestGiverClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+	MV_QuestGiver->Quest = QuestGiverToSpawn.Quest;
+	MV_QuestGiver->FinishSpawning(T);
+
+	ActiveQuestGivers.Add(MV_QuestGiver);
+}
+
+const AMV_EntityBase* AMV_Map::SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn)
 {
 	const FTransform T{ FRotator(0, -180, -90), EntityToSpawn.Position, FVector(1,1,1) };
 	AMV_EntityBase* NewEntity{ nullptr };
@@ -224,13 +261,23 @@ void AMV_Map::SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn)
 	NewEntity->MissionDA = EntityToSpawn.MissionDA;
 	NewEntity->FinishSpawning(T);
 	ActiveEntities.Add(NewEntity);
+
+	return NewEntity;
 }
 
-void AMV_Map::LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn)
+void AMV_Map::LoadSavedEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn)
 {
 	for (const FAMV_EntityBaseInfo& EntityToSpawn : EntitiesToSpawn)
 	{
 		SpawnEntity(EntityToSpawn);
+	}
+}
+
+void AMV_Map::LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn)
+{
+	for (const FAMV_QuestInfo& QuestToSpawn : QuestGiversToSpawn)
+	{
+		SpawnQuestGiver(QuestToSpawn);
 	}
 }
 

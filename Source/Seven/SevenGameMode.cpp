@@ -172,6 +172,8 @@ High - Make an Array of all new generated missions -> which persists the whole g
 High - rename Combo to LightCombo or smth.
 High - Consideration: Change OnAnimationEnded to EVENT ?
 High - Refactor logic of returning AttackToken (now in AICharacter there is assumption in Fire() that it is enemy
+High - Split MV_EntityBase to MV_Entity (logic with Missions), and MV_EntityBase (only images) - and replace references with MV_EntityBase with MV_Entity then
+     - Also replace MV_QuestGiver's parent (VV_EntityBase) with MV_EntityBase!!
 High - FIX // v ^ || > ^  for EVADINGAWAY function ! now it calculates inccorectly. Help urself with arrow Debugs
 High - Fix broken - block broken!!! it does nothing if you break block and attack!
 High - Move OnUpdateStatus stuff from GameController to something specific for the mission - other subsystem
@@ -189,9 +191,11 @@ Medium - Merge all methods (look,space,move) into one with, where BindAction wil
 Medium - IsBlocking -> update this variable NOT IN ANIMATION BP UPDATE but call event which sets it!
 Medium - Cache player who owns a camera
 Medium - GetDirection -> complete for evading to 8 DIRECTIONS ! Then Change IsEvadingAway to compare with 8 evades not 4
+Medium - LoadSavedQuests LoadSavedEntities ... maybe merge those methods together?
 Medium - Adjust Fire as is in FireRMB
 Medium - Put relevant functions from FInputValue to ETriggerEvent (as is in FireRMB)
 OBSOLETE Medium - remove GET_ prefix from getters and use IS_
+
 
 
 Features:

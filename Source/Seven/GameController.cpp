@@ -1,6 +1,7 @@
 #include "GameController.h"
 #include "SevenCharacter.h"
 #include "SevenPlayerController.h"
+#include "MV_QuestGiver.h"
 #include "MissionDA.h"
 #include "MV_EntityBase.h"
 #include "MV_Map.h"
@@ -8,7 +9,7 @@
 #include "Kismet\GameplayStatics.h"
 #include "Mission.h"
 
-void UGameController::StoreActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities)
+void UGameController::SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities)
 {
 	ActiveEntitiesInfo.Empty();
 	for (const AMV_EntityBase* EntityBase : ActiveEntities)
@@ -17,9 +18,30 @@ void UGameController::StoreActiveEntities(const TArray<const AMV_EntityBase*>& A
 	}
 }
 
+void UGameController::SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers)
+{
+	ActiveQuestInfo.Empty();
+	for (const AMV_QuestGiver* QuestGiver : ActiveQuestGivers)
+	{
+		ActiveQuestInfo.Add(FAMV_QuestInfo(QuestGiver->GetActorLocation(), QuestGiver->GetQuest()));
+	}
+}
+
+void UGameController::SaveGame()
+{
+	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
+	SaveActiveEntities(Map->ActiveEntities);
+	SaveActiveQuests(Map->ActiveQuestGivers);
+}
+
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const
 {
 	return ActiveEntitiesInfo;
+}
+
+const TArray<FAMV_QuestInfo> UGameController::RetrieveActiveQuests() const
+{
+	return ActiveQuestInfo;
 }
 
 const FAMV_EntityBaseInfo& UGameController::GetStartedEntity() const
@@ -54,12 +76,13 @@ void UGameController::Initialize(FSubsystemCollectionBase& Collection)
 	SelectedCharacters.Empty();
 }
 
-void UGameController::SetStartedEntity(AMV_EntityBase* EntityToStart, const UMissionDA* Mission)
+void UGameController::SetStartedEntity(AMV_EntityBase* EntityToStart, UMissionDA* Mission)
 {
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
 	// TODO: REFACTOR, make it more efficient pls ... 
 	// do not REODER now.
-	StoreActiveEntities(Map->ActiveEntities);
+	SaveGame();
+	Mission->bStarted = true;
 	for (FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
 	{
 		if (Entity.MissionDA == Mission)
