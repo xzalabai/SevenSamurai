@@ -140,6 +140,14 @@ namespace CustomMath
 		FString Str = Name.ToString();
 		return  FCString::Atoi(*Str);
 	}
+
+	static FName ConcatFNameAndInt(const FName& Name, int32 Number)
+	{
+		FString CombinedString = Name.ToString() + FString::FromInt(Number);
+		FName CombinedName(*CombinedString);
+
+		return CombinedName;
+	}
 };
 
 namespace OctagonalDirection

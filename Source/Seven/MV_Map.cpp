@@ -2,8 +2,10 @@
 #include "GameController.h"
 #include "PaperSpriteActor.h"
 #include "PaperSpriteComponent.h"
+#include "PublicEnums.h"
 #include "MV_Enemy.h"
 #include "MV_EntityBase.h"
+#include "Components/BoxComponent.h"
 #include "MV_Village.h"
 #include "MVSevenCharacter.h"
 #include <Kismet\KismetMathLibrary.h>
@@ -14,6 +16,15 @@ AMV_Map::AMV_Map()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	SetActorTickInterval(2.0f);
+
+	for (int i = 0; i < 3; i++)
+	{
+		//FName Name = CustomMath::ConcatFNameAndInt(FName("Area"), i);
+		FName Name = TEXT("AREA") + i;
+		UBoxComponent* BoxComponent = CreateDefaultSubobject<UBoxComponent>(Name);
+		BoxComponent->SetupAttachment(RootComponent);
+		Areas.Add(BoxComponent);
+	}
 }
 
 void AMV_Map::BeginPlay()
@@ -88,16 +99,32 @@ void AMV_Map::Tick(float DeltaTime)
 	UE_LOG(LogTemp, Error, TEXT("[AMV_Map].Tick hour - %d, day - %d month - %d, year - %d"), Time.Hour, Time.Day, Time.Month, Time.Year);
 }
 
-FVector AMV_Map::GetRandomPointOnMap(const bool bShift) const
+FVector AMV_Map::GetRandomPointOnMap(const UBoxComponent* const Area, const bool bShift, const int32 OverlapRadius) const
 {
-	const UPaperSpriteComponent* SpriteComponent = GetRenderComponent();
-	FBoxSphereBounds SpriteBounds = SpriteComponent->CalcBounds(SpriteComponent->GetComponentTransform());
-	FVector Center = SpriteBounds.Origin;
-	FVector Extent = SpriteBounds.BoxExtent;
-	FVector RandomPoint = UKismetMathLibrary::RandomPointInBoundingBox(Center, Extent);
+	bool bCanOverlap = (OverlapRadius == -1);
+	FVector RandomPoint;
+	const FBoxSphereBounds SpriteBounds = GetRenderComponent()->CalcBounds(GetRenderComponent()->GetComponentTransform());
+	const FVector Origin = Area ? Area->Bounds.Origin : SpriteBounds.Origin;
+	const FVector Extent = Area ? Area->Bounds.BoxExtent : SpriteBounds.BoxExtent;
 
-	RandomPoint.Z = Center.Z + (bShift ? 1 : 0);
+	for (int i = 0; i < 20; i++)
+	{
+		RandomPoint = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
+		RandomPoint.Z = SpriteBounds.Origin.Z + (bShift ? 1 : 0);
 
+		if (bCanOverlap)
+		{
+			// Return first occurence
+			return RandomPoint;
+		}
+		else if (!IsOverlappingAnyEntity(RandomPoint, OverlapRadius))
+		{
+			// Not overlapping with anything, return
+			return RandomPoint;
+		}
+
+	}
+	UE_LOG(LogTemp, Error, TEXT("[AMV_Map].GetRandomPointOnMap Unable to find non-overlapping area, returning last found"));
 	return RandomPoint;
 }
 
@@ -106,9 +133,10 @@ TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 	return MVSevenCharacter;
 }
 
-void AMV_Map::GenerateEntity(EMissionType MissionType)
+void AMV_Map::GenerateEntity(const int8 Index, EMissionType MissionType)
 {
-	FVector RandomPoint = GetRandomPointOnMap(true);
+	FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
+	
 	UMissionDA* NewEnemyMission = NewObject<UMissionDA>();
 
 	if (MissionType == EMissionType::NotProvided)
@@ -127,32 +155,52 @@ void AMV_Map::GenerateEntity(EMissionType MissionType)
 		NewEnemyMission->MissionType = EnemyTemplate->MissionType;
 		NewEnemyMission->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn;
 		NewEnemyMission->Reward = EnemyTemplate->Reward;
+		NewEnemyMission->bStarted = false;
+		NewEnemyMission->bCompleted = false;
+		NewEnemyMission->AreaIndex = Index;
 		NewEnemyMission->SpecialCharacter = nullptr;
 
 	}
+	else if (MissionType == EMissionType::LiberatePlace)
+	{
+		uint32 RandomMissionIndex = FMath::RandRange(0, AvailableVillages.Num() - 1);
+		const UMissionDA* VillageTemplate = AvailableVillages[RandomMissionIndex];
+
+		NewEnemyMission->Name = VillageTemplate->Name;
+		NewEnemyMission->Description = VillageTemplate->Description;
+		NewEnemyMission->Image = VillageTemplate->Image;
+		NewEnemyMission->MissionCompleteImage = VillageTemplate->MissionCompleteImage;
+		NewEnemyMission->MissionType = VillageTemplate->MissionType;
+		NewEnemyMission->EnemiesToSpawn = VillageTemplate->EnemiesToSpawn;
+		NewEnemyMission->Reward = VillageTemplate->Reward;
+		NewEnemyMission->bStarted = false;
+		NewEnemyMission->bCompleted = false;
+		NewEnemyMission->AreaIndex = Index;
+		NewEnemyMission->SpecialCharacter = nullptr;
+	}
+
 	GeneratedMissions.Add(NewEnemyMission);
 	SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemyMission));
 }
 
 void AMV_Map::GenerateEntites()
 {
-	// Generate Enemies
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < Areas.Num() - 1; i++)
 	{
-		GenerateEntity(EMissionType::Enemy);
-	}
+		// Generate Enemies
+		for (int j = 0; j < 3; j++)
+		{
+			GenerateEntity(-1, EMissionType::Enemy);
+		}
 
-	// Generate Villages
-	for (int i = 0; i < 2; i++)
-	{
-		FVector RandomPointOnMap = GetRandomPointOnMap(true);
-		SpawnEntity(FAMV_EntityBaseInfo(RandomPointOnMap, AvailableVillages[i]));
-	}
+		// Generate Villages
+		GenerateEntity(i, EMissionType::LiberatePlace);
 
-	// Generate Random Entities around ...
-	for (int i = 0; i < 10; i++)
-	{
-		GenerateEntity();
+		// Generate Random Entities around ...
+		for (int j = 0; j < 20; j++)
+		{
+			GenerateEntity(i);
+		}
 	}
 }
 
@@ -184,6 +232,19 @@ void AMV_Map::LoadStoredEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSp
 	{
 		SpawnEntity(EntityToSpawn);
 	}
+}
+
+bool AMV_Map::IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const
+{
+	for (const AMV_EntityBase* const &EntityBase : ActiveEntities)
+	{
+		const float Distance = FVector::Dist(Vector1, EntityBase->GetActorLocation());
+		if (Distance < (OverlapRadius * 2))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 int32 AMV_Map::GetActiveEnemies() const

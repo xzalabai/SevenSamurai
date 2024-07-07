@@ -6,6 +6,7 @@
 
 class UFloatingPawnMovement;
 class UMissionDA;
+class UPaperSprite;
 
 UCLASS()
 class SEVEN_API AMV_Enemy : public AMV_EntityBase
@@ -17,7 +18,7 @@ public:
 	UFloatingPawnMovement* MovementComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperSprite> EnemyCampImage;
+	TObjectPtr<UPaperSprite> EnemyCampImage;
 
 private:
 	UMissionDA* CacheMission;

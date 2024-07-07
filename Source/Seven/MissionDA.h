@@ -47,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	USevenCharacterDA* SpecialCharacter;
 
+	UPROPERTY()
+	uint8 AreaIndex;
+
 	UPROPERTY(EditAnywhere)
 	bool bCompleted{ false };
 
