@@ -5,7 +5,7 @@
 void AMV_Village::OnOverlapAction()
 {
 	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	if (!MissionDA->bCompleted)
+	if (MissionDA->MissionStatus != EStatus::Completed)
 	{
 		GameController->SetStartedEntity(this, GetMissionDA());
 	}

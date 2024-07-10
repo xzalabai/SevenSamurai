@@ -5,6 +5,7 @@
 #include "MissionDA.h"
 #include "MV_EntityBase.h"
 #include "MV_Map.h"
+#include "Quest.h"
 #include "AttributesComponent.h"
 #include "Kismet\GameplayStatics.h"
 #include "Mission.h"
@@ -27,11 +28,17 @@ void UGameController::SaveActiveQuests(const TArray<const AMV_QuestGiver*>& Acti
 	}
 }
 
+void UGameController::SaveTime(const FTime& Time)
+{
+	ActiveTime = Time;
+}
+
 void UGameController::SaveGame()
 {
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
 	SaveActiveEntities(Map->ActiveEntities);
 	SaveActiveQuests(Map->ActiveQuestGivers);
+	SaveTime(Map->Time);
 }
 
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const
@@ -44,30 +51,69 @@ const TArray<FAMV_QuestInfo> UGameController::RetrieveActiveQuests() const
 	return ActiveQuestInfo;
 }
 
-const FAMV_EntityBaseInfo& UGameController::GetStartedEntity() const
+FTime UGameController::RetrieveTime() const
+{
+	return ActiveTime;
+}
+
+const FAMV_EntityBaseInfo UGameController::GetStartedEntity() const
 {
 	for (const FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
 	{
-		if (Entity.MissionDA->bStarted)
+		if (Entity.MissionDA->MissionStatus == EStatus::Started)
 		{
 			return Entity;
 		}
 	}
 	UE_LOG(LogTemp, Error, TEXT("[UGameController].GetStartedEntity HAVEN'T FOUND STARTED MISSION!!!"));
-	return ActiveEntitiesInfo[0];
+	return FAMV_EntityBaseInfo();
 }
 
-FAMV_EntityBaseInfo& UGameController::GetStartedEntity()
+void UGameController::ResolveRewards(const UMissionDA* MissionDA, const UQuest* Quest)
 {
+	if (MissionDA->SpecialCharacter)
+	{
+		SelectedCharacters.Add(MissionDA->SpecialCharacter);
+	}
+	
+	for (const TPair<EItemType, int>& Reward : MissionDA->Reward)
+	{
+		// Rewards ... Reward.Key, Reward.Value
+	}
+
+	if (Quest)
+	{
+		//for (const TPair<EItemType, int>& Reward : Quest->Rewar)
+		//{
+		//	// Rewards ... Reward.Key, Reward.Value
+		//}
+	}
+}
+
+FAMV_EntityBaseInfo UGameController::GetStartedEntity()
+{
+	// Returning as Value because can be null
 	for (FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
 	{
-		if (Entity.MissionDA->bStarted)
+		if (Entity.MissionDA->MissionStatus == EStatus::Started)
 		{
 			return Entity;
 		}
 	}
 	UE_LOG(LogTemp, Error, TEXT("[UGameController].GetStartedEntity HAVEN'T FOUND STARTED MISSION!!!"));
-	return ActiveEntitiesInfo[0];
+	return FAMV_EntityBaseInfo();
+}
+
+const FAMV_QuestInfo UGameController::GetStartedQuestInfo()
+{
+	for (const FAMV_QuestInfo& QuestInfo : ActiveQuestInfo)
+	{
+		if (QuestInfo.Quest->QuestStatus == EStatus::Started)
+		{
+			return QuestInfo;
+		}
+	}
+	return FAMV_QuestInfo();
 }
 
 void UGameController::Initialize(FSubsystemCollectionBase& Collection)
@@ -78,46 +124,57 @@ void UGameController::Initialize(FSubsystemCollectionBase& Collection)
 
 void UGameController::SetStartedEntity(AMV_EntityBase* EntityToStart, UMissionDA* Mission)
 {
-	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
-	// TODO: REFACTOR, make it more efficient pls ... 
-	// do not REODER now.
 	SaveGame();
-	Mission->bStarted = true;
-	for (FAMV_EntityBaseInfo& Entity : ActiveEntitiesInfo)
-	{
-		if (Entity.MissionDA == Mission)
-		{
-			Entity.MissionDA->bStarted = true;
-		}
-	}
+	Mission->MissionStatus = EStatus::Started;
+	// TODO CHECK IF THE STARTED MISSION IS MARKED AS TRUE!!!! since
 	OpenLevel(FName("ThirdPersonMap"));
+}
+
+void UGameController::SetStartedQuest(const UQuest* QuestToStart)
+{
+	SaveGame();
+	QuestToStart->QuestStatus = EStatus::Started;
+	
 }
 
 void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin)
 {
 	UpdateSevenCharactersState(SevenCharacters);
-	
+	const FAMV_QuestInfo QuestInfo = GetStartedQuestInfo();
+	const FAMV_EntityBaseInfo Entity = GetStartedEntity();
+
 	if (bWin)
 	{
 		// Change to completed
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character WON! Changing the Entity to be open!"));
-		FAMV_EntityBaseInfo& Entity = GetStartedEntity();
-		Entity.MissionDA->bCompleted = true;
-		Entity.MissionDA->bStarted = false;
+		Entity.MissionDA->MissionStatus = EStatus::Completed;
 		// TODO: Process reward!
-
-
-		if (Entity.MissionDA->SpecialCharacter)
+		
+		if (QuestInfo.Quest)
 		{
-			SelectedCharacters.Add(Entity.MissionDA->SpecialCharacter);
+			// Finished Mission was part of an active quest.
+			QuestInfo.Quest->QuestStatus = EStatus::Completed;
+			ActiveQuestInfo.RemoveSwap(QuestInfo);
 		}
+
+		ResolveRewards(Entity.MissionDA);
+
+		// Remove Mission from ActiveEntities
+		ActiveEntitiesInfo.RemoveSwap(Entity);
 	}
 	else
 	{
+		if (QuestInfo.Quest)
+		{
+			QuestInfo.Quest->QuestStatus = EStatus::Aborted;
+		}
+
 		// flee away with a character
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character LOST!"));
 	}
 
+	// Spawn Character on that place?
+	
 	OpenLevel(FName("Map"));	
 }
 

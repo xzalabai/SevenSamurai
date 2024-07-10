@@ -14,7 +14,7 @@ class SEVEN_API AMV_QuestGiver : public AVV_EntityBase
 
 private:
 	UPROPERTY()
-	const UQuest* Quest;
+	mutable const UQuest* Quest;
 
 public:
 	const UQuest* GetQuest() const;

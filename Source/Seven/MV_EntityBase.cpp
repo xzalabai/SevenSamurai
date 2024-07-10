@@ -8,7 +8,7 @@
 void AMV_EntityBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (MissionDA && MissionDA->bCompleted && MissionDA->MissionCompleteImage)
+	if (MissionDA && MissionDA->MissionStatus == EStatus::Completed && MissionDA->MissionCompleteImage)
 	{
 		UpdateImage(MissionDA->MissionCompleteImage);
 	}
@@ -52,7 +52,7 @@ void AMV_EntityBase::UpdateImage(UPaperSprite* NewSprite) const
 
 void AMV_EntityBase::OnOverlapAction()
 {
-	if (!MissionDA->bCompleted)
+	if (MissionDA->MissionStatus != EStatus::Completed)
 	{
 		UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 		GameController->SetStartedEntity(this, GetMissionDA());

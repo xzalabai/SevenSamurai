@@ -34,6 +34,7 @@ void AMV_Map::BeginPlay()
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn = GameController->RetrieveActiveEntities();
 	const TArray<FAMV_QuestInfo>& QuestGiversToSoawn = GameController->RetrieveActiveQuests();
+	Time = GameController->RetrieveTime();
 	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 
 	if (EntitiesToSpawn.Num() == 0)
@@ -164,8 +165,7 @@ const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType Mis
 		NewEnemyMission->MissionType = EnemyTemplate->MissionType;
 		NewEnemyMission->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn;
 		NewEnemyMission->Reward = EnemyTemplate->Reward;
-		NewEnemyMission->bStarted = false;
-		NewEnemyMission->bCompleted = false;
+		NewEnemyMission->MissionStatus = EStatus::Initialized;
 		NewEnemyMission->AreaIndex = Index;
 		NewEnemyMission->SpecialCharacter = nullptr;
 
@@ -182,8 +182,7 @@ const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType Mis
 		NewEnemyMission->MissionType = VillageTemplate->MissionType;
 		NewEnemyMission->EnemiesToSpawn = VillageTemplate->EnemiesToSpawn;
 		NewEnemyMission->Reward = VillageTemplate->Reward;
-		NewEnemyMission->bStarted = false;
-		NewEnemyMission->bCompleted = false;
+		NewEnemyMission->MissionStatus = EStatus::Initialized;
 		NewEnemyMission->AreaIndex = Index;
 		NewEnemyMission->SpecialCharacter = nullptr;
 	}

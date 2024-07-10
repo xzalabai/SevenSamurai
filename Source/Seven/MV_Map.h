@@ -18,27 +18,6 @@ class AMV_Area;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnDayPeriodChange, EDayPart /* DayPart */)
 
-USTRUCT(BlueprintType)
-struct FTime
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere)
-	uint32 Hour = 0;
-
-	UPROPERTY(VisibleAnywhere)
-	uint32 Day = 1;
-
-	UPROPERTY(VisibleAnywhere)
-	uint32 Month = 1;
-
-	UPROPERTY(VisibleAnywhere)
-	uint32 Year = 1400;
-
-	UPROPERTY(VisibleAnywhere)
-	EDayPart DayPart{ EDayPart::Night };
-};
-
 UCLASS()
 
 class SEVEN_API AMV_Map : public APaperSpriteActor

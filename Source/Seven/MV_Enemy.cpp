@@ -21,7 +21,7 @@ void AMV_Enemy::BeginPlay()
 
 void AMV_Enemy::OnPossessed()
 {
-	if (MissionDA->bCompleted)
+	if (MissionDA->MissionStatus == EStatus::Completed)
 	{
 		Controller = nullptr;
 		return;

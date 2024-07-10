@@ -9,9 +9,11 @@ class UPaperSprite;
 class USevenCharacterDA;
 
 UENUM(BlueprintType)
-enum class EMissionStatus : uint8
+enum class EStatus : uint8
 {
+	Initialized,
 	Started,
+	Completed,
 	Aborted,
 	FinishedWithWin,
 	FinishedWithLose,
@@ -51,9 +53,6 @@ public:
 	uint8 AreaIndex;
 
 	UPROPERTY(EditAnywhere)
-	bool bCompleted{ false };
-
-	UPROPERTY(EditAnywhere)
-	bool bStarted{ false };
+	EStatus MissionStatus{ EStatus::Initialized };
 
 };
