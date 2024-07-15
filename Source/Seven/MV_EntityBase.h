@@ -3,10 +3,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MV_OverlapInterface.h"
+#include "MissionDA.h"
 #include "MV_EntityBase.generated.h"
 
 class UCapsuleComponent;
-class UMissionDA;
 class AMV_Map;
 class UPaperSprite;
 class UPaperSpriteComponent;
@@ -38,4 +38,6 @@ public:
 	virtual void OnOverlapAction() override;
 	UFUNCTION(BlueprintCallable)
 	virtual void OnPossessed();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsCompleted() const { return (MissionDA->MissionStatus == EStatus::Completed) ? true : false; }
 };

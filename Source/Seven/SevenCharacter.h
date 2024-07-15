@@ -110,9 +110,6 @@ protected:
 	UAnimMontage* HeavyAttackAttacker;
 
 	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* HeavyAttackAttackerIdle;
-
-	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* LightAttackVictim;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -242,6 +239,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
+	UFUNCTION(BlueprintCallable)
+	void Suicide();
 	virtual bool IsAlive() const;
 	bool IsSameTeam(const ASevenCharacter* Other) const;
 	ASevenPlayerController* GetSevenPlayerController() const;

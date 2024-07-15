@@ -42,4 +42,8 @@ protected:
 
 public:
 	virtual void OnOverlapAction() override;
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnShopOverlapped(USevenCharacterDA* SevenCharacterDA);
+	UFUNCTION(BlueprintCallable)
+	void BuyCombo(USevenCharacterDA* SevenCharacterDA, int Index) const;
 };

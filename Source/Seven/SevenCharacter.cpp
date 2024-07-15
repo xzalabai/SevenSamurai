@@ -267,13 +267,24 @@ void ASevenCharacter::OnLayingDead()
 	}
 }
 
+void ASevenCharacter::Suicide()
+{
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Suicide CHEAT"));
+	UAnimMontage* MontageToPlay = LightAttackVictimDeath;
+
+	// TODO: For now, random receivedHit animation is being played
+	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+}
+
 void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
 	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit: From %d Character, AttackType: %d, Damage: %d"), Attacker->GetUniqueID(), (int)AttackInfo.AttackType, AttackInfo.Damage);
 
-	// CHEAT
-	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
 
+	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
+	
+	// CHEAT
 	if (IsSameTeam(Attacker))
 	{
 		return;

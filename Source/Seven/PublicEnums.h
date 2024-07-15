@@ -32,9 +32,9 @@ enum class EDayPart : uint8
 UENUM(BlueprintType)
 enum class ESevenCharacterType : uint8
 {
-	Classic = 0,
-	Halbert = 1,
-
+	NotProvided = 0,
+	Classic = 1,
+	Halbert = 2,
 };
 
 UENUM(BlueprintType)

@@ -7,7 +7,6 @@
 
 class USevenCharacterDA;
 class ASevenCharacter;
-//class ESevenCharacterType;
 
 UCLASS()
 class SEVEN_API ACharacterPicker : public AActor
@@ -23,9 +22,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<USevenCharacterDA*> AvailableCharacters;
 
-private:
-	//UFUNCTION(BlueprintCallable)
-	
+private:	
 	UFUNCTION(BlueprintCallable)
 	void ShowAvailableCharacters() const;
 

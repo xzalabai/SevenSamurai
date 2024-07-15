@@ -20,8 +20,8 @@ void URadialCombo::ComboAttackStart()
 		return;
 	}
 	UE_LOG(LogTemp, Error, TEXT("[URadialCombo] ComboAttackStart"));
-	TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, 0, 600, 300, true);
-	FAttackInfo AttackInfo{ EAttackType::Combo, 0, 10, Attacker };
+	TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, StartOffset, EndOffset, Thickness, true);
+	FAttackInfo AttackInfo{ EAttackType::Combo, 0, BaseDamage, Attacker };
 	for (ASevenCharacter* Enemy : FoundEnemies)
 	{
 		Enemy->ReceivedHit(AttackInfo);

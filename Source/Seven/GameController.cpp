@@ -160,7 +160,7 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		ResolveRewards(Entity.MissionDA);
 
 		// Remove Mission from ActiveEntities
-		ActiveEntitiesInfo.RemoveSwap(Entity);
+		//ActiveEntitiesInfo.RemoveSwap(Entity);
 	}
 	else
 	{

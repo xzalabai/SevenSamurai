@@ -182,7 +182,7 @@ const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType Mis
 		NewEnemyMission->MissionType = VillageTemplate->MissionType;
 		NewEnemyMission->EnemiesToSpawn = VillageTemplate->EnemiesToSpawn;
 		NewEnemyMission->Reward = VillageTemplate->Reward;
-		NewEnemyMission->MissionStatus = EStatus::Initialized;
+		NewEnemyMission->MissionStatus = EStatus::Completed;
 		NewEnemyMission->AreaIndex = Index;
 		NewEnemyMission->SpecialCharacter = nullptr;
 	}
