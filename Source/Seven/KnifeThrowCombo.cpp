@@ -7,7 +7,7 @@
 void UKnifeThrowCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(AttackerActor);
-	if (SevenCharacter->AC_Animation->Play(ThrowAnimation, "Default", EMontageType::Attack, false))
+	if (SevenCharacter->AC_Animation->Play(ThrowAnimation, "Default", EMontageType::LightAttack, false))
 	{
 		SevenCharacter->AC_AttackComponent->CurrentAttackType = EAttackType::Combo;
 		Attacker = SevenCharacter;

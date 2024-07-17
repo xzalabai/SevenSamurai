@@ -93,11 +93,11 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		(bActiveMontageRunning ? 1 : 0),
 		(bNextComboTriggerEnabled ? 1 : 0));
 
-	if (MontageType == EMontageType::Attack)
+	if (MontageType == EMontageType::LightAttack)
 	{
 		if (bActiveMontageRunning && bNextComboTriggerEnabled)
 		{
-			NextMontageType = EMontageType::Attack;
+			NextMontageType = EMontageType::LightAttack;
 			GetOwnerCharacter()->StopAnimMontage();
 		}
 		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
@@ -257,7 +257,7 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	GetOwnerCharacter()->OnAnimationEnded(CurrentMontageType, NextMontageType);
 	GetOwnerCharacter()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType, NextMontageType);
 	
-	if (CurrentMontageType == EMontageType::Attack && !bInterrupted)
+	if (CurrentMontageType == EMontageType::LightAttack && !bInterrupted)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent]OnAnimationEnded.AttackEnd"));
 		GetOwnerCharacter()->AttackEnd();

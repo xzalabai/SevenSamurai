@@ -10,7 +10,7 @@ void URadialCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 	Attacker = AttackerCharacter;
 	UE_LOG(LogTemp, Error, TEXT("[URadialCombo] Use"));
 	UAnimationComponent* AC_Animation = AttackerCharacter->GetAnimationComponent();
-	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::Attack, false);
+	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack, false);
 }
 
 void URadialCombo::ComboAttackStart()

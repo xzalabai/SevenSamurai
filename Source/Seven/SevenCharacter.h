@@ -12,6 +12,7 @@ class AWeapon;
 class AThrowingKnife;
 class UAICharacter;
 class UAnimationComponent;
+class UAnimationsDA;
 class ASevenPlayerController;
 class USevenCharacterDA;
 class UAttackComponent;
@@ -96,48 +97,12 @@ protected:
 	UPROPERTY()
 	uint8 AttackToken = 0;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimationsDA* Animations;
+
 public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnAttackEndDelegate OnAttackEnd;
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Animation Montages
-protected:
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* LightAttackAttacker;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* HeavyAttackAttacker;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* LightAttackVictim;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* LightAttackVictimDeath;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* HeavyAttackVictim;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* HeavyAttackVictimDeath;
-	
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* EvadeMontage;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* BlockBroken;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* BlockMontage;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* ParryMontage;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* ThrowAnimation;
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Components

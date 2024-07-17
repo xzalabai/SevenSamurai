@@ -51,12 +51,17 @@ enum class EMontageType : uint8
 {
 	None,
 	Misc,
-	Attack,
+	LightAttack,
+	HeavyAttack,
 	Parry,
-	HitReaction,
+	LightAttackHitReaction,
+	HeavyAttackHitReaction,
 	Throw, // NOT USED ANYMORE, safely DELETE
 	Block,
 	Evade,
+	BlockBroken,
+	LightAttackHitReactionDeath,
+	HeavyAttackHitReactionDeath,
 };
 
 UENUM(BlueprintType)

@@ -10,6 +10,7 @@
 #include "Weapon.h"
 #include "Combo.h"	
 #include "MotionWarpingComponent.h"
+#include "AnimationsDA.h"
 #include "EnhancedInputSubsystems.h"
 #include "AnimationComponent.h"
 #include "Kismet\GameplayStatics.h"
@@ -220,7 +221,7 @@ void ASevenCharacter::ComboAttackEnd()
 void ASevenCharacter::AttackWasParried() const
 {
 	AttackEnd();
-	AC_Animation->Play(ParryMontage, "1", EMontageType::Parry, true);
+	AC_Animation->Play(Animations->Montages[EMontageType::Parry], "1", EMontageType::Parry, true);
 }
 
 void ASevenCharacter::PerformWeaponTrace()
@@ -270,11 +271,11 @@ void ASevenCharacter::OnLayingDead()
 void ASevenCharacter::Suicide()
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Suicide CHEAT"));
-	UAnimMontage* MontageToPlay = LightAttackVictimDeath;
+	UAnimMontage* MontageToPlay = Animations->Reactions[SevenCharacterType].AnimationMapping[EMontageType::LightAttackHitReactionDeath];
 
 	// TODO: For now, random receivedHit animation is being played
 	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction, true);
 }
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
@@ -295,9 +296,8 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Parried)
 	{
-		check(ParryMontage);
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
-		AC_Animation->Play(ParryMontage, "0", EMontageType::Parry, true);
+		AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry, true);
 		Attacker->AttackWasParried();
 		bIsImmortal = true;
 
@@ -309,20 +309,20 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	{
 		if (AttackInfo.AttackType == EAttackType::Heavy)
 		{
-			AC_Animation->Play(BlockBroken, "1", EMontageType::HitReaction, true);
+			AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::LightAttackHitReaction, true);
 			return;
 		}
 		else
 		{
-			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, BlockMontage->CompositeSections.Num());
-			AC_Animation->Play(BlockMontage, RandomMontageStr, EMontageType::Block, true);
+			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, Animations->Montages[EMontageType::Block]->CompositeSections.Num());
+			AC_Animation->Play(Animations->Montages[EMontageType::Block], RandomMontageStr, EMontageType::Block, true);
 			return;
 		}
 	}
 
 	if (ReceivedHitReaction == EReceivedHitReaction::BlockBroken)
 	{
-		AC_Animation->Play(BlockBroken, "1", EMontageType::HitReaction, true);
+		AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::LightAttackHitReaction, true);
 		return;
 	}
 
@@ -338,21 +338,25 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	{
 		// Dead
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP == 0"));
-		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictimDeath : HeavyAttackVictimDeath; // TODO: Change based on attack
+		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ?
+			Animations->Reactions[Attacker->SevenCharacterType].AnimationMapping[EMontageType::LightAttackHitReactionDeath]
+			: Animations->Reactions[Attacker->SevenCharacterType].AnimationMapping[EMontageType::HeavyAttackHitReactionDeath]; // TODO: Change based on attack
 
 		// TODO: For now, random receivedHit animation is being played
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction, true);
 	}
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Hit)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP != 0"));
-		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ? LightAttackVictim : HeavyAttackVictim; // TODO: Change based on attack
+		UAnimMontage* MontageToPlay = AttackInfo.AttackType == EAttackType::Light ?
+			Animations->Reactions[Attacker->SevenCharacterType].AnimationMapping[EMontageType::LightAttackHitReaction]
+			: Animations->Reactions[Attacker->SevenCharacterType].AnimationMapping[EMontageType::HeavyAttackHitReaction]; // TODO: Change based on attack
 
 		// TODO: For now, random receivedHit animation is being played
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction, true);
+		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction, true);
 	}
 }
 
@@ -385,7 +389,7 @@ void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	if (AC_Animation->Play(EvadeMontage, (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade, false))
+	if (AC_Animation->Play(Animations->Montages[EMontageType::Evade], (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade, false))
 	{
 		bIsEvading = true;
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));

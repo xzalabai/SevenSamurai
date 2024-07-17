@@ -4,6 +4,7 @@
 #include "SevenCharacterDA.h"
 #include "Combo.h"
 #include "SevenCharacter.h"
+#include "AnimationsDA.h"
 #include "Weapon.h"
 #include "ThrowingKnife.h"
 
@@ -46,14 +47,14 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 	}
 
 	const ASevenCharacter* SevenCharacter = GetOwnerCharacter();
-	UAnimMontage* MontageToBePlayed = CurrentAttackType == EAttackType::Light ? GetOwnerCharacter()->LightAttackAttacker : GetOwnerCharacter()->HeavyAttackAttacker;
+	UAnimMontage* MontageToBePlayed = CurrentAttackType == EAttackType::Light ? GetOwnerCharacter()->Animations->Montages[EMontageType::LightAttack] : GetOwnerCharacter()->Animations->Montages[EMontageType::HeavyAttack];
 
 	if (SevenCharacter->AC_Animation->GetCurrentMontageSection() == NAME_None)
 	{
 		// No Animation in progress
 		CurrentSection = 1;
 	}
-	if (SevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::Attack)
+	if (SevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
 	{
 		// Some Attack animation is in progress
 		CurrentSection = CustomMath::FNameToInt(SevenCharacter->AC_Animation->GetCurrentMontageSection());
@@ -76,7 +77,7 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 
 void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, const EMontageType &NextMontage)
 {
-	if (StoppedMontage == EMontageType::Attack && NextMontage != EMontageType::Attack)
+	if (StoppedMontage == EMontageType::LightAttack && NextMontage != EMontageType::LightAttack)
 	{
 		// Reset if Stopped was Attack and it wasn't stopped by another attack
 		if (CurrentAttackType == EAttackType::Heavy)
@@ -91,7 +92,7 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 
 		LastUsedCombo = nullptr;
 	}
-	if (StoppedMontage == EMontageType::Throw)
+	if (StoppedMontage == EMontageType::Throw) // TODO: Can be deleted?
 	{
 		CurrentAttackType = EAttackType::None;
 		CurrentAttackTypeMontage = NAME_None;
@@ -118,7 +119,7 @@ bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bo
 		return false;
 	}
 
-	if (GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::Attack, canInterrupt))
+	if (GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack, canInterrupt))
 	{
 		if (TargetedEnemy && bWarp)
 		{
