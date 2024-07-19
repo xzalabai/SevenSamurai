@@ -19,6 +19,18 @@ class AMV_EntityBase;
 static uint8 UniqueIDCounter;
 
 USTRUCT(BlueprintType)
+struct FPlayerStats
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<EItemType, int32> Reward;
+
+	UPROPERTY()
+	FVector Position{ FVector(0,0,0) };
+};
+
+USTRUCT(BlueprintType)
 struct FTime
 {
 	GENERATED_BODY()
@@ -107,9 +119,13 @@ private:
 	UPROPERTY()
 	FTime ActiveTime{};
 
+	UPROPERTY()
+	FPlayerStats PlayerStats;
+
 	void SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
 	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
 	void SaveTime(const FTime& Time);
+	void ProcessRewards(const UMissionDA* const MissionDA);
 	void SaveGame();
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -119,7 +135,6 @@ public:
 	void SetStartedEntity(AMV_EntityBase* EntityToStart, UMissionDA* Mission);
 	void SetStartedQuest(const UQuest* QuestToStart);
 	const FAMV_EntityBaseInfo GetStartedEntity() const;
-	void ResolveRewards(const UMissionDA* MissionDA, const UQuest* Quest = nullptr);
 
 	void MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin);
 	void UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters);
@@ -128,6 +143,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const TArray<USevenCharacterDA*> GetSelectedCharacters() const;
 	void OpenLevel(const FName& LevelName);
+	FORCEINLINE const FPlayerStats& GetPlayerStats() const { return PlayerStats; }
 
 private:
 	FAMV_EntityBaseInfo GetStartedEntity();

@@ -43,6 +43,7 @@ enum class EItemType : uint8
 	Gold UMETA(DisplayName = "Gold"), // KEEP this First!
 	HP UMETA(DisplayName = "HP"),
 	XP UMETA(DisplayName = "XP"),
+	Karma UMETA(DisplayName = "Karma"),
 	Rice UMETA(DisplayName = "Rice") // Keep this Last!
 };
 

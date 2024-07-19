@@ -212,6 +212,7 @@ Inventory
 Quest
 
 Learn:
+How to change value of variable where pointer points to?
 Why I cannot assign use APlayerController* plcntrl = SevenCharacter->GetPlayerController (which returns ASevenCharacterController)  ????
 Understand why I can't make move assigment if there is no other copy assignemnt / copy constructor / move constructor present
 Understand properly what's going on in WarpAttacker!!! (Rotation of victimDesiredPoint)

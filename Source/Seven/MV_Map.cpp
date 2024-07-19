@@ -39,12 +39,15 @@ void AMV_Map::BeginPlay()
 
 	if (EntitiesToSpawn.Num() == 0)
 	{
+		// First start
 		GenerateEntites();
 	}
 	else
 	{
+		// Any other Start (coming from Mission, loaded game)
 		LoadSavedEntities(EntitiesToSpawn);
 		LoadSavedQuests(QuestGiversToSoawn);
+		MVSevenCharacter->SetActorLocation(GameController->GetPlayerStats().Position);
 	}
 }
 
@@ -85,8 +88,6 @@ void AMV_Map::Tick(float DeltaTime)
 	{
 		++Time.Day;
 		Time.Hour = 0;
-
-		
 
 		if (GetActiveEnemies() < 4)
 		{
@@ -156,19 +157,7 @@ const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType Mis
 	}
 	else if (MissionType == EMissionType::Enemy)
 	{
-		const UMissionDA* EnemyTemplate = AvailableEnemies[0];
-
-		NewEnemyMission->Name = "RandomGuy";
-		NewEnemyMission->Description = "Random Guy Description";
-		NewEnemyMission->Image = EnemyTemplate->Image;
-		NewEnemyMission->MissionCompleteImage = EnemyTemplate->MissionCompleteImage;
-		NewEnemyMission->MissionType = EnemyTemplate->MissionType;
-		NewEnemyMission->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn;
-		NewEnemyMission->Reward = EnemyTemplate->Reward;
-		NewEnemyMission->MissionStatus = EStatus::Initialized;
-		NewEnemyMission->AreaIndex = Index;
-		NewEnemyMission->SpecialCharacter = nullptr;
-
+		NewEnemyMission = GenerateRandomEnemyMission(Index);
 	}
 	else if (MissionType == EMissionType::LiberatePlace)
 	{
@@ -204,6 +193,25 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 	Quest->Mission = NewEntity->GetMissionDA();
 
 	SpawnQuestGiver(FAMV_QuestInfo(RandomPoint, Quest));
+}
+
+UMissionDA* AMV_Map::GenerateRandomEnemy(int Index) const
+{
+	UMissionDA* EnemyTemplate = AvailableEnemies[0];
+	UMissionDA* NewEnemyMission = NewObject<UMissionDA>();
+
+	NewEnemyMission->Name = "RandomGuy"; // TODO: take from DataTable
+	NewEnemyMission->Description = "Random Guy Description"; // TODO: take from DataTable
+	NewEnemyMission->Image = EnemyTemplate->Image; // TODO: take from DataTable
+	NewEnemyMission->MissionCompleteImage = EnemyTemplate->MissionCompleteImage; // TODO: take from DataTable
+	NewEnemyMission->MissionType = EnemyTemplate->MissionType; // TODO: take from DataTable
+	NewEnemyMission->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn; // TODO: take from DataTable
+	NewEnemyMission->Reward = EnemyTemplate->Reward; // TODO: take from DataTable
+	NewEnemyMission->MissionStatus = EStatus::Initialized; // TODO: take from DataTable
+	NewEnemyMission->AreaIndex = Index; // TODO: take from DataTable
+	NewEnemyMission->SpecialCharacter = nullptr; // TODO: take from DataTable
+
+	return NewEnemyMission;
 }
 
 void AMV_Map::GenerateEntites()

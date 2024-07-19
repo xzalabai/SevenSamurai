@@ -44,7 +44,7 @@ public:
 	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
 
 	UPROPERTY(EditAnywhere)
-	TMap<EItemType, int> Reward;
+	TMap<EItemType, int32> Reward;
 
 	UPROPERTY(EditAnywhere)
 	USevenCharacterDA* SpecialCharacter;

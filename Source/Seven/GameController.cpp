@@ -33,6 +33,26 @@ void UGameController::SaveTime(const FTime& Time)
 	ActiveTime = Time;
 }
 
+void UGameController::ProcessRewards(const UMissionDA* const MissionDA)
+{
+	if (MissionDA->SpecialCharacter)
+	{
+		SelectedCharacters.Add(MissionDA->SpecialCharacter);
+	}
+
+	for (const TPair<EItemType, uint16>& Pair : MissionDA->Reward)
+	{
+		if (!PlayerStats.Reward.Contains(Pair.Key))
+		{
+			PlayerStats.Reward.Add(Pair.Key, Pair.Value);
+		}
+		else
+		{
+			PlayerStats.Reward[Pair.Key] = PlayerStats.Reward[Pair.Key] + Pair.Value;
+		}
+	}
+}
+
 void UGameController::SaveGame()
 {
 	Map = Cast<AMV_Map>(UGameplayStatics::GetActorOfClass(this, AMV_Map::StaticClass()));
@@ -67,27 +87,6 @@ const FAMV_EntityBaseInfo UGameController::GetStartedEntity() const
 	}
 	UE_LOG(LogTemp, Error, TEXT("[UGameController].GetStartedEntity HAVEN'T FOUND STARTED MISSION!!!"));
 	return FAMV_EntityBaseInfo();
-}
-
-void UGameController::ResolveRewards(const UMissionDA* MissionDA, const UQuest* Quest)
-{
-	if (MissionDA->SpecialCharacter)
-	{
-		SelectedCharacters.Add(MissionDA->SpecialCharacter);
-	}
-	
-	for (const TPair<EItemType, int>& Reward : MissionDA->Reward)
-	{
-		// Rewards ... Reward.Key, Reward.Value
-	}
-
-	if (Quest)
-	{
-		//for (const TPair<EItemType, int>& Reward : Quest->Rewar)
-		//{
-		//	// Rewards ... Reward.Key, Reward.Value
-		//}
-	}
 }
 
 FAMV_EntityBaseInfo UGameController::GetStartedEntity()
@@ -148,7 +147,8 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		// Change to completed
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character WON! Changing the Entity to be open!"));
 		Entity.MissionDA->MissionStatus = EStatus::Completed;
-		// TODO: Process reward!
+		
+		ProcessRewards(Entity.MissionDA);
 		
 		if (QuestInfo.Quest)
 		{
@@ -156,8 +156,6 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 			QuestInfo.Quest->QuestStatus = EStatus::Completed;
 			ActiveQuestInfo.RemoveSwap(QuestInfo);
 		}
-
-		ResolveRewards(Entity.MissionDA);
 
 		// Remove Mission from ActiveEntities
 		//ActiveEntitiesInfo.RemoveSwap(Entity);
@@ -173,8 +171,8 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character LOST!"));
 	}
 
-	// Spawn Character on that place?
-	
+	PlayerStats.Position = Entity.Position;
+
 	OpenLevel(FName("Map"));	
 }
 
