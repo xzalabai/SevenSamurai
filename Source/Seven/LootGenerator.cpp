@@ -14,7 +14,7 @@ ULootGenerator::ULootGenerator()
 void ULootGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-
+	//TODO: This class won't be probably used :(
 	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->OnStatusUpdate.AddUObject(this, &ULootGenerator::OnCharacterKilled);
 

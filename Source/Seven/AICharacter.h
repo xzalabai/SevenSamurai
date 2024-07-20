@@ -18,7 +18,7 @@ public:
 	void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 	void MoveTo(const FVector& Position);
 	ASevenCharacter* SelectEnemy();
-	const FVector GetRandomGuardPoint();
+	const FVector GetRandomGuardPointAroundEnemy(const ASevenCharacter* const Enemy);
 	void RequestFinished(FAIRequestID x, const FPathFollowingResult& xx);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsMovementFinished();

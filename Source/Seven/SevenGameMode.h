@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "PublicEnums.h"
+#include "Mission.h"
 #include "SevenGameMode.generated.h"
 
 class ULootGenerator;
@@ -31,6 +32,17 @@ private:
 
 	UPROPERTY()
 	TArray<const ASevenCharacter*> Enemies;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ASevenCharacter> SevenToSpawn; // TODO Remove for final - this is only for DEBUG! when u start game in combat 
+
+	UPROPERTY(EditAnywhere) // TODO Remove for final - this is only for DEBUG! when u start game in combat 
+	EMissionType MissionType;
+
+	UPROPERTY(EditAnywhere) // TODO Remove for final - this is only for DEBUG! when u start game in combat 
+	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
+
+	bool bIsDebugBattle{ false };
 
 public:
 	FOnStatusUpdate OnStatusUpdate;

@@ -134,6 +134,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	ESevenCharacterType SevenCharacterType;
 
+	UPROPERTY()
+	ASevenGameMode* SevenGameMode;
+
 public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)

@@ -3,6 +3,7 @@
 #include "AnimationComponent.h"
 #include "EnemyScenarios.h"
 #include "AICharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "AttackComponent.h"
 #include "Kismet\GameplayStatics.h"
@@ -24,13 +25,14 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SevenGameMode->OnStatusUpdate.AddUObject(this, &AEnemyCharacter::OnStatusUpdate);
+
 	check(EnemyScenarios);
 	check(MissionType != EMissionType::NotProvided);
 }
 
 void AEnemyCharacter::IncomingAttack()
 {
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this, EEnemyStatus::IncomingAttack);
 
 	if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
@@ -46,8 +48,34 @@ void AEnemyCharacter::IncomingAttack()
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
 {
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
+}
+
+void AEnemyCharacter::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
+{
+	if (Status != EEnemyStatus::IncomingAttack && Status != EEnemyStatus::AttackEnd)
+	{
+		return;
+	}
+
+	const ASevenCharacter* const SevenCharacter = Cast<ASevenCharacter>(Actor);
+
+	if (!SevenCharacter->IsPlayerControlled())
+	{
+		return;
+	}
+
+	AAIController* AIController = Cast<AAIController>(GetController());
+	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+
+	if (Status == EEnemyStatus::IncomingAttack)
+	{
+		BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), true);
+	}
+	else if (Status == EEnemyStatus::AttackEnd)
+	{
+		BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
+	}
 }
 
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
@@ -61,9 +89,7 @@ void AEnemyCharacter::AttackEnd() const
 {
 	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] AttackEnd"));
 	OnAttackEnd.Broadcast();
-
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	SevenGameMode->UpdateStatus(this, EEnemyStatus::Cooldown);
+	SevenGameMode->UpdateStatus(this, EEnemyStatus::AttackEnd);
 }
 
 void AEnemyCharacter::OnLayingDead()
@@ -78,10 +104,9 @@ void AEnemyCharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 
 bool AEnemyCharacter::TryStealAttackToken()
 {
-	// TODO: This will be changed to a different logic (when there are more players) keep getting SevenCharacter from SevenPlayerController for now
 	if (ASevenCharacter* EnemyToAttack = AC_AICharacter->SelectEnemy())
 	{
-		if (EnemyToAttack->CanStealAttackToken())
+		if (EnemyToAttack->CanStealAttackToken() || EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 		{
 			EnemyToAttack->StealAttackToken(uniqueID);
 			SevenCharacterToAttack = EnemyToAttack;
@@ -89,6 +114,25 @@ bool AEnemyCharacter::TryStealAttackToken()
 		}
 	}
 	return false;
+}
+
+void AEnemyCharacter::Block(bool bEnable)
+{
+	Super::Block(bEnable);
+}
+
+void AEnemyCharacter::PerformEvade()
+{
+	// TODO: pls change it to be more efficient :D 
+	const TArray<FInputActionValue::Axis2D> PossibleEvades = { FInputActionValue::Axis2D(0,-1),  FInputActionValue::Axis2D(-1, 0), FInputActionValue::Axis2D(1,0)};
+	const int RandomEvadeIndex = FMath::RandRange(0, PossibleEvades.Num() - 1);
+
+	Super::Evade(PossibleEvades[RandomEvadeIndex]);
+	
+	// TODO: find a better way on how to forbid next evading (since loop goes there again.
+	AAIController* AIController = Cast<AAIController>(GetController());
+	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+	BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
 }
 
 UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const

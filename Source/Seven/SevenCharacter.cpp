@@ -86,7 +86,7 @@ void ASevenCharacter::BeginPlay()
 	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
 
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this);
 }
 
@@ -113,16 +113,10 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 
 	// Attack
+	SevenGameMode->UpdateStatus(this, EEnemyStatus::IncomingAttack);
+
 	ASevenCharacter* TargetedEnemy = GetClosestEnemyInRange();
-	if (AC_AttackComponent)
-	{
-		AC_AttackComponent->LightAttack(TargetedEnemy);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireFailed"));
-	}
-	
+	AC_AttackComponent->LightAttack(TargetedEnemy);
 }
 
 void ASevenCharacter::Block(bool bEnable)
@@ -204,8 +198,7 @@ void ASevenCharacter::AttackEnd() const
 {
 	OnAttackEnd.Broadcast();
 	
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	SevenGameMode->UpdateStatus(this, EEnemyStatus::Cooldown);
+	SevenGameMode->UpdateStatus(this, EEnemyStatus::AttackEnd);
 }
 
 void ASevenCharacter::ComboAttackStart()
@@ -237,8 +230,6 @@ void ASevenCharacter::PerformWeaponTrace()
 
 bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 {
-	const ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
 	if (GetIsBlockingBeforeAttack() || !GetIsBlocking())
 	{
 		return false;
@@ -257,7 +248,6 @@ bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 
 void ASevenCharacter::OnLayingDead()
 {
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this, EEnemyStatus::Dead);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -398,8 +388,6 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 
 void ASevenCharacter::CheckIfBlockingBeforeParrying()
 {
-	const ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
 	if (SevenGameMode->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
 	{
 		bIsBlockingBeforeAttack = false;

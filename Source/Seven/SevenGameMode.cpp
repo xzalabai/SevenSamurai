@@ -18,14 +18,8 @@ const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
 
 void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
-	// This should be removed to something like SevenGameMode
 	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
 	const int8 CharacterID = SevenCharacter->GetUniqueID();
-
-	if (Status == EEnemyStatus::IncomingAttack)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[UGameController] UpdateStatus.IncomingAttack"));
-	}
 
 	if (SevenCharacter && SevenCharacter->IsEnemy())
 	{
@@ -34,7 +28,6 @@ void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status
 		{
 			EnemiesStatus.Add({ CharacterID, Status });
 			Enemies.Add(SevenCharacter);
-			UE_LOG(LogTemp, Warning, TEXT("[UGameController] UpdateStatus.ADD To Enemies: %d"), CharacterID);
 		}
 		else
 		{
@@ -140,15 +133,29 @@ const EEnemyStatus ASevenGameMode::GetEnemyStatus(const int8 CharacterID) const
 void ASevenGameMode::MissionEnd(bool bWin)
 {
 	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	GameController->MissionEnd(SevenCharacters, bWin);
+	if (!bIsDebugBattle)
+	{
+		GameController->MissionEnd(SevenCharacters, bWin);
+	}
 }
 
 void ASevenGameMode::UpdateMissionParameters(AMission* Mission)
 {
 	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const FAMV_EntityBaseInfo& StartedEntity = GameController->GetStartedEntity();
-	Mission->EnemiesToSpawn = StartedEntity.MissionDA->EnemiesToSpawn;
-	Mission->MissionType = StartedEntity.MissionDA->MissionType;
+
+	if (StartedEntity.Position != FVector(0,0,0)) // Debug battle
+	{
+		Mission->EnemiesToSpawn = StartedEntity.MissionDA->EnemiesToSpawn;
+		Mission->MissionType = StartedEntity.MissionDA->MissionType;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController].UpdateMissionParameters RUNNING DEBUG BATTLE."));
+		Mission->EnemiesToSpawn = EnemiesToSpawn;
+		Mission->MissionType = MissionType;
+		bIsDebugBattle = true;
+	}
 }
 
 

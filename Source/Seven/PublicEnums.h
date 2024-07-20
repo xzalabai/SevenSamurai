@@ -79,9 +79,8 @@ enum class EEnemyStatus : uint8
 {
 	None,
 	Dead,
-	Cooldown,
+	AttackEnd,
 	IncomingAttack,
-	Attack,	
 	ParryAvailable,
 	ParryUnavailable,
 };

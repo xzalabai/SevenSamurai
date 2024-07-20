@@ -20,6 +20,16 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	EMissionType MissionType;
 
+protected:
+	UPROPERTY()
+	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* IncomingAttackParticle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UEnemyScenarios* EnemyScenarios;
+
 public:
 	AEnemyCharacter();
 protected:
@@ -27,12 +37,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void InitiateAttack();
-
 	UFUNCTION(BlueprintCallable)
 	void IncomingAttack();
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
 	
+	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
 	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
 	virtual void AttackEnd() const override;
 	virtual void OnLayingDead() override;
@@ -41,16 +51,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
 	UFUNCTION(BlueprintCallable)
+	virtual void Block(bool bEnable) override;
+	UFUNCTION(BlueprintCallable)
+	virtual void PerformEvade();
+	UFUNCTION(BlueprintCallable)
 	UBehaviorTree* GetBehaviorTree() const;
 
 	void ReturnAttackToken();
-
-	UPROPERTY()
-	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;
-	
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* IncomingAttackParticle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UEnemyScenarios* EnemyScenarios;
 };

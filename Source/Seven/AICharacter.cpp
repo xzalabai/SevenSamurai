@@ -66,12 +66,12 @@ void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 			UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].MoveTo Couldn't fetch SevenCharacter"));
 		}
 	}
-	else
+	else if (EnemyToAttack)
 	{
-		FinalDestination = GetRandomGuardPoint();
+		FinalDestination = GetRandomGuardPointAroundEnemy(EnemyToAttack);
 	}
 	AIController->SetMoveBlockDetection(false);
-	//DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
+	DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
 	AIController->MoveToLocation(FinalDestination, 80.0f);
 }
 
@@ -82,12 +82,19 @@ void UAICharacter::MoveTo(const FVector& Position)
 	AIController->MoveToLocation(Position, 80.0f);
 }
 
-const FVector UAICharacter::GetRandomGuardPoint()
+const FVector UAICharacter::GetRandomGuardPointAroundEnemy(const ASevenCharacter* const Enemy)
 {
-	const FVector Right = (FMath::RandBool() ? GetOwner()->GetActorRightVector() : GetOwner()->GetActorRightVector() * (-1)) * 300;
-	const FVector Backwards = GetOwner()->GetActorForwardVector() * (-1) * 300;
+	const FVector EnemyPosition = Enemy->GetActorLocation();
+	const FVector EnemyForwardVector = Enemy->GetActorForwardVector();
+	
+	const int Left = FMath::RandBool() ? (-1) : 1;
+	const int RandomOffsetX = FMath::RandRange(500, 1000);
+	const int RandomOffsetY = FMath::RandRange(500, 2000) * Left;
 
-	const FVector FinalDestination = GetOwner()->GetActorLocation() + Right + Backwards;
+	const FVector EnemyForwardVectorOffset = FVector(EnemyForwardVector.X * RandomOffsetX, EnemyForwardVector.Y * RandomOffsetY, EnemyForwardVector.Z);
+
+	const FVector FinalDestination = FVector(EnemyPosition.X + EnemyForwardVectorOffset.X, EnemyPosition.Y + EnemyForwardVectorOffset.Y, EnemyPosition.Z);
+
 	return FinalDestination;
 }
 
