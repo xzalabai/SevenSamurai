@@ -82,7 +82,7 @@ public:
 private:
 	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, EMissionType MissionType = EMissionType::NotProvided);
 	void GenerateQuestGiver(const int8 Index = -1);
-	UMissionDA* GenerateRandomEnemy(int Index) const;
+	UMissionDA* GenerateRandomEnemyMission(int Index) const;
 	void GenerateEntites();
 	void SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn = FAMV_QuestInfo());
 	const AMV_EntityBase* SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());

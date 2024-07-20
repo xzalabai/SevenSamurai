@@ -148,36 +148,36 @@ const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType Mis
 {
 	FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
 	
-	UMissionDA* NewEnemyMission = NewObject<UMissionDA>();
+	UMissionDA* NewMission = NewObject<UMissionDA>();
 
 	if (MissionType == EMissionType::NotProvided)
 	{
 		uint32 RandomMissionIndex = FMath::RandRange(0, AvailableMissions.Num() - 1);
-		NewEnemyMission = AvailableMissions[RandomMissionIndex];
+		NewMission = AvailableMissions[RandomMissionIndex];
 	}
 	else if (MissionType == EMissionType::Enemy)
 	{
-		NewEnemyMission = GenerateRandomEnemyMission(Index);
+		NewMission = GenerateRandomEnemyMission(Index);
 	}
 	else if (MissionType == EMissionType::LiberatePlace)
 	{
 		uint32 RandomMissionIndex = FMath::RandRange(0, AvailableVillages.Num() - 1);
 		const UMissionDA* VillageTemplate = AvailableVillages[RandomMissionIndex];
 
-		NewEnemyMission->Name = VillageTemplate->Name;
-		NewEnemyMission->Description = VillageTemplate->Description;
-		NewEnemyMission->Image = VillageTemplate->Image;
-		NewEnemyMission->MissionCompleteImage = VillageTemplate->MissionCompleteImage;
-		NewEnemyMission->MissionType = VillageTemplate->MissionType;
-		NewEnemyMission->EnemiesToSpawn = VillageTemplate->EnemiesToSpawn;
-		NewEnemyMission->Reward = VillageTemplate->Reward;
-		NewEnemyMission->MissionStatus = EStatus::Completed;
-		NewEnemyMission->AreaIndex = Index;
-		NewEnemyMission->SpecialCharacter = nullptr;
+		NewMission->Name = VillageTemplate->Name;
+		NewMission->Description = VillageTemplate->Description;
+		NewMission->Image = VillageTemplate->Image;
+		NewMission->MissionCompleteImage = VillageTemplate->MissionCompleteImage;
+		NewMission->MissionType = VillageTemplate->MissionType;
+		NewMission->EnemiesToSpawn = VillageTemplate->EnemiesToSpawn;
+		NewMission->Reward = VillageTemplate->Reward;
+		NewMission->MissionStatus = EStatus::Initialized;
+		NewMission->AreaIndex = Index;
+		NewMission->SpecialCharacter = nullptr;
 	}
 
-	GeneratedMissions.Add(NewEnemyMission);
-	return SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewEnemyMission));
+	GeneratedMissions.Add(NewMission);
+	return SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewMission));
 }
 
 void AMV_Map::GenerateQuestGiver(const int8 Index)
@@ -195,7 +195,7 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 	SpawnQuestGiver(FAMV_QuestInfo(RandomPoint, Quest));
 }
 
-UMissionDA* AMV_Map::GenerateRandomEnemy(int Index) const
+UMissionDA* AMV_Map::GenerateRandomEnemyMission(int Index) const
 {
 	UMissionDA* EnemyTemplate = AvailableEnemies[0];
 	UMissionDA* NewEnemyMission = NewObject<UMissionDA>();

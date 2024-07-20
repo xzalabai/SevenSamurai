@@ -42,7 +42,6 @@ void AEnemyCharacter::IncomingAttack()
 				GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
 		}
 	}
-
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
