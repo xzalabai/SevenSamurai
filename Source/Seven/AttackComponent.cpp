@@ -103,8 +103,8 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	// TODO: Damage based on weapon
 	//int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
-	//DamageToBeDealt = 200; //TODO just for debug
-	int DamageToBeDealt = WeaponDetail.Damage;
+	//int DamageToBeDealt = WeaponDetail.Damage;
+	int DamageToBeDealt = 0;
 	return FAttackInfo(CurrentAttackType, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
 }
 
@@ -124,7 +124,6 @@ bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bo
 		if (TargetedEnemy && bWarp)
 		{
 			GetOwnerCharacter()->AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
-			UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]LightAttack.TargetedEnemy %s"), *TargetedEnemy->GetName());
 		}
 	}
 	else

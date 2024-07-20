@@ -70,7 +70,6 @@ public:
 	void OnLayingDead();
 	UFUNCTION(BlueprintCallable)
 	void OnEvadeEnded();
-	UFUNCTION(BlueprintCallable)
 	void NextComboTriggered(bool bEnable);
 	
 	bool Block(bool bEnable);

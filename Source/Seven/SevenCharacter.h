@@ -73,6 +73,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USevenCharacterDA* SevenCharacterDA;
 
+	UPROPERTY()
+	ASevenCharacter* TargetedEnemy{ nullptr };
+
 	UPROPERTY(EditDefaultsOnly)
 	bool bEnemy;
 
@@ -116,7 +119,7 @@ public:
 	UPROPERTY()
 	UMotionWarpingComponent* AC_MotionWarpingComponent;
 
-	//UPROPERTY(BlueprintReadOnly)
+	//UPROPERTY(BlueprintReadOnly) // TODO: Why????
 	UAttackComponent* AC_AttackComponent;
 
 	UPROPERTY()
@@ -152,6 +155,7 @@ protected:
 	virtual void Fire(const FInputActionValue& Value);
 	virtual void ToggleMovement(const FInputActionValue& Value);
 	virtual void FireRMB(const ETriggerEvent& TriggerEvent);
+	UFUNCTION(BlueprintCallable)
 	virtual void Block(bool bEnable);
 	virtual void StopSpace(const FInputActionValue& Value);
 	virtual void Evade(const FInputActionValue& Value);
@@ -159,11 +163,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackStart();
 	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnd() const;
+	virtual void AttackEnd();
 	UFUNCTION(BlueprintCallable)
 	virtual void ComboAttackStart();
 	UFUNCTION(BlueprintCallable)
 	virtual void ComboAttackEnd();
+	UFUNCTION(BlueprintCallable)
+	virtual void NextComboTriggered(bool bEnable);
+	UFUNCTION(BlueprintCallable)
+	virtual void NextAttackAvailable();
 	UFUNCTION(BlueprintCallable)
 	virtual void AI_Fire();
 	UFUNCTION(BlueprintCallable)
@@ -178,8 +186,8 @@ protected:
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
 	bool ParryAttack(const ASevenCharacter* Attacker) const;
-	void AttackWasParried() const;
-	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo) const;
+	void AttackWasParried();
+	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo);
 	void CheckIfBlockingBeforeParrying();
 	bool IsEvadingAway(const ASevenCharacter *Enemy) const;
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
@@ -199,9 +207,10 @@ public:
 	FORCEINLINE class UAICharacter* GetAICharacter() const { return AC_AICharacter; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
-	FORCEINLINE bool GetIsImmortal() const { return bIsImmortal; }
+	FORCEINLINE bool IsImmortal() const { return bIsImmortal; }
 	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
 	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }
+	FORCEINLINE const int GetTargetedEnemyID() const { return (TargetedEnemy && TargetedEnemy->IsAlive()) ? TargetedEnemy->uniqueID : -1; }
 	FORCEINLINE bool GetIsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	UFUNCTION(BlueprintCallable)

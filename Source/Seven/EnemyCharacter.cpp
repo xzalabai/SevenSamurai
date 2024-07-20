@@ -18,14 +18,23 @@ AEnemyCharacter::AEnemyCharacter()
 
 void AEnemyCharacter::InitiateAttack()
 {
-	AC_AICharacter->Fire();
+	LightAttacksAmount--;
+	if (LightAttacksAmount >= 0)
+	{
+		bIsImmortal = true;
+		AC_AICharacter->Fire();
+	}
+	else
+	{
+		bIsImmortal = false;
+	}
 }
 
 void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SevenGameMode->OnStatusUpdate.AddUObject(this, &AEnemyCharacter::OnStatusUpdate);
+	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);
 
 	check(EnemyScenarios);
 	check(MissionType != EMissionType::NotProvided);
@@ -51,41 +60,28 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 	SevenGameMode->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
 }
 
-void AEnemyCharacter::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
+void AEnemyCharacter::OnSevenCharacterStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 {
-	if (Status != EEnemyStatus::IncomingAttack && Status != EEnemyStatus::AttackEnd)
-	{
-		return;
-	}
-
 	const ASevenCharacter* const SevenCharacter = Cast<ASevenCharacter>(Actor);
 
-	if (!SevenCharacter->IsPlayerControlled())
+	if (Status == EEnemyStatus::IncomingAttack || Status == EEnemyStatus::AttackEnd)
 	{
-		return;
-	}
-
-	AAIController* AIController = Cast<AAIController>(GetController());
-	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
-
-	if (Status == EEnemyStatus::IncomingAttack)
-	{
-		BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), true);
-	}
-	else if (Status == EEnemyStatus::AttackEnd)
-	{
-		BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
+		if (SevenCharacter->GetTargetedEnemyID() == uniqueID)
+		{
+			AAIController* AIController = Cast<AAIController>(GetController());
+			UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+			BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), Status == EEnemyStatus::IncomingAttack ? true : false);
+		}
 	}
 }
 
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
-	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]ReceivedHit"));
 	Super::ReceivedHit(AttackInfo);
 	ReturnAttackToken();
 }
 
-void AEnemyCharacter::AttackEnd() const
+void AEnemyCharacter::AttackEnd()
 {
 	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] AttackEnd"));
 	OnAttackEnd.Broadcast();
@@ -116,9 +112,16 @@ bool AEnemyCharacter::TryStealAttackToken()
 	return false;
 }
 
-void AEnemyCharacter::Block(bool bEnable)
+void AEnemyCharacter::NextAttackAvailable()
 {
-	Super::Block(bEnable);
+	InitiateAttack();
+}
+
+void AEnemyCharacter::DefendActionResolved()
+{
+	AAIController* AIController = Cast<AAIController>(GetController());
+	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+	BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
 }
 
 void AEnemyCharacter::PerformEvade()
@@ -130,9 +133,11 @@ void AEnemyCharacter::PerformEvade()
 	Super::Evade(PossibleEvades[RandomEvadeIndex]);
 	
 	// TODO: find a better way on how to forbid next evading (since loop goes there again.
-	AAIController* AIController = Cast<AAIController>(GetController());
-	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
-	BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
+}
+
+void AEnemyCharacter::SetLightAttacksAmount(int Amount)
+{
+	LightAttacksAmount = Amount;
 }
 
 UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
@@ -145,7 +150,7 @@ void AEnemyCharacter::ReturnAttackToken()
 {
 	if (SevenCharacterToAttack)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].ReturnAttackToken Returning Attack Token"));
+		//UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].ReturnAttackToken Returning Attack Token"));
 		SevenCharacterToAttack->ResetAttackToken();
 		SevenCharacterToAttack = nullptr;
 	}

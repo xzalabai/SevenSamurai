@@ -45,7 +45,8 @@ private:
 	bool bIsDebugBattle{ false };
 
 public:
-	FOnStatusUpdate OnStatusUpdate;
+	FOnStatusUpdate OnStatusUpdate; // Updates about all characters (Sevens and Enemies)
+	FOnStatusUpdate OnSevenCharacterStatusUpdate; // Update only about player
 
 public:
 	ASevenGameMode();

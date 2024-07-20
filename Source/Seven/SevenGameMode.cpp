@@ -19,6 +19,11 @@ const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
 void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
 {
 	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
+	if (!SevenCharacter)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ASevenGameMode].UpdateStatus SevenCharacter is nullptr"));
+		return;
+	}
 	const int8 CharacterID = SevenCharacter->GetUniqueID();
 
 	if (SevenCharacter && SevenCharacter->IsEnemy())
@@ -45,6 +50,10 @@ void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status
 		else
 		{
 			SevenCharactersStatus[CharacterID] = Status;
+		}
+		if (SevenCharacter->IsPlayerControlled())
+		{
+			OnSevenCharacterStatusUpdate.Broadcast(Actor, Status);
 		}
 	}
 

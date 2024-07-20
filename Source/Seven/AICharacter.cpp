@@ -10,29 +10,21 @@
 
 UAICharacter::UAICharacter()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
-	AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
-
-	check(AIController);
-
+	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
+	const AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
 	AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &UAICharacter::RequestFinished);
-	
 }
 
 void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 {
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
-	if (!SevenCharacter)
-	{
-		return;
-	}
+	const ASevenCharacter* const SevenCharacter = Cast<ASevenCharacter>(GetOwner());
 
 	if (bBlockingStance)
 	{
@@ -46,33 +38,16 @@ void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 	AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
 	ASevenCharacter* EnemyToAttack = SelectEnemy();
 
-	if (!AIController)
+	if (!AIController || !EnemyToAttack)
 	{
 		return;
 	}
 
+	FVector FinalDestination = bToSevenCharacter ? EnemyToAttack->GetActorLocation() : GetRandomGuardPointAroundEnemy(EnemyToAttack);
 	AIController->SetFocus(EnemyToAttack);
-
-	FVector FinalDestination;
-
-	if (bToSevenCharacter)
-	{
-		if (EnemyToAttack)
-		{
-			FinalDestination = EnemyToAttack->GetActorLocation();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter].MoveTo Couldn't fetch SevenCharacter"));
-		}
-	}
-	else if (EnemyToAttack)
-	{
-		FinalDestination = GetRandomGuardPointAroundEnemy(EnemyToAttack);
-	}
 	AIController->SetMoveBlockDetection(false);
-	DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
 	AIController->MoveToLocation(FinalDestination, 80.0f);
+	//DrawDebugSphere(GetWorld(), FinalDestination, 80, 12, FColor::Black, true, -1);
 }
 
 void UAICharacter::MoveTo(const FVector& Position)
@@ -117,35 +92,28 @@ void UAICharacter::ResetMovementFinished()
 void UAICharacter::Fire()
 {
 	//Attack
-	ASevenCharacter* Bot = Cast<ASevenCharacter>(GetOwner());
-
-	if (!Bot)
-	{
-		return;
-	}
-
-	ASevenCharacter* TargetedEnemy = Bot->GetClosestEnemyInRange();
-	Bot->AC_AttackComponent->LightAttack(TargetedEnemy);
-
+	AEnemyCharacter* EnemyCharacter = Cast<AEnemyCharacter>(GetOwner());
+	ASevenCharacter* TargetedEnemy = EnemyCharacter->GetClosestEnemyInRange();
 	if (TargetedEnemy)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
 		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
 
 		// Rotate character towards enemy
-		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(Bot->GetActorLocation(), TargetedEnemy->GetActorLocation());
-		Bot->RootComponent->SetWorldRotation(PlayerRot);
+		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(EnemyCharacter->GetActorLocation(), TargetedEnemy->GetActorLocation());
+		EnemyCharacter->RootComponent->SetWorldRotation(PlayerRot);
 
-		if (!Bot->AC_AttackComponent->LightAttack(TargetedEnemy))
+		if (!EnemyCharacter->AC_AttackComponent->LightAttack(TargetedEnemy))
 		{
-			Bot->AttackEnd();
+			EnemyCharacter->AttackEnd();
 		}
 	}
-
-	if (AEnemyCharacter* BotEnemyCharacter = Cast<AEnemyCharacter>(GetOwner()))
+	else
 	{
-		BotEnemyCharacter->ReturnAttackToken();
+		EnemyCharacter->AttackEnd();
 	}
+
+	EnemyCharacter->ReturnAttackToken();
 }
 
 void UAICharacter::FollowSevenCharacter(const ASevenCharacter* SevenCharacter)

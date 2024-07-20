@@ -49,7 +49,7 @@ void AWeapon::PerformTrace()
 		StartTrace->GetComponentRotation(),
 		UEngineTypes::ConvertToTraceType(ECC_WorldDynamic),
 		false,
-		ActorsToIgnore, EDrawDebugTrace::Persistent,
+		ActorsToIgnore, EDrawDebugTrace::None,
 		OutHit,
 		true);
 

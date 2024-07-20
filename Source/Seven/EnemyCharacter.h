@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UEnemyScenarios* EnemyScenarios;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int LightAttacksAmount{ 1 };
+
 public:
 	AEnemyCharacter();
 protected:
@@ -42,18 +45,21 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
 	
-	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
+	void OnSevenCharacterStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
 	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
-	virtual void AttackEnd() const override;
+	virtual void AttackEnd() override;
 	virtual void OnLayingDead() override;
 	UFUNCTION(BlueprintCallable)
 	virtual void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
+	virtual void NextAttackAvailable();
 	UFUNCTION(BlueprintCallable)
-	virtual void Block(bool bEnable) override;
+	void DefendActionResolved();
 	UFUNCTION(BlueprintCallable)
 	virtual void PerformEvade();
+	UFUNCTION(BlueprintCallable)
+	void SetLightAttacksAmount(int Amount);
 	UFUNCTION(BlueprintCallable)
 	UBehaviorTree* GetBehaviorTree() const;
 

@@ -44,7 +44,6 @@ void UAnimationComponent::BeginPlay()
 	{
 		if (UAnimInstance* AnimInstance = SevenCharacter->GetMesh()->GetAnimInstance())
 		{
-			UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] AnimInstance -"));
 			AnimInstance->Montage_SetEndDelegate(EndDelegate);
 		}
 		else
@@ -81,17 +80,18 @@ void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenChar
 	Rotation.Yaw = Rotation.Yaw - 180;
 	FTransform T(Rotation, FinalPosition);
 
-	DrawDebugCoordinateSystem(GetWorld(), T.GetTranslation(), T.GetRotation().Rotator(), 100, true);
+	//DrawDebugCoordinateSystem(GetWorld(), T.GetTranslation(), T.GetRotation().Rotator(), 100, true);
 	SevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
 }
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent].Play %s, bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d"),
-		*GetOwner()->GetName(),
-		(bCanInterrupt ? 1 : 0),
-		(bActiveMontageRunning ? 1 : 0),
-		(bNextComboTriggerEnabled ? 1 : 0));
+	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent].Play %s, bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d MontageType: %d"),
+	//	*GetOwner()->GetName(),
+	//	(bCanInterrupt ? 1 : 0),
+	//	(bActiveMontageRunning ? 1 : 0),
+	//	(bNextComboTriggerEnabled ? 1 : 0),
+	//	(int)MontageType);
 
 	if (MontageType == EMontageType::LightAttack)
 	{
@@ -131,7 +131,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		return false;
 	}
 	
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play Animation %s, section:"), *AnimMontage->GetName(), *SectionName.ToString());
+	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play Animation %s, section:"), *AnimMontage->GetName(), *SectionName.ToString());
 
 	SevenCharacter->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
@@ -241,8 +241,8 @@ FName UAnimationComponent::GetCurrentMontageSection()
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
-		*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName(), bInterrupted ? 1 :0);
+	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
+	//	*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName(), bInterrupted ? 1 :0);
 	
 	if (!bInterrupted)
 	{
@@ -259,7 +259,7 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	
 	if (CurrentMontageType == EMontageType::LightAttack && !bInterrupted)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent]OnAnimationEnded.AttackEnd"));
+		//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent]OnAnimationEnded.AttackEnd"));
 		GetOwnerCharacter()->AttackEnd();
 		NextComboTriggered(false);
 	}
@@ -267,7 +267,7 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
+	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationStarted"));
 }
 
 
