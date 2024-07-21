@@ -187,11 +187,23 @@ void UAnimationComponent::NextComboTriggered(bool bEnable)
 
 bool UAnimationComponent::Block(bool bEnable)
 {
-	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
+	bool &bAttackWasPerformed = bNextComboTriggerEnabled; // We use bNextComboTriggerEnabled also as an indicator of whether attack was already performed.
+	
+	if (bEnable && IsAnimationRunning())
+	{
+		if (bAttackWasPerformed)
+		{
+			//OnAnimationEnded(nullptr, true);
+			
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Block False"));
+			return false;
+		}
+	}
 
-	if ((bEnable && IsAnimationRunning()) || !SevenCharacter)
-		return false;
-
+	ASevenCharacter* const SevenCharacter = GetOwnerCharacter();
 	SevenCharacter->bIsBlocking = bEnable;
 	SevenCharacter->bIsGuarding = false;
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
@@ -203,11 +215,12 @@ bool UAnimationComponent::Block(bool bEnable)
 
 bool UAnimationComponent::Guard(bool bEnable)
 {
-	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
-
-	if ((bEnable && IsAnimationRunning()) || !SevenCharacter)
+	if (bEnable && IsAnimationRunning())
+	{
 		return false;
-
+	}
+		
+	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 	SevenCharacter->bIsBlocking = false;
 	SevenCharacter->bIsGuarding = bEnable;
 	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
@@ -259,8 +272,7 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	
 	if (CurrentMontageType == EMontageType::LightAttack && !bInterrupted)
 	{
-		//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent]OnAnimationEnded.AttackEnd"));
-		GetOwnerCharacter()->AttackEnd();
+		//GetOwnerCharacter()->AttackEnd(); // This is called already
 		NextComboTriggered(false);
 	}
 }

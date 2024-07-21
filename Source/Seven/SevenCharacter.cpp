@@ -120,7 +120,7 @@ void ASevenCharacter::NextAttackAvailable()
 
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
+	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 
 	// Order is important (because EnemyCharacter listens to UpdateStatus)
 	TargetedEnemy = GetClosestEnemyInRange();
@@ -205,6 +205,7 @@ void ASevenCharacter::AttackStart()
 
 void ASevenCharacter::AttackEnd()
 {
+	//AC_Animation->OnAnimationEnded(nullptr, false);
 	TargetedEnemy = nullptr;
 	OnAttackEnd.Broadcast();
 	SevenGameMode->UpdateStatus(this, EEnemyStatus::AttackEnd);
@@ -222,6 +223,7 @@ void ASevenCharacter::ComboAttackEnd()
 
 void ASevenCharacter::AttackWasParried()
 {
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] AttackWasParried"));
 	AttackEnd();
 	AC_Animation->Play(Animations->Montages[EMontageType::Parry], "1", EMontageType::Parry, true);
 }
