@@ -102,7 +102,10 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		}
 		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
 		{
-			return false;
+			if (CurrentMontageType != EMontageType::Parry)
+			{
+				return false;
+			}
 		}
 		else if (!bActiveMontageRunning)
 		{

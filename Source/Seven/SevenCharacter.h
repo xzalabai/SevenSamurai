@@ -211,7 +211,7 @@ public:
 	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
 	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }
 	FORCEINLINE const int GetTargetedEnemyID() const { return (TargetedEnemy && TargetedEnemy->IsAlive()) ? TargetedEnemy->uniqueID : -1; }
-	FORCEINLINE bool GetIsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
+	FORCEINLINE bool IsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }

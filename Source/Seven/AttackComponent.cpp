@@ -135,6 +135,10 @@ bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bo
 
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
+	// TODO: Find a better place for turning off block!
+	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
+	SevenCharacter->bIsBlocking = false;
+
 	if (IsComboAttack())
 	{
 		UseCombo(ComboActivated);
@@ -149,6 +153,7 @@ bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 		return false;
 	}
 	CurrentAttackType = EAttackType::Light;
+	
 	return PlayAttack(TargetedEnemy, TargetedEnemy ? true : false, true);
 }
 

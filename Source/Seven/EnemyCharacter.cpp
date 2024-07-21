@@ -21,7 +21,7 @@ void AEnemyCharacter::InitiateAttack()
 	LightAttacksAmount--;
 	if (LightAttacksAmount >= 0)
 	{
-		bIsImmortal = true;
+		bIsImmortal = true; // TODO: rly should be here?
 		AC_AICharacter->Fire();
 	}
 	else
@@ -57,6 +57,7 @@ void AEnemyCharacter::IncomingAttack()
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
 {
+	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] ParryAvailable %d"), bEnable ? 1 : 0);
 	SevenGameMode->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
 }
 

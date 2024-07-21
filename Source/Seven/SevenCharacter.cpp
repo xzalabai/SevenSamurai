@@ -121,7 +121,6 @@ void ASevenCharacter::NextAttackAvailable()
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
-
 	// Order is important (because EnemyCharacter listens to UpdateStatus)
 	TargetedEnemy = GetClosestEnemyInRange();
 	SevenGameMode->UpdateStatus(this, EEnemyStatus::IncomingAttack);
@@ -130,7 +129,7 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 
 void ASevenCharacter::Block(bool bEnable)
 {
-	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Block %d"), bEnable ? 1 : 0);
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Character %s, Block %d"), *GetName(), bEnable ? 1 : 0);
 	AC_Animation->Block(bEnable);
 
 	if (bEnable)
@@ -207,6 +206,7 @@ void ASevenCharacter::AttackEnd()
 {
 	//AC_Animation->OnAnimationEnded(nullptr, false);
 	TargetedEnemy = nullptr;
+	bIsImmortal = false;
 	OnAttackEnd.Broadcast();
 	SevenGameMode->UpdateStatus(this, EEnemyStatus::AttackEnd);
 }
@@ -241,7 +241,7 @@ void ASevenCharacter::PerformWeaponTrace()
 
 bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
 {
-	if (GetIsBlockingBeforeAttack() || !GetIsBlocking())
+	if (IsBlockingBeforeAttack() || !GetIsBlocking())
 	{
 		return false;
 	}
@@ -296,11 +296,10 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	}
 
 	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] ReceivedHitReaction: %d"), (int)ReceivedHitReaction);
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] Character %s ReceivedHitReaction: %d"), *GetName(), (int)ReceivedHitReaction);
 	
 	if (ReceivedHitReaction == EReceivedHitReaction::Parried)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.Is Parrying"));
 		AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry, true);
 		Attacker->AttackWasParried();
 		bIsImmortal = true;
@@ -332,7 +331,6 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Evaded)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway"));
 		bIsImmortal = true;
 		AC_Attribute->Add(EItemType::XP, 10);
 		return;
@@ -381,13 +379,11 @@ void ASevenCharacter::AI_Fire()
 
 void ASevenCharacter::AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AI_MoveTo for %s"), *GetName());
 	AC_AICharacter->MoveTo(bToSevenCharacter, bBlockingStance);
 }
 
 void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] AI_MoveTo for %s"), *GetName());
 	AC_AICharacter->MoveTo(Position);
 }
 
@@ -560,7 +556,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 	{
 		return EReceivedHitReaction::Parried;
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("SEVEN IS: %s %d"), *GetName(), GetIsBlocking());
 	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 	{
 		if (AttackInfo.AttackType == EAttackType::Light)
