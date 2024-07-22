@@ -8,6 +8,8 @@
 #include "AttackComponent.generated.h"
 
 class UCombo;
+class ASevenCharacter;
+class UAnimInstance;
 class AThrowingKnife;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -20,8 +22,8 @@ class SEVEN_API UAttackComponent : public UActorComponent
 	friend class UKnifeThrowCombo;
 
 private:
-	class UAnimInstance* GetOwnerAnimInstance();
-	class ASevenCharacter* GetOwnerCharacter();
+	UAnimInstance* GetOwnerAnimInstance();
+	ASevenCharacter* GetOwnerCharacter();
 
 	int MaxSections = -1;
 	int CurrentSection = -1;

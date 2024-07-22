@@ -19,6 +19,9 @@ public:
 	FName Name;
 
 	UPROPERTY(EditAnywhere)
+	uint16 HP;
+
+	UPROPERTY(EditAnywhere)
 	FName Description;
 
 	UPROPERTY(EditAnywhere)

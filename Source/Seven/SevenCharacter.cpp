@@ -81,8 +81,6 @@ void ASevenCharacter::BeginPlay()
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
 	
-	AC_Attribute->Set(EItemType::HP, 20);
-
 	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
 
@@ -589,7 +587,8 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 		return EReceivedHitReaction::Evaded;
 	}
 
-	const int32 NewHP = AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
+	const uint16& NewHP = AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
+
 	if (NewHP == 0)
 	{
 		return EReceivedHitReaction::Dead;

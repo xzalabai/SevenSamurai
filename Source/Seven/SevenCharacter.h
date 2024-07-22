@@ -38,16 +38,21 @@ UCLASS(config = Game)
 class ASevenCharacter : public ACharacter
 {
 	friend class UAnimationComponent;
+	friend class UAttributesComponent;
+	friend class UAttackComponent;
+
 	friend class UCombo;
 	friend class URadialCombo;
 	friend class UAICharacter;
-	friend class UGameController;
-	friend class UAttackComponent;
 	friend class UThrowKnife;
-	friend class ACharacterPicker;
-	friend class ASevenGameMode;
-	friend class ASevenPlayerController;
 	friend class UKnifeThrowCombo;
+	friend class ACharacterPicker;
+
+	friend class ASevenGameMode;
+	friend class UGameController;
+	friend class ASevenPlayerController;
+
+	
 
 	GENERATED_BODY()
 

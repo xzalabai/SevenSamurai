@@ -3,6 +3,7 @@
 #include "SevenPlayerController.h"
 #include "MV_QuestGiver.h"
 #include "MissionDA.h"
+#include "SevenCharacterDA.h"
 #include "MV_EntityBase.h"
 #include "MV_Map.h"
 #include "Quest.h"
@@ -180,8 +181,18 @@ void UGameController::UpdateSevenCharactersState(const TArray<const ASevenCharac
 {
 	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
 	{
-		if (!SevenCharacter->IsAlive())
+		if (SevenCharacter->IsAlive())
 		{
+			int32 Index = SelectedCharacters.Find(SevenCharacter->SevenCharacterDA);
+			if (Index == INDEX_NONE)
+			{
+				UE_LOG(LogTemp, Error, TEXT("[UGameController].UpdateSevenCharactersState Unable to find SevenCharacterDA amongst player's SelectedCharacters!\n Might be just debug player"));
+			}
+			SelectedCharacters[Index]->HP = SevenCharacter->AC_Attribute->GetHP();
+		}
+		else
+		{
+			// Remove from playable characters
 			SelectedCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
 		}
 	}

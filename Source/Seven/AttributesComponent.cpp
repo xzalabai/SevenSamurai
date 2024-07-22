@@ -1,5 +1,8 @@
 #include "AttributesComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "SevenCharacterDA.h"
+#include "SevenCharacter.h"
+#include "AnimationComponent.h"
 
 UAttributesComponent::UAttributesComponent()
 {
@@ -10,29 +13,50 @@ UAttributesComponent::UAttributesComponent()
 void UAttributesComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	for (int i = static_cast<int>(EItemType::Gold); i <= static_cast<int>(EItemType::Rice); ++i) {
-		EItemType ItemType = static_cast<EItemType>(i);
-		AttributesMap.Add(ItemType, 0);
+	AttributesMap.Add(EItemType::HP, 0);
+	AttributesMap.Add(EItemType::XP, 0);
+	
+	if (const USevenCharacterDA* SevenCharacterDA = GetOwnerCharacter()->SevenCharacterDA)
+	{
+		check(SevenCharacterDA->HP != 0);
+		Set(EItemType::HP, SevenCharacterDA->HP);
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] HP OF CHARACTER %s is %d"), *SevenCharacterDA->Name.ToString(), SevenCharacterDA->HP);
 	}
-	AttributesMap[EItemType::HP] = 150;
-	AttributesMap[EItemType::Gold] = 150;
+	else
+	{
+		// Enemy .. for now keep it 100
+		Set(EItemType::HP, 100);
+	}
+	
 }
 
-void UAttributesComponent::Set(const EItemType ItemType, const int32 NewHP)
+void UAttributesComponent::Set(const EItemType ItemType, const uint16 Amount)
 {
-	AttributesMap[ItemType] = NewHP;
+	AttributesMap[ItemType] = Amount;
 }
 
-void UAttributesComponent::Add(const EItemType ItemType, const int32 NewHP)
+void UAttributesComponent::Add(const EItemType ItemType, const uint16 Amount)
 {
-	AttributesMap[ItemType] = AttributesMap[ItemType] + NewHP;
+	AttributesMap[ItemType] = AttributesMap[ItemType] + Amount;
 }
 
-const int32& UAttributesComponent::Decrease(const EItemType ItemType, const int32 Decrease)
+const uint16& UAttributesComponent::Decrease(const EItemType ItemType, const int32 Decrease)
 {
 	AttributesMap[ItemType] = FMath::Max(0, AttributesMap[ItemType] - Decrease);
 	return AttributesMap[ItemType];
+}
+
+ASevenCharacter* UAttributesComponent::GetOwnerCharacter()
+{
+	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
+	{
+		return SevenCharacter;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] SevenCharacter Not found"));
+		return nullptr;
+	}
 }
 
 	

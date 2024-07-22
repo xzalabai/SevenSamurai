@@ -7,21 +7,26 @@
 #include "PublicEnums.h"
 #include "AttributesComponent.generated.h"
 
+class ASevenCharacter;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SEVEN_API UAttributesComponent : public UActorComponent
 {
+	friend class GameController;
+
 	GENERATED_BODY()
 
+private:
+	TMap<EItemType, uint16> AttributesMap;
+
 public:	
-	UAttributesComponent();
-	FORCEINLINE int32 GetHP() const { return AttributesMap[EItemType::HP]; }
-	FORCEINLINE int32 GetGold() const { return AttributesMap[EItemType::Gold]; }
-	void Set(const EItemType ItemType, const int32 NewHP);
-	void Add(const EItemType ItemType, const int32 NewHP);
-	const int32& Decrease(const EItemType ItemType, const int32 Decrease);
+	UAttributesComponent();	
+	FORCEINLINE uint16 GetHP() const { return AttributesMap[EItemType::HP]; }
+	void Set(const EItemType ItemType, const uint16 Amount);
+	void Add(const EItemType ItemType, const uint16 Amount);
+	const uint16& Decrease(const EItemType ItemType, const int32 Decrease);
 protected:
 	virtual void BeginPlay() override;
-	int32 HP = 0;
-	TMap<EItemType, int32> AttributesMap;
+private:
+	ASevenCharacter* GetOwnerCharacter();
 };
