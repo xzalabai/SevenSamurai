@@ -105,7 +105,7 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 
 void ASevenCharacter::ToggleMovement(const FInputActionValue& Value)
 {
-	AC_Animation->Guard(bIsGuarding ? false : true);
+	Guard(bIsGuarding ? false : true);
 }
 
 void ASevenCharacter::NextComboTriggered(bool bEnable)
@@ -142,6 +142,10 @@ void ASevenCharacter::Block(bool bEnable)
 	}
 }
 
+void ASevenCharacter::Guard(bool bEnable)
+{
+	AC_Animation->Guard(bEnable);
+}
 
 void ASevenCharacter::Move(const FInputActionValue& Value)
 {
@@ -303,7 +307,6 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry, true);
 		Attacker->AttackWasParried();
 		bIsImmortal = true;
-
 		AC_Attribute->Add(EItemType::XP, 10);
 		return;
 	}
@@ -379,7 +382,8 @@ void ASevenCharacter::AI_Fire()
 
 void ASevenCharacter::AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance)
 {
-	AC_AICharacter->MoveTo(bToSevenCharacter, bBlockingStance);
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] AI_MoveTo THIS IS USED, BUT SHOULDnT"));
+	AC_AICharacter->MoveTo(bToSevenCharacter);
 }
 
 void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
@@ -481,6 +485,7 @@ void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const
 	if (StoppedMontage == EMontageType::Parry || StoppedMontage == EMontageType::Evade)
 	{
 		bIsImmortal = false;
+		bIsBlockingBeforeAttack = true;
 	}
 }
 

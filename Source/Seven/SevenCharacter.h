@@ -153,10 +153,12 @@ protected:
 	virtual void Look(const FInputActionValue& Value);
 	virtual void Space(const FInputActionValue& Value);
 	virtual void Fire(const FInputActionValue& Value);
-	virtual void ToggleMovement(const FInputActionValue& Value);
+	virtual void ToggleMovement(const FInputActionValue& Value); // tODO: get rid of this
 	virtual void FireRMB(const ETriggerEvent& TriggerEvent);
 	UFUNCTION(BlueprintCallable)
 	virtual void Block(bool bEnable);
+	UFUNCTION(BlueprintCallable)
+	virtual void Guard(bool bEnable);
 	virtual void StopSpace(const FInputActionValue& Value);
 	virtual void Evade(const FInputActionValue& Value);
 	virtual void Special(int ID);
@@ -184,7 +186,7 @@ protected:
 	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1,const int32 StartOffset = 200, const int32 EndOffset = 200, const int32 Thickness = 100, const bool bCameraRelative = true) const;
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
-	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
+	virtual void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
 	bool ParryAttack(const ASevenCharacter* Attacker) const;
 	void AttackWasParried();
 	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo);

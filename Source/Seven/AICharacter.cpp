@@ -22,18 +22,9 @@ void UAICharacter::BeginPlay()
 	AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &UAICharacter::RequestFinished);
 }
 
-void UAICharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
+void UAICharacter::MoveTo(bool bToSevenCharacter)
 {
 	const ASevenCharacter* const SevenCharacter = Cast<ASevenCharacter>(GetOwner());
-
-	if (bBlockingStance)
-	{
-		SevenCharacter->AC_Animation->Block(true);
-	}
-	else
-	{
-		SevenCharacter->AC_Animation->Guard(true);
-	}
 
 	AAIController* AIController = Cast<AAIController>(SevenCharacter->GetController());
 	ASevenCharacter* EnemyToAttack = SelectEnemy();
@@ -118,7 +109,7 @@ void UAICharacter::Fire()
 
 void UAICharacter::FollowSevenCharacter(const ASevenCharacter* SevenCharacter)
 {
-	MoveTo(true, false);
+	//MoveTo(true, false);
 }
 
 ASevenCharacter* UAICharacter::SelectEnemy()

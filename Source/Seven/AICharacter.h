@@ -15,7 +15,7 @@ class SEVEN_API UAICharacter : public UActorComponent
 
 public:	
 	UAICharacter();
-	void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
+	void MoveTo(bool bToSevenCharacter);
 	void MoveTo(const FVector& Position);
 	ASevenCharacter* SelectEnemy();
 	const FVector GetRandomGuardPointAroundEnemy(const ASevenCharacter* const Enemy);

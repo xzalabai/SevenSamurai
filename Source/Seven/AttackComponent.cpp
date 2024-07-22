@@ -137,7 +137,7 @@ bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	// TODO: Find a better place for turning off block!
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
-	SevenCharacter->bIsBlocking = false;
+	SevenCharacter->Block(false);
 
 	if (IsComboAttack())
 	{

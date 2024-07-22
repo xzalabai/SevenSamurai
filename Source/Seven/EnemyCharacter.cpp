@@ -76,8 +76,15 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const AActor* Actor, const EE
 	}
 }
 
+void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage)
+{
+	Super::OnAnimationEnded(StoppedMontage, NextMontage);
+	SetDefendReactionInProgress();
+}
+
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
+	SetDefendReactionInProgress();
 	Super::ReceivedHit(AttackInfo);
 	ReturnAttackToken();
 }
@@ -94,9 +101,17 @@ void AEnemyCharacter::OnLayingDead()
 	Super::OnLayingDead();
 }
 
-void AEnemyCharacter::MoveTo(bool bToSevenCharacter, bool bBlockingStance)
+void AEnemyCharacter::SetDefendReactionInProgress() const
 {
-	AC_AICharacter->MoveTo(bToSevenCharacter, bBlockingStance);
+	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] Set Defend %d"), AC_Animation->IsDefendReactionInProgress() ? 1 : 0);
+	AAIController* AIController = Cast<AAIController>(GetController());
+	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+	BlackBoardComponent->SetValueAsBool(TEXT("bDefendReactionInProgress"), AC_Animation->IsDefendReactionInProgress());
+}
+
+void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
+{	
+	AC_AICharacter->MoveTo(bToSevenCharacter);
 }
 
 bool AEnemyCharacter::TryStealAttackToken()
@@ -120,6 +135,7 @@ void AEnemyCharacter::NextAttackAvailable()
 
 void AEnemyCharacter::DefendActionResolved()
 {
+	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] DefendActionResolved"));
 	AAIController* AIController = Cast<AAIController>(GetController());
 	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 	BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);

@@ -74,6 +74,7 @@ public:
 	
 	bool Block(bool bEnable);
 	bool Guard(bool bEnable);
+	bool IsDefendReactionInProgress() const;
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
 	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontageType; }
 	FName GetCurrentMontageSection();

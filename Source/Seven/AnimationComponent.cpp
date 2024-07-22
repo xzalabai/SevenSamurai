@@ -201,7 +201,6 @@ bool UAnimationComponent::Block(bool bEnable)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Block False"));
 			return false;
 		}
 	}
@@ -220,6 +219,7 @@ bool UAnimationComponent::Guard(bool bEnable)
 {
 	if (bEnable && IsAnimationRunning())
 	{
+		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Guard: "));
 		return false;
 	}
 		
@@ -246,6 +246,17 @@ bool UAnimationComponent::Guard(bool bEnable)
 	return true;
 }
 
+bool UAnimationComponent::IsDefendReactionInProgress() const
+{
+	if (GetCurrentMontageType() == EMontageType::Block ||
+		GetCurrentMontageType() == EMontageType::Evade ||
+		GetCurrentMontageType() == EMontageType::Parry)
+	{
+		return true;
+	}
+	return false;
+}
+
 FName UAnimationComponent::GetCurrentMontageSection()
 {
 	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())
@@ -257,21 +268,24 @@ FName UAnimationComponent::GetCurrentMontageSection()
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
-	//	*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName(), bInterrupted ? 1 :0);
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
+		*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName(), bInterrupted ? 1 :0);
+
+	const EMontageType StoppedMontage = CurrentMontageType;
 	
 	if (!bInterrupted)
 	{
 		bActiveMontageRunning = false;
 		NextMontageType = EMontageType::None;
+		CurrentMontageType = EMontageType::None;
 	}
 	else
 	{
 		CurrentMontageType = NextMontageType;
 	}
 	
-	GetOwnerCharacter()->OnAnimationEnded(CurrentMontageType, NextMontageType);
-	GetOwnerCharacter()->AC_AttackComponent->OnAnimationEnded(CurrentMontageType, NextMontageType);
+	GetOwnerCharacter()->OnAnimationEnded(StoppedMontage, NextMontageType);
+	GetOwnerCharacter()->AC_AttackComponent->OnAnimationEnded(StoppedMontage, NextMontageType);
 	
 	if (CurrentMontageType == EMontageType::LightAttack && !bInterrupted)
 	{

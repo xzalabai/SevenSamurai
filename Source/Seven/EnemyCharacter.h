@@ -46,11 +46,13 @@ protected:
 	void ParryAvailable(bool bEnable);
 	
 	void OnSevenCharacterStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
+	virtual void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage) override;
 	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
 	virtual void AttackEnd() override;
 	virtual void OnLayingDead() override;
+	void SetDefendReactionInProgress() const;
 	UFUNCTION(BlueprintCallable)
-	virtual void MoveTo(bool bToSevenCharacter, bool bBlockingStance);
+	virtual void MoveTo(bool bToSevenCharacter);
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
 	virtual void NextAttackAvailable();
