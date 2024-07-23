@@ -48,6 +48,8 @@ void AMV_Map::BeginPlay()
 		LoadSavedEntities(EntitiesToSpawn);
 		LoadSavedQuests(QuestGiversToSoawn);
 		MVSevenCharacter->SetActorLocation(GameController->GetPlayerStats().Position);
+		UE_LOG(LogTemp, Error, TEXT("[AMV_Map].FIRST CAMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
+		MVSevenCharacter->Camp(GameController->GetPlayerStats().bIsCamp);
 	}
 }
 

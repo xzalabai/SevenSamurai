@@ -28,6 +28,9 @@ struct FPlayerStats
 
 	UPROPERTY()
 	FVector Position{ FVector(0,0,0) };
+
+	UPROPERTY()
+	bool bIsCamp{ false };
 };
 
 USTRUCT(BlueprintType)
@@ -138,6 +141,7 @@ public:
 
 	void MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin);
 	void UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters);
+	void UpdateSevenCharactersHP(const uint16 Amount);
 	UFUNCTION(BlueprintCallable)
 	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA);
 	UFUNCTION(BlueprintCallable)

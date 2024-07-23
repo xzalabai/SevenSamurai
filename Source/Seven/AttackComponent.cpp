@@ -104,7 +104,7 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 	// TODO: Damage based on weapon
 	//int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
 	//int DamageToBeDealt = WeaponDetail.Damage;
-	int DamageToBeDealt = 0;
+	int DamageToBeDealt = 20;
 	return FAttackInfo(CurrentAttackType, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
 }
 

@@ -22,6 +22,9 @@ public:
 	uint16 HP;
 
 	UPROPERTY(EditAnywhere)
+	uint16 MaxHP{ 100 };
+
+	UPROPERTY(EditAnywhere)
 	FName Description;
 
 	UPROPERTY(EditAnywhere)

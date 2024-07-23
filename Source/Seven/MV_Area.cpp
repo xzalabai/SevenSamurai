@@ -6,7 +6,7 @@
 
 AMV_Area::AMV_Area()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Area"));
 	SetRootComponent(BoxComponent);
 }

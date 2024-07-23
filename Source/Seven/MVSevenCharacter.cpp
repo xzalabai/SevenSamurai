@@ -13,7 +13,9 @@
 
 AMVSevenCharacter::AMVSevenCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+	SetActorTickInterval(2.0f);
 	
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root Scene Component"));
 	RenderComponent = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("RenderComponent"));
@@ -30,16 +32,49 @@ void AMVSevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AMVSevenCharacter::OnComponentBeginOverlap);
+	Camp(bIsCamp);
 }
+
 
 void AMVSevenCharacter::Tick(float DeltaTime)
 {
+	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] Tick"));
 	Super::Tick(DeltaTime);
+	AccumulatedHPGained += 5;
+}
+
+void AMVSevenCharacter::UpdateSevenCharactersHP()
+{
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	GameController->UpdateSevenCharactersHP(AccumulatedHPGained);
+	AccumulatedHPGained = 0;
+}
+
+void AMVSevenCharacter::Camp(bool bEnable)
+{
+	if (bEnable)
+	{
+		UpdateImage(CampImage);
+	}
+	else
+	{
+		UpdateImage(CharacterImage);
+		UpdateSevenCharactersHP();
+	}
+	bIsCamp = bEnable;
+	OnCamp(bEnable);
+}
+
+void AMVSevenCharacter::UpdateImage(UPaperSprite* NewSprite) const
+{
+	RenderComponent->SetSprite(NewSprite);
 }
 
 void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] OnComponentBeginOverlap %s"), *OtherActor->GetName());
+
+	UpdateSevenCharactersHP();
 
 	if (IMV_OverlapInterface* OtherEntity = Cast<IMV_OverlapInterface>(OtherActor))
 	{

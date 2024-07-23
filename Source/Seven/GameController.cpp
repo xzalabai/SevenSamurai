@@ -4,6 +4,7 @@
 #include "MV_QuestGiver.h"
 #include "MissionDA.h"
 #include "SevenCharacterDA.h"
+#include "MVSevenCharacter.h"
 #include "MV_EntityBase.h"
 #include "MV_Map.h"
 #include "Quest.h"
@@ -60,6 +61,8 @@ void UGameController::SaveGame()
 	SaveActiveEntities(Map->ActiveEntities);
 	SaveActiveQuests(Map->ActiveQuestGivers);
 	SaveTime(Map->Time);
+	const AMVSevenCharacter* MVSevenCharacter = Map->MVSevenCharacter;
+	PlayerStats.bIsCamp = MVSevenCharacter->IsCamp();
 }
 
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const
@@ -188,13 +191,25 @@ void UGameController::UpdateSevenCharactersState(const TArray<const ASevenCharac
 			{
 				UE_LOG(LogTemp, Error, TEXT("[UGameController].UpdateSevenCharactersState Unable to find SevenCharacterDA amongst player's SelectedCharacters!\n Might be just debug player"));
 			}
-			SelectedCharacters[Index]->HP = SevenCharacter->AC_Attribute->GetHP();
+			else
+			{
+				SelectedCharacters[Index]->HP = SevenCharacter->AC_Attribute->GetHP();
+			}
 		}
 		else
 		{
 			// Remove from playable characters
 			SelectedCharacters.RemoveSwap(SevenCharacter->SevenCharacterDA);
 		}
+	}
+}
+
+void UGameController::UpdateSevenCharactersHP(const uint16 Amount)
+{
+	for (USevenCharacterDA* SevenCharacterDA : SelectedCharacters)
+	{
+		uint16 NewHP = Amount + SevenCharacterDA->HP;
+		SevenCharacterDA->HP = FMath::Min(NewHP, SevenCharacterDA->MaxHP);
 	}
 }
 

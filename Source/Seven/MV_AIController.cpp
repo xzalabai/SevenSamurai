@@ -22,10 +22,7 @@ void AMV_AIController::BeginPlay()
 
 void AMV_AIController::MoveCharacterTo(const FVector& Position)
 {
-	//UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveCharacterTo"));
-
 	AActor* ControlledActor = GetPawn();
-	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, ControlledActor->GetActorLocation().Z));
 	MoveToLocation(FVector(Position.X, Position.Y, ControlledActor->GetActorLocation().Z), 10.0f);
 }
 

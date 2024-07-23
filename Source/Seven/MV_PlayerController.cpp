@@ -28,7 +28,7 @@ void AMV_PlayerController::BeginPlay()
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
 
-	ControlledCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
+	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 }
 
 void AMV_PlayerController::SetupInputComponent()
@@ -48,6 +48,11 @@ void AMV_PlayerController::Move(const FInputActionValue& Value)
 
 void AMV_PlayerController::PerformTraceToMap() const
 {
+	if (MVSevenCharacter->IsCamp())
+	{
+		return;
+	}
+
 	FHitResult HitResult;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
@@ -57,7 +62,7 @@ void AMV_PlayerController::PerformTraceToMap() const
 
 	if (bHit)
 	{
-		AMV_AIController* MV_AISevenCharacterController = Cast<AMV_AIController>(ControlledCharacter->GetController());
+		AMV_AIController* MV_AISevenCharacterController = Cast<AMV_AIController>(MVSevenCharacter->GetController());
 		MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 	}
 }
