@@ -38,9 +38,16 @@ void AMVSevenCharacter::BeginPlay()
 
 void AMVSevenCharacter::Tick(float DeltaTime)
 {
-	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] Tick"));
 	Super::Tick(DeltaTime);
-	AccumulatedHPGained += 5;
+	if (bIsCamp)
+	{
+		AccumulatedHPGained += 5;
+	}
+	else if (bIsMoving)
+	{
+		Stamina = FMath::Max(Stamina - 5, 0);
+	}
+	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] Tick, HP Gained: %d, Stamina: %d"), AccumulatedHPGained, Stamina);
 }
 
 void AMVSevenCharacter::UpdateSevenCharactersHP()
@@ -55,6 +62,7 @@ void AMVSevenCharacter::Camp(bool bEnable)
 	if (bEnable)
 	{
 		UpdateImage(CampImage);
+		bIsMoving = false;
 	}
 	else
 	{

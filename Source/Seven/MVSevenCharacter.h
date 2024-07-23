@@ -15,6 +15,8 @@ class SEVEN_API AMVSevenCharacter : public APawn
 	GENERATED_BODY()
 
 	friend class AMV_Map;
+	friend class AMV_PlayerController;
+	friend class AMV_AIController;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
@@ -33,12 +35,13 @@ private:
 	int8 CurrentAreaID{ -1 };
 
 	UPROPERTY()
-	uint16 Stamina{ 0 };
+	uint16 Stamina{ 100 };
 
 	UPROPERTY()
 	uint16 AccumulatedHPGained{ 0 };
 
 	bool bIsCamp { false };
+	bool bIsMoving { false };
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

@@ -18,12 +18,21 @@ void AMV_AIController::BeginPlay()
 		// Can be nullptr in case of VillageView
 		Map->OnDayPeriodChange.AddUObject(this, &AMV_AIController::OnDayPeriodChange);
 	}
+	if (AMVSevenCharacter* SevenCharacter = Cast<AMVSevenCharacter>(GetPawn()))
+	{
+		bControllingSevenCharacter = true;
+	}
+	else
+	{
+		bControllingSevenCharacter = false;
+	}
 }
 
 void AMV_AIController::MoveCharacterTo(const FVector& Position)
 {
 	AActor* ControlledActor = GetPawn();
 	MoveToLocation(FVector(Position.X, Position.Y, ControlledActor->GetActorLocation().Z), 10.0f);
+	
 }
 
 void AMV_AIController::MoveToRandomPosition()
@@ -40,7 +49,6 @@ void AMV_AIController::MoveToSevenCharacter()
 	const TObjectPtr<AMVSevenCharacter> MVSevenCharacter = Map->GetMVSevenCharacter();
 	//UBlackboardComponent* BlackBoardComponent = GetBlackboardComponent();
 	//BlackBoardComponent->SetValueAsBool(TEXT("bChaseSevenCharacter"), true);	
-
 	MoveToActor(MVSevenCharacter.Get());
 }
 
@@ -56,6 +64,11 @@ void AMV_AIController::EnableMoving(const bool bEnable)
 void AMV_AIController::RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult)
 {
 	bMovementFinished = PathFollowingResult.IsSuccess();
+	if (bControllingSevenCharacter)
+	{
+		AMVSevenCharacter* SevenCharacter = Cast<AMVSevenCharacter>(GetPawn());
+		SevenCharacter->bIsMoving = false;
+	}
 }
 
 void AMV_AIController::OnDayPeriodChange(EDayPart DayPart)

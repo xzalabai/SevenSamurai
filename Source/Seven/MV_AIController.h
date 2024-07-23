@@ -14,14 +14,12 @@ class SEVEN_API AMV_AIController : public AAIController
 {
 	GENERATED_BODY()
 
-public:
-
 private:
 	bool bMovementFinished{ false };
+	bool bControllingSevenCharacter{ false };
 	
 	UPROPERTY()
 	TObjectPtr<AMV_Map> Map;
-
 
 public:
 	void MoveCharacterTo(const FVector& Position);

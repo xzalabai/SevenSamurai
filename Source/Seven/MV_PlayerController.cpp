@@ -62,6 +62,7 @@ void AMV_PlayerController::PerformTraceToMap() const
 
 	if (bHit)
 	{
+		MVSevenCharacter->bIsMoving = true;
 		AMV_AIController* MV_AISevenCharacterController = Cast<AMV_AIController>(MVSevenCharacter->GetController());
 		MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 	}
