@@ -12,6 +12,7 @@ class USevenCharacterDA;
 class ASevenPlayerController;
 class AMV_Map;
 class UQuest;
+class AMVSevenCharacter;
 class AMV_QuestGiver;
 class AMission;
 class AMV_EntityBase;
@@ -31,6 +32,9 @@ struct FPlayerStats
 
 	UPROPERTY()
 	bool bIsCamp{ false };
+
+	UPROPERTY()
+	uint16 Stamina{ 0 };
 };
 
 USTRUCT(BlueprintType)
@@ -128,6 +132,7 @@ private:
 	void SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
 	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
 	void SaveTime(const FTime& Time);
+	void SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> MVSevenCharacter);
 	void ProcessRewards(const UMissionDA* const MissionDA);
 	void SaveGame();
 public:

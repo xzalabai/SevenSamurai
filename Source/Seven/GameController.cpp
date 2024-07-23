@@ -35,6 +35,13 @@ void UGameController::SaveTime(const FTime& Time)
 	ActiveTime = Time;
 }
 
+void UGameController::SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> MVSevenCharacter)
+{
+	PlayerStats.bIsCamp = MVSevenCharacter->IsCamp();
+	PlayerStats.Stamina = MVSevenCharacter->GetStamina();
+	PlayerStats.Position = MVSevenCharacter->GetActorLocation();
+}
+
 void UGameController::ProcessRewards(const UMissionDA* const MissionDA)
 {
 	if (MissionDA->SpecialCharacter)
@@ -61,8 +68,7 @@ void UGameController::SaveGame()
 	SaveActiveEntities(Map->ActiveEntities);
 	SaveActiveQuests(Map->ActiveQuestGivers);
 	SaveTime(Map->Time);
-	const AMVSevenCharacter* MVSevenCharacter = Map->MVSevenCharacter;
-	PlayerStats.bIsCamp = MVSevenCharacter->IsCamp();
+	SaveMVSevenCharacter(Map->MVSevenCharacter);
 }
 
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const
@@ -174,9 +180,6 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		// flee away with a character
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character LOST!"));
 	}
-
-	PlayerStats.Position = Entity.Position;
-
 	OpenLevel(FName("Map"));	
 }
 

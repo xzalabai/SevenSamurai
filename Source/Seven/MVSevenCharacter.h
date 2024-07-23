@@ -57,6 +57,7 @@ protected:
 public:	
 	void SetCurrentAreaID(const int8 NewAreaID);
 	FORCEINLINE int8 GetCurrentAreaID() const { return CurrentAreaID; };
+	FORCEINLINE uint16 GetStamina() const { return Stamina; };
 	FORCEINLINE bool IsCamp() const { return bIsCamp; };
 	AMVSevenCharacter();
 	UFUNCTION(BlueprintImplementableEvent)

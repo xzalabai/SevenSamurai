@@ -64,7 +64,7 @@ void AMV_AIController::EnableMoving(const bool bEnable)
 void AMV_AIController::RequestFinished(FAIRequestID AIRequestID, const FPathFollowingResult& PathFollowingResult)
 {
 	bMovementFinished = PathFollowingResult.IsSuccess();
-	if (bControllingSevenCharacter)
+	if (bControllingSevenCharacter && !PathFollowingResult.IsInterrupted())
 	{
 		AMVSevenCharacter* SevenCharacter = Cast<AMVSevenCharacter>(GetPawn());
 		SevenCharacter->bIsMoving = false;

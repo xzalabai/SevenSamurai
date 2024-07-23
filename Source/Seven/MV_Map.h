@@ -86,6 +86,7 @@ private:
 	void GenerateEntites();
 	void SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn = FAMV_QuestInfo());
 	const AMV_EntityBase* SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
+	void LoadSevenCharacter(const FPlayerStats& PlayerStats);
 	void LoadSavedEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
 	void LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn);
 	bool IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const;

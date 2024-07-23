@@ -47,9 +47,7 @@ void AMV_Map::BeginPlay()
 		// Any other Start (coming from Mission, loaded game)
 		LoadSavedEntities(EntitiesToSpawn);
 		LoadSavedQuests(QuestGiversToSoawn);
-		MVSevenCharacter->SetActorLocation(GameController->GetPlayerStats().Position);
-		UE_LOG(LogTemp, Error, TEXT("[AMV_Map].FIRST CAMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
-		MVSevenCharacter->Camp(GameController->GetPlayerStats().bIsCamp);
+		LoadSevenCharacter(GameController->GetPlayerStats());
 	}
 }
 
@@ -270,6 +268,13 @@ const AMV_EntityBase* AMV_Map::SpawnEntity(const FAMV_EntityBaseInfo& EntityToSp
 	ActiveEntities.Add(NewEntity);
 
 	return NewEntity;
+}
+
+void AMV_Map::LoadSevenCharacter(const FPlayerStats& PlayerStats)
+{
+	MVSevenCharacter->SetActorLocation(PlayerStats.Position);
+	MVSevenCharacter->Camp(PlayerStats.bIsCamp);
+	MVSevenCharacter->Stamina = PlayerStats.Stamina;
 }
 
 void AMV_Map::LoadSavedEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn)

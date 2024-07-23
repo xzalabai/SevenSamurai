@@ -33,6 +33,7 @@ void AMVSevenCharacter::BeginPlay()
 	Super::BeginPlay();
 	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AMVSevenCharacter::OnComponentBeginOverlap);
 	Camp(bIsCamp);
+	MovementComponent->MaxSpeed = Stamina * 10;
 }
 
 
@@ -45,7 +46,8 @@ void AMVSevenCharacter::Tick(float DeltaTime)
 	}
 	else if (bIsMoving)
 	{
-		Stamina = FMath::Max(Stamina - 5, 0);
+		Stamina = FMath::Max(Stamina - 5, 10);
+		MovementComponent->MaxSpeed = Stamina * 10;
 	}
 	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] Tick, HP Gained: %d, Stamina: %d"), AccumulatedHPGained, Stamina);
 }
