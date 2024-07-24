@@ -10,7 +10,4 @@ UCLASS()
 class SEVEN_API AVV_GameMode : public AGameMode
 {
 	GENERATED_BODY()
-
-public:
-	const UQuest* GenerateQuest() const;
 };

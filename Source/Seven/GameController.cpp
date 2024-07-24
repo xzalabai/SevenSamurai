@@ -40,6 +40,7 @@ void UGameController::SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> M
 	PlayerStats.bIsCamp = MVSevenCharacter->IsCamp();
 	PlayerStats.Stamina = MVSevenCharacter->GetStamina();
 	PlayerStats.Position = MVSevenCharacter->GetActorLocation();
+	PlayerStats.Position.X -= 200;
 }
 
 void UGameController::ProcessRewards(const UMissionDA* const MissionDA)
@@ -146,6 +147,19 @@ void UGameController::SetStartedQuest(const UQuest* QuestToStart)
 	
 }
 
+void UGameController::EnterVillage(const int VillageID)
+{
+	VisitedVillageID = VillageID;
+	SaveGame();
+	OpenLevel(FName("VillageView"));
+}
+
+void UGameController::ExitVillage(const int VillageID)
+{
+	VisitedVillageID = -1;
+	OpenLevel(FName("Map"));
+}
+
 void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin)
 {
 	UpdateSevenCharactersState(SevenCharacters);
@@ -228,5 +242,6 @@ const TArray<USevenCharacterDA*> UGameController::GetSelectedCharacters() const
 
 void UGameController::OpenLevel(const FName& LevelName)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[UGameController].OpenLevel %s"), *LevelName.ToString());
 	UGameplayStatics::OpenLevel(this, LevelName);
 }

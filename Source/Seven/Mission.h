@@ -17,9 +17,27 @@ enum class EMissionType : uint8
 	ReceiveAmbush,
 	EnemyCamp,
 	Enemy,
-	AbandonedRuins,
+	AbandonedRuins, // KEEP THIS LAST!
 };
 
+static FName MissionTypeToFName(EMissionType MissionType)
+{
+	FName Name;
+	switch (MissionType) {
+	case EMissionType::AbandonedRuins:
+		Name = TEXT("AbandonedRuins");
+		break;
+	case EMissionType::Enemy:
+		Name = TEXT("Enemy");
+		break;
+	case EMissionType::LiberatePlace:
+		Name = TEXT("LiberatePlace");
+		break;
+	default:
+		Name = NAME_None;
+	}
+	return Name;
+}
 
 UCLASS()
 class SEVEN_API AMission : public AActor

@@ -153,6 +153,12 @@ namespace CustomMath
 
 		return CombinedName;
 	}
+
+	static FName ConcatFNameAndFName(const FName& First, const FName& Second)
+	{
+		const FString& ConcatenatedString = First.ToString() + Second.ToString();
+		return FName(*ConcatenatedString);
+	}
 };
 
 namespace OctagonalDirection

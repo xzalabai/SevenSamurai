@@ -129,6 +129,9 @@ private:
 	UPROPERTY()
 	FPlayerStats PlayerStats;
 
+	UPROPERTY()
+	int VisitedVillageID{ -1 };
+
 	void SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
 	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
 	void SaveTime(const FTime& Time);
@@ -142,8 +145,9 @@ public:
 	FTime RetrieveTime() const;
 	void SetStartedEntity(AMV_EntityBase* EntityToStart, UMissionDA* Mission);
 	void SetStartedQuest(const UQuest* QuestToStart);
+	void EnterVillage(const int VillageID);
+	void ExitVillage(const int VillageID);
 	const FAMV_EntityBaseInfo GetStartedEntity() const;
-
 	void MissionEnd(const TArray<const ASevenCharacter*>& SevenCharacters, const bool bWin);
 	void UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters);
 	void UpdateSevenCharactersHP(const uint16 Amount);
@@ -151,10 +155,11 @@ public:
 	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA);
 	UFUNCTION(BlueprintCallable)
 	const TArray<USevenCharacterDA*> GetSelectedCharacters() const;
-	void OpenLevel(const FName& LevelName);
 	FORCEINLINE const FPlayerStats& GetPlayerStats() const { return PlayerStats; }
+	FORCEINLINE const int& GetVisitedVillageID() const { return VisitedVillageID; }
 
 private:
 	FAMV_EntityBaseInfo GetStartedEntity();
 	const FAMV_QuestInfo GetStartedQuestInfo();
+	void OpenLevel(const FName& LevelName);
 };

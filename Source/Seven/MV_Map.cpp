@@ -7,6 +7,7 @@
 #include "MV_Area.h"
 #include "PublicEnums.h"
 #include "MV_Enemy.h"
+#include "EntityGenerator.h"
 #include "MV_EntityBase.h"
 #include "Components/BoxComponent.h"
 #include "MV_Village.h"
@@ -19,6 +20,8 @@ AMV_Map::AMV_Map()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	SetActorTickInterval(2.0f);
+
+	AC_EntityGenerator = CreateDefaultSubobject<UEntityGenerator>(TEXT("AC_EntityGenerator"));
 }
 
 void AMV_Map::BeginPlay()
@@ -147,36 +150,13 @@ const TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType MissionType)
 {
 	FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
-	
-	UMissionDA* NewMission = NewObject<UMissionDA>();
-
-	if (MissionType == EMissionType::NotProvided)
+	UMissionDA* NewMission = AC_EntityGenerator->GenerateMission(Index, MissionType);
+	if (NewMission == nullptr)
 	{
-		uint32 RandomMissionIndex = FMath::RandRange(0, AvailableMissions.Num() - 1);
-		NewMission = AvailableMissions[RandomMissionIndex];
+		UE_LOG(LogTemp, Error, TEXT("[AMV_Map].GenerateEntity NewMission is nullptr"));
+		return nullptr;
 	}
-	else if (MissionType == EMissionType::Enemy)
-	{
-		NewMission = GenerateRandomEnemyMission(Index);
-	}
-	else if (MissionType == EMissionType::LiberatePlace)
-	{
-		uint32 RandomMissionIndex = FMath::RandRange(0, AvailableVillages.Num() - 1);
-		const UMissionDA* VillageTemplate = AvailableVillages[RandomMissionIndex];
-
-		NewMission->Name = VillageTemplate->Name;
-		NewMission->Description = VillageTemplate->Description;
-		NewMission->Image = VillageTemplate->Image;
-		NewMission->MissionCompleteImage = VillageTemplate->MissionCompleteImage;
-		NewMission->MissionType = VillageTemplate->MissionType;
-		NewMission->EnemiesToSpawn = VillageTemplate->EnemiesToSpawn;
-		NewMission->Reward = VillageTemplate->Reward;
-		NewMission->MissionStatus = EStatus::Initialized;
-		NewMission->AreaIndex = Index;
-		NewMission->SpecialCharacter = nullptr;
-	}
-
-	GeneratedMissions.Add(NewMission);
+	GeneratedMissions.Add(NewMission); // THIS IS MAYBE NOT NEEDED
 	return SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewMission));
 }
 
@@ -185,7 +165,12 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 	// Creates new Quest (alongside with a new Mission - goal of the Quest).
 
 	const FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
-	const AMV_EntityBase* NewEntity = GenerateEntity(Index);
+	const AMV_EntityBase* NewEntity = GenerateEntity(Index, EMissionType::AbandonedRuins);
+	if (!NewEntity)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[AMV_Map].GenerateQuestGiver NewEntity is nullptr"));
+		return;
+	}
 	FString NewName = "This is your mission quest: " + NewEntity->GetMissionDA()->GetName();
 
 	UQuest* Quest = NewObject<UQuest>();
@@ -193,25 +178,6 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 	Quest->Mission = NewEntity->GetMissionDA();
 
 	SpawnQuestGiver(FAMV_QuestInfo(RandomPoint, Quest));
-}
-
-UMissionDA* AMV_Map::GenerateRandomEnemyMission(int Index) const
-{
-	UMissionDA* EnemyTemplate = AvailableEnemies[0];
-	UMissionDA* NewEnemyMission = NewObject<UMissionDA>();
-
-	NewEnemyMission->Name = "RandomGuy"; // TODO: take from DataTable
-	NewEnemyMission->Description = "Random Guy Description"; // TODO: take from DataTable
-	NewEnemyMission->Image = EnemyTemplate->Image; // TODO: take from DataTable
-	NewEnemyMission->MissionCompleteImage = EnemyTemplate->MissionCompleteImage; // TODO: take from DataTable
-	NewEnemyMission->MissionType = EnemyTemplate->MissionType; // TODO: take from DataTable
-	NewEnemyMission->EnemiesToSpawn = EnemyTemplate->EnemiesToSpawn; // TODO: take from DataTable
-	NewEnemyMission->Reward = EnemyTemplate->Reward; // TODO: take from DataTable
-	NewEnemyMission->MissionStatus = EStatus::Initialized; // TODO: take from DataTable
-	NewEnemyMission->AreaIndex = Index; // TODO: take from DataTable
-	NewEnemyMission->SpecialCharacter = nullptr; // TODO: take from DataTable
-
-	return NewEnemyMission;
 }
 
 void AMV_Map::GenerateEntites()
@@ -319,10 +285,4 @@ int32 AMV_Map::GetActiveEnemies() const
 	}
 
 	return Amount;
-}
-
-const int32 AMV_Map::GetSevenCharactersArea() const
-{
-
-	return 1;
 }

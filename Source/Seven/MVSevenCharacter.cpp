@@ -82,7 +82,7 @@ void AMVSevenCharacter::UpdateImage(UPaperSprite* NewSprite) const
 
 void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Display, TEXT("[AMVSevenCharacter] OnComponentBeginOverlap %s"), *OtherActor->GetName());
+	UE_LOG(LogTemp, Error, TEXT("[AMVSevenCharacter] OnComponentBeginOverlap %s, %d"), *OtherActor->GetName(), bFromSweep ? 1 :0);
 
 	UpdateSevenCharactersHP();
 

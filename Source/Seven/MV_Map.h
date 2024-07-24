@@ -8,6 +8,7 @@
 
 class UMissionDA;
 class UPaperSpriteComponent;
+class UEntityGenerator;
 class AMV_EntityBase;
 class AMV_Enemy;
 class AMV_QuestGiver;
@@ -30,21 +31,15 @@ class SEVEN_API AMV_Map : public APaperSpriteActor
 public:
 	FOnDayPeriodChange OnDayPeriodChange;
 
+	UPROPERTY(EditDefaultsOnly)
+	UEntityGenerator* AC_EntityGenerator;
+
 private:	
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
-	TArray<UMissionDA*> AvailableVillages;
-
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
-	TArray<UMissionDA*> AvailableMissions;
-
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
-	TArray<UMissionDA*> AvailableEnemies;
-
 	UPROPERTY()
 	TArray<const AMV_QuestGiver*> ActiveQuestGivers{};
 
 	UPROPERTY()
-	TArray<UMissionDA*> GeneratedMissions; // TOdo is it needed? We are saving it only to have reference count..
+	TArray<UMissionDA*> GeneratedMissions; // TOdo is it needed? We are saving it only to have reference count.. Maybe it's not needed since it's already stored in other UPROPERTY()
 
 	UPROPERTY();
 	TArray<const AMV_EntityBase*> ActiveEntities;
@@ -82,7 +77,6 @@ public:
 private:
 	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, EMissionType MissionType = EMissionType::NotProvided);
 	void GenerateQuestGiver(const int8 Index = -1);
-	UMissionDA* GenerateRandomEnemyMission(int Index) const;
 	void GenerateEntites();
 	void SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn = FAMV_QuestInfo());
 	const AMV_EntityBase* SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
@@ -91,6 +85,4 @@ private:
 	void LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn);
 	bool IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const;
 	int32 GetActiveEnemies() const;
-	const int32 GetSevenCharactersArea() const;
-	
 };

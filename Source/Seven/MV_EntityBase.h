@@ -18,7 +18,6 @@ class SEVEN_API AMV_EntityBase : public APawn, public IMV_OverlapInterface
 
 	friend class AMV_Map;
 protected:
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
 	TObjectPtr< UPaperSpriteComponent> RenderComponent;
 
