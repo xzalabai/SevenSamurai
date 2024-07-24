@@ -3,13 +3,13 @@
 #include "CoreMinimal.h"
 #include "ComboInterface.h"
 #include "UObject/NoExportTypes.h"
+#include "Engine/DataTable.h"
 #include "Combo.generated.h"
 
 class UAnimMontage; 
 class ASevenCharacter;
 
 UCLASS(Blueprintable, BlueprintType)
-
 class SEVEN_API UCombo : public UObject, public IComboInterface
 {
 	GENERATED_BODY()

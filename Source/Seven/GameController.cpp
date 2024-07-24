@@ -150,6 +150,7 @@ void UGameController::SetStartedQuest(const UQuest* QuestToStart)
 void UGameController::EnterVillage(const int VillageID)
 {
 	VisitedVillageID = VillageID;
+	UE_LOG(LogTemp, Warning, TEXT("[UGameController].EnterVillage %d"), VillageID);
 	SaveGame();
 	OpenLevel(FName("VillageView"));
 }

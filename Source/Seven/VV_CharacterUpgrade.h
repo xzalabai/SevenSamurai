@@ -3,42 +3,88 @@
 #include "CoreMinimal.h"
 #include "VV_EntityBase.h"
 #include "PublicEnums.h"
+#include "Engine/DataTable.h"
 #include "VV_CharacterUpgrade.generated.h"
 
-USTRUCT(BlueprintType)
-struct FCombosWithPrices
+UENUM(BlueprintType)
+enum class EComboType : uint8
 {
-	GENERATED_BODY()
+	ECT_None,
+	ECT_Radial,
+	ECT_AttackSequence,
+	ECT_Heavy,
+	ECT_Throw,
+};
 
-	FCombosWithPrices() = default;
+// Definition of Combo (equal for every shop)
+USTRUCT(BlueprintType)
+struct FComboDefiniton
+{
+	GENERATED_BODY(EditAnywhere)
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UObject> Combo;
+	ESevenCharacterType SevenCharacterType;
 
 	UPROPERTY(EditAnywhere)
-	int Price;
+	EComboType Type;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UObject> UObject;
 
 	UPROPERTY(EditAnywhere)
 	FName Name;
 };
 
+// Combo with price-tag (specific for each shop)
 USTRUCT(BlueprintType)
-struct FSevenCharacterCombos
+struct FComboWithPrice
+{
+	GENERATED_BODY()
+	FComboWithPrice() = default;
+	FComboWithPrice(FComboDefiniton _Combo, int _Price) : Combo(_Combo), Price(_Price) {}
+
+	UPROPERTY(EditAnywhere)
+	FComboDefiniton Combo;
+
+	UPROPERTY(EditAnywhere)
+	int Price;
+};
+
+// DataAsset
+UCLASS(BlueprintType)
+class SEVEN_API UAllCombos : public UDataAsset
 {
 	GENERATED_BODY()
 
-	FSevenCharacterCombos() = default;
+public:
 	UPROPERTY(EditAnywhere)
-	TArray<FCombosWithPrices> CombosAvailable;
+	TArray<FComboDefiniton> CombosList;
+};
+
+USTRUCT(BlueprintType)
+struct SEVEN_API FAvailableCombosInVillages : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TArray<FComboWithPrice> CombosWithPrice;
 };
 
 UCLASS()
 class SEVEN_API AVV_CharacterUpgrade : public AVV_EntityBase
 {
 	GENERATED_BODY()
+
 protected:
 	UPROPERTY(EditAnywhere)
-	TMap<ESevenCharacterType, FSevenCharacterCombos> SevenCharacterCombosMapping;
+	UAllCombos* AllCombos;
+
+	UPROPERTY()
+	TArray<FComboWithPrice> AvailableCombos;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UDataTable> AvailableCombosInVillages;
+
 
 public:
 	virtual void OnOverlapAction() override;
@@ -46,4 +92,9 @@ public:
 	void OnShopOverlapped(USevenCharacterDA* SevenCharacterDA);
 	UFUNCTION(BlueprintCallable)
 	void BuyCombo(USevenCharacterDA* SevenCharacterDA, int Index) const;
+	void GenerateAvailableCombos();
+
+protected:
+	virtual void BeginPlay() override;
+
 };
