@@ -41,16 +41,7 @@ void AMission::BeginPlay()
 
 	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
 
-	if (bSideMission)
-	{
-		// this will be turned on for all
-		ActivateMission(false);
-	}
-	else
-	{
-		ActivateMission(true);
-	}
-
+	ActivateMission(true);
 	MissionStarted();
 }
 
@@ -62,15 +53,6 @@ void AMission::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* 
 		return;
 	}
 	MissionStarted();
-	
-}
-
-void AMission::MissionComplete(bool bWin) const
-{
-	if (!bSideMission && SideMission)
-	{
-		SideMission->ActivateMission(true);
-	}
 }
 
 void AMission::ActivateMission(bool bEnable)
@@ -86,19 +68,19 @@ void AMission::MissionStarted()
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	SevenCharacterCount = GameController->SelectedCharacters.Num();
 
-	for (const TPair<int32, TSubclassOf<AEnemyCharacter>>& Pair : EnemiesToSpawn)
+	for (const TPair<int32, TSubclassOf<AEnemyCharacter>>& Pair : MissionDA->EnemiesToSpawn)
 	{
 		for (int i = 0; i < Pair.Key; i++)
 		{
 			const FTransform T(EnemySpawns[i % EnemySpawns.Num()]->GetComponentRotation(), EnemySpawns[i % EnemySpawns.Num()]->GetComponentLocation());
 			AEnemyCharacter* Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(Pair.Value, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-			Enemy->MissionType = MissionType;
+			Enemy->MissionType = MissionDA->MissionType;
+			Enemy->Difficulty = MissionDA->Difficulty;
 			// Set AI
 			Enemy->FinishSpawning(T);
 			++EnemyCount;
 			UE_LOG(LogTemp, Display, TEXT("[AMission] Spawn Enemy: %d, %d"), Pair.Key, i);
 		}
-		
 	}
 	UE_LOG(LogTemp, Display, TEXT("[AMission].MissionStarted: %d, SevenCharactersCount: %d, EnemyCount: %d"), ID, SevenCharacterCount, EnemyCount);
 
@@ -126,7 +108,7 @@ void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 	{
 		return;
 	}
-	
+		
 	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
 	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
@@ -138,7 +120,6 @@ void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
 
-			MissionComplete(true);
 			SevenGameMode->MissionEnd(true);
 		}
 
@@ -151,14 +132,8 @@ void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
 
-			MissionComplete(false);
 			SevenGameMode->MissionEnd(false);
 		}
 	}
-
-
-
-
-
 }
 

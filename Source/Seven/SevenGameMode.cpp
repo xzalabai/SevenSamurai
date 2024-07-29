@@ -153,16 +153,14 @@ void ASevenGameMode::UpdateMissionParameters(AMission* Mission)
 	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const FAMV_EntityBaseInfo& StartedEntity = GameController->GetStartedEntity();
 
-	if (StartedEntity.Position != FVector(0,0,0)) // Debug battle
+	if (StartedEntity.Position != FVector(0,0,0)) 
 	{
-		Mission->EnemiesToSpawn = StartedEntity.MissionDA->EnemiesToSpawn;
-		Mission->MissionType = StartedEntity.MissionDA->MissionType;
+		Mission->MissionDA = StartedEntity.MissionDA;
 	}
 	else
 	{
+		// Debug battle
 		UE_LOG(LogTemp, Error, TEXT("[ASevenPlayerController].UpdateMissionParameters RUNNING DEBUG BATTLE."));
-		Mission->EnemiesToSpawn = EnemiesToSpawn;
-		Mission->MissionType = MissionType;
 		bIsDebugBattle = true;
 	}
 }

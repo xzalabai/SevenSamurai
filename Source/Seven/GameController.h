@@ -108,6 +108,7 @@ class SEVEN_API UGameController : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 	friend class ASevenGameMode;
+	friend class UEntityGenerator;
 
 public:
 	UPROPERTY()
@@ -122,6 +123,9 @@ private:
 
 	UPROPERTY()
 	TArray<FAMV_QuestInfo> ActiveQuestInfo;
+
+	UPROPERTY()
+	TMap<EMissionType, uint16> MissionTypeCounts{};
 
 	UPROPERTY()
 	FTime ActiveTime{};

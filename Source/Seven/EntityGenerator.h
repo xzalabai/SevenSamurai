@@ -7,6 +7,7 @@
 #include "EntityGenerator.generated.h"
 
 class UDataTable;
+class UGameController;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEVEN_API UEntityGenerator : public UActorComponent
@@ -29,4 +30,5 @@ protected:
 private:
 	UMissionDA* GenerateMission(const uint8 AreaIndex, EMissionType MissionType = EMissionType::NotProvided) const;
 	void ConvertMissionToMissionDA(const FUMissionDT* MissionDT, UMissionDA* MissionDA) const;
+	UGameController* GameController = nullptr;
 };

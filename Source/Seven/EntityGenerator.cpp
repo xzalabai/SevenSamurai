@@ -1,7 +1,9 @@
 #include "EntityGenerator.h"
 #include "MissionDA.h"
 #include "PaperSprite.h"
+#include "GameController.h"
 #include "Engine/DataTable.h"
+
 
 UEntityGenerator::UEntityGenerator()
 {
@@ -11,6 +13,27 @@ UEntityGenerator::UEntityGenerator()
 void UEntityGenerator::BeginPlay()
 {
 	Super::BeginPlay();
+	GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	if (GameController->MissionTypeCounts.IsEmpty())
+	{
+		// TODO: Do this EARLIER -> and not here, performance is going to be shit!
+		const FString ContextString;
+		
+		TArray<const FUMissionDT*> AllMissions;
+		MissionsDT->GetAllRows(ContextString, AllMissions);
+
+		for (const FUMissionDT* Mission : AllMissions)
+		{
+			if (GameController->MissionTypeCounts.Contains(Mission->MissionType))
+			{
+				GameController->MissionTypeCounts[Mission->MissionType] += 1;
+			}
+			else
+			{
+				GameController->MissionTypeCounts.Add(Mission->MissionType, 1);
+			}
+		}
+	}
 }
 
 UMissionDA* UEntityGenerator::GenerateMission(const uint8 AreaIndex, EMissionType MissionType) const
@@ -22,7 +45,10 @@ UMissionDA* UEntityGenerator::GenerateMission(const uint8 AreaIndex, EMissionTyp
 		MissionType = static_cast<EMissionType>(RandomMission);
 	}
 
-	const FName NameToFind = CustomMath::ConcatFNameAndFName(MissionTypeToFName(MissionType), FName(TEXT("1")));
+	const uint16 LastMissionNumber = GameController->MissionTypeCounts[MissionType];
+	check(LastMissionNumber != 0);
+	const int RandomNumber = FMath::RandRange(1, LastMissionNumber);
+	const FName NameToFind = CustomMath::ConcatFNameAndInt(MissionTypeToFName(MissionType), RandomNumber);
 	
 	if (NameToFind == NAME_None)
 	{

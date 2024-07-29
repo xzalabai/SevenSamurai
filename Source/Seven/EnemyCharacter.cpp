@@ -13,7 +13,9 @@
 
 AEnemyCharacter::AEnemyCharacter()
 {
-	IncomingAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("ImpactParticles"));
+	EasyAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("EasyImpactParticles"));
+	MidAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("MidImpactParticles"));
+	HeavyAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("HeavyImpactParticles"));
 }
 
 void AEnemyCharacter::InitiateAttack()
@@ -49,7 +51,7 @@ void AEnemyCharacter::IncomingAttack()
 		// Spawn emitter only if really attacking (enemy has a token)
 		if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), IncomingAttackParticle,
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EasyAttackParticle,
 				GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
 		}
 	}
@@ -104,6 +106,11 @@ void AEnemyCharacter::OnLayingDead()
 void AEnemyCharacter::SetDefendReactionInProgress() const
 {
 	AAIController* AIController = Cast<AAIController>(GetController());
+	if (!AIController)
+	{
+		return;
+	}
+
 	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 	
 	if (!BlackBoardComponent)

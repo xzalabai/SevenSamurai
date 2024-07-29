@@ -20,12 +20,21 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	EMissionType MissionType;
 
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Difficulty{ 1 };
+
 protected:
 	UPROPERTY()
 	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;
 
 	UPROPERTY(EditAnywhere)
-	UParticleSystem* IncomingAttackParticle;
+	UParticleSystem* EasyAttackParticle;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* MidAttackParticle;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* HeavyAttackParticle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UEnemyScenarios* EnemyScenarios;

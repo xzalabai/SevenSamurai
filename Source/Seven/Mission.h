@@ -6,6 +6,7 @@
 #include "Mission.generated.h"
 
 class USphereComponent;
+class UMissionDA;
 class AEnemyCharacter;
 
 UENUM(BlueprintType)
@@ -50,14 +51,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	uint32 ID;
 
-	UPROPERTY(EditAnywhere)
-	bool bSideMission{ false };
-
-	UPROPERTY(EditAnywhere)
-	FName MissionName;
-
-	UPROPERTY(EditAnywhere)
-	FName Description;
+	UPROPERTY()
+	UMissionDA* MissionDA{ nullptr };
 
 	UPROPERTY(EditAnywhere)
 	USphereComponent* Area{ nullptr };
@@ -70,15 +65,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	USceneComponent* RootSceneComponent{ nullptr };
-
-	UPROPERTY(EditAnywhere)
-	AMission* SideMission;
-
-	UPROPERTY(EditAnywhere)
-	EMissionType MissionType;
-
-	UPROPERTY(EditAnywhere)
-	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
 
 	UPROPERTY(EditAnywhere)
 	uint32 EnemyCount{ 0 };
@@ -97,12 +83,10 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	void MissionComplete(bool bWin) const;
 	void ActivateMission(bool bEnable);
 	void MissionStarted();
 	void MoveAlliesToPlace();
 	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
-	FORCEINLINE bool IsSideMission() const { return bSideMission; };
 protected:
 	virtual void BeginPlay() override;
 };
