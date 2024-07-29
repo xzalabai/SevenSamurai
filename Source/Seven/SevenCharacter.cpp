@@ -127,7 +127,6 @@ void ASevenCharacter::Fire(const FInputActionValue& Value)
 
 void ASevenCharacter::Block(bool bEnable)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Character %s, Block %d"), *GetName(), bEnable ? 1 : 0);
 	AC_Animation->Block(bEnable);
 
 	if (bEnable)
@@ -283,8 +282,17 @@ void ASevenCharacter::Suicide()
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
-	
+	if (bDebugIsImmortal)
+	{
+		return;
+	}
+
 	ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
+
+	if (!IsAlive())
+	{
+		return;
+	}
 	
 	// CHEAT
 	if (IsSameTeam(Attacker))
@@ -555,12 +563,12 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
 
-	if (ParryAttack(Attacker))
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAllowedHitReaction::Parry) && ParryAttack(Attacker))
 	{
 		return EReceivedHitReaction::Parried;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("SEVEN IS: %s %d"), *GetName(), GetIsBlocking());
-	if (GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAllowedHitReaction::Block) && GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 	{
 		if (AttackInfo.AttackType == EAttackType::Light)
 		{
@@ -582,7 +590,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 
 	}
 
-	if (GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAllowedHitReaction::Block) && GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
 	{
 		return EReceivedHitReaction::Evaded;
 	}

@@ -99,6 +99,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsGuarding{ false };
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bDebugIsImmortal{ false };
+
 	UPROPERTY()
 	uint8 uniqueID = 0;
 
@@ -214,6 +217,7 @@ public:
 	FORCEINLINE class UAICharacter* GetAICharacter() const { return AC_AICharacter; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
+	FORCEINLINE bool IsAllowedHitReaction(int Mask, EAllowedHitReaction AllowedHitReaction) const { return Mask & AllowedHitReaction; }
 	FORCEINLINE bool IsImmortal() const { return bIsImmortal; }
 	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
 	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }

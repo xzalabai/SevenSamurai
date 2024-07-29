@@ -196,11 +196,6 @@ bool UAnimationComponent::Block(bool bEnable)
 	{
 		if (bAttackWasPerformed)
 		{
-			//OnAnimationEnded(nullptr, true);
-			
-		}
-		else
-		{
 			return false;
 		}
 	}
@@ -217,10 +212,13 @@ bool UAnimationComponent::Block(bool bEnable)
 
 bool UAnimationComponent::Guard(bool bEnable)
 {
+	bool& bAttackWasPerformed = bNextComboTriggerEnabled; // We use bNextComboTriggerEnabled also as an indicator of whether attack was already performed
 	if (bEnable && IsAnimationRunning())
 	{
-		UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Guard: "));
-		return false;
+		if (bAttackWasPerformed)
+		{
+			return false;
+		}
 	}
 		
 	ASevenCharacter* SevenCharacter = GetOwnerCharacter();

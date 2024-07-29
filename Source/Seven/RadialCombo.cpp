@@ -21,7 +21,7 @@ void URadialCombo::ComboAttackStart()
 	}
 	UE_LOG(LogTemp, Error, TEXT("[URadialCombo] ComboAttackStart"));
 	TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, StartOffset, EndOffset, Thickness, true);
-	FAttackInfo AttackInfo{ EAttackType::Combo, 0, BaseDamage, Attacker };
+	FAttackInfo AttackInfo{ EAttackType::Combo, EAllowedHitReaction::All, 0, BaseDamage, Attacker };
 	for (ASevenCharacter* Enemy : FoundEnemies)
 	{
 		Enemy->ReceivedHit(AttackInfo);

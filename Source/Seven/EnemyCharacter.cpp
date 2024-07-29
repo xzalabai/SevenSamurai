@@ -103,10 +103,24 @@ void AEnemyCharacter::OnLayingDead()
 
 void AEnemyCharacter::SetDefendReactionInProgress() const
 {
-	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] Set Defend %d"), AC_Animation->IsDefendReactionInProgress() ? 1 : 0);
 	AAIController* AIController = Cast<AAIController>(GetController());
 	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
-	BlackBoardComponent->SetValueAsBool(TEXT("bDefendReactionInProgress"), AC_Animation->IsDefendReactionInProgress());
+	
+	if (!BlackBoardComponent)
+	{
+		return;
+	}
+	FName BBValue = FName(TEXT("bDefendReactionInProgress"));
+	bool const bPreviousValue = BlackBoardComponent->GetValueAsBool(BBValue);
+	bool const bNewValue = AC_Animation->IsDefendReactionInProgress();
+	if (bPreviousValue == bNewValue)
+	{
+		return;
+	}
+	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] Set Defend %d"), bNewValue ? 1 : 0);
+
+	BlackBoardComponent->SetValueAsBool(BBValue, bNewValue);
+	
 }
 
 void AEnemyCharacter::MoveTo(bool bToSevenCharacter)

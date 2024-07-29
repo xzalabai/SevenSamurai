@@ -105,7 +105,7 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 	//int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
 	//int DamageToBeDealt = WeaponDetail.Damage;
 	int DamageToBeDealt = 20;
-	return FAttackInfo(CurrentAttackType, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
+	return FAttackInfo(CurrentAttackType, EAllowedHitReaction::All, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
 }
 
 bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt)

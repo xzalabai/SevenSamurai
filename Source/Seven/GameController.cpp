@@ -43,24 +43,42 @@ void UGameController::SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> M
 	PlayerStats.Position.X -= 200;
 }
 
-void UGameController::ProcessRewards(const UMissionDA* const MissionDA)
+void UGameController::ProcessRewards(const bool bWin, const UMissionDA* const MissionDA)
 {
-	if (MissionDA->SpecialCharacter)
+	if (bWin)
 	{
-		SelectedCharacters.Add(MissionDA->SpecialCharacter);
+		if (MissionDA->SpecialCharacter)
+		{
+			SelectedCharacters.Add(MissionDA->SpecialCharacter);
+		}
+
+		for (const TPair<EItemType, uint16>& Pair : MissionDA->Reward)
+		{
+			if (!PlayerStats.Reward.Contains(Pair.Key))
+			{
+				PlayerStats.Reward.Add(Pair.Key, Pair.Value);
+			}
+			else
+			{
+				PlayerStats.Reward[Pair.Key] = PlayerStats.Reward[Pair.Key] + Pair.Value;
+			}
+		}
+	}
+	else
+	{
+		for (const TPair<EItemType, uint16>& Pair : MissionDA->Reward)
+		{
+			if (!PlayerStats.Reward.Contains(Pair.Key))
+			{
+				PlayerStats.Reward.Add(Pair.Key, (-1)*Pair.Value);
+			}
+			else
+			{
+				PlayerStats.Reward[Pair.Key] = PlayerStats.Reward[Pair.Key] - Pair.Value;
+			}
+		}
 	}
 
-	for (const TPair<EItemType, uint16>& Pair : MissionDA->Reward)
-	{
-		if (!PlayerStats.Reward.Contains(Pair.Key))
-		{
-			PlayerStats.Reward.Add(Pair.Key, Pair.Value);
-		}
-		else
-		{
-			PlayerStats.Reward[Pair.Key] = PlayerStats.Reward[Pair.Key] + Pair.Value;
-		}
-	}
 }
 
 void UGameController::SaveGame()
@@ -173,8 +191,6 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character WON! Changing the Entity to be open!"));
 		Entity.MissionDA->MissionStatus = EStatus::Completed;
 		
-		ProcessRewards(Entity.MissionDA);
-		
 		if (QuestInfo.Quest)
 		{
 			// Finished Mission was part of an active quest.
@@ -191,10 +207,10 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 		{
 			QuestInfo.Quest->QuestStatus = EStatus::Aborted;
 		}
-
 		// flee away with a character
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character LOST!"));
 	}
+	ProcessRewards(bWin, Entity.MissionDA);
 	OpenLevel(FName("Map"));	
 }
 

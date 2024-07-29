@@ -136,7 +136,7 @@ private:
 	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
 	void SaveTime(const FTime& Time);
 	void SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> MVSevenCharacter);
-	void ProcessRewards(const UMissionDA* const MissionDA);
+	void ProcessRewards(const bool bWin, const UMissionDA* const MissionDA);
 	void SaveGame();
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
