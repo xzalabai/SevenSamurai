@@ -105,7 +105,7 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 	//int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
 	//int DamageToBeDealt = WeaponDetail.Damage;
 	int DamageToBeDealt = 20;
-	return FAttackInfo(CurrentAttackType, EAllowedHitReaction::All, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
+	return FAttackInfo(CurrentAttackType, GetOwnerCharacter()->AttackStrength, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
 }
 
 bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt)
@@ -299,6 +299,19 @@ void UAttackComponent::OnAttackStart()
 }
 
 ASevenCharacter* UAttackComponent::GetOwnerCharacter()
+{
+	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
+	{
+		return SevenCharacter;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] SevenCharacter Not found"));
+		return nullptr;
+	}
+}
+
+const ASevenCharacter* UAttackComponent::GetOwnerCharacter() const
 {
 	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
 	{

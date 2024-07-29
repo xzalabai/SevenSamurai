@@ -51,8 +51,23 @@ void AEnemyCharacter::IncomingAttack()
 		// Spawn emitter only if really attacking (enemy has a token)
 		if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EasyAttackParticle,
-				GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+			switch (AttackStrength)
+			{
+				// TODO: Reuse this: Object pool pls!
+				case EAttackStrength::Light:
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EasyAttackParticle,
+						GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+					break;
+				case EAttackStrength::Mid:
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MidAttackParticle,
+						GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+					break;
+				case EAttackStrength::Heavy:
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HeavyAttackParticle,
+						GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+					break;
+			}
+
 		}
 	}
 }
@@ -182,6 +197,11 @@ UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
 {
 	check(EnemyScenarios->EnemyScenarios.Contains(MissionType))
 	return EnemyScenarios->EnemyScenarios[MissionType];
+}
+
+void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)
+{
+	AttackStrength = NewAttackStrength;
 }
 
 void AEnemyCharacter::ReturnAttackToken()

@@ -563,12 +563,12 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
 
-	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAllowedHitReaction::Parry) && ParryAttack(Attacker))
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanParry) && ParryAttack(Attacker))
 	{
 		return EReceivedHitReaction::Parried;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("SEVEN IS: %s %d"), *GetName(), GetIsBlocking());
-	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAllowedHitReaction::Block) && GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanBlock) && GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 	{
 		if (AttackInfo.AttackType == EAttackType::Light)
 		{
@@ -590,7 +590,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 
 	}
 
-	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAllowedHitReaction::Block) && GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanEvade) && GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
 	{
 		return EReceivedHitReaction::Evaded;
 	}

@@ -81,6 +81,9 @@ protected:
 	UPROPERTY()
 	ASevenCharacter* TargetedEnemy{ nullptr };
 
+	UPROPERTY(BlueprintReadOnly)
+	EAttackStrength AttackStrength{ EAttackStrength::Light };
+
 	UPROPERTY(EditDefaultsOnly)
 	bool bEnemy;
 
@@ -217,7 +220,7 @@ public:
 	FORCEINLINE class UAICharacter* GetAICharacter() const { return AC_AICharacter; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
-	FORCEINLINE bool IsAllowedHitReaction(int Mask, EAllowedHitReaction AllowedHitReaction) const { return Mask & AllowedHitReaction; }
+	FORCEINLINE bool IsAllowedHitReaction(const EAttackStrength Mask, const EAttackStrength UsedAttackStrength) const { return static_cast<uint8>(Mask) & static_cast<uint8>(UsedAttackStrength); }
 	FORCEINLINE bool IsImmortal() const { return bIsImmortal; }
 	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
 	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }

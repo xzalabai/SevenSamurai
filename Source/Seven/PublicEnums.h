@@ -20,14 +20,17 @@ enum class EAttackType
 };
 
 UENUM(BlueprintType)
-enum EAllowedHitReaction
+enum class EAttackStrength : uint8
 {
 	// I feel immortal after writing this
 	None = 0b000, // Should not be used
-	All = 0b111,
-	Block = 0b001,
-	Parry = 0b010,
-	Evade = 0b100,
+	CanBlock = 0b001,
+	CanParry = 0b010,
+	CanEvade = 0b100,
+
+	Light = 0b111,
+	Mid = 0b110,
+	Heavy = 0b100,
 };
 
 UENUM(BlueprintType)
@@ -114,7 +117,7 @@ enum class EOctagonalDirection
 struct FAttackInfo
 {
 	FAttackInfo() = default;
-	FAttackInfo(EAttackType AttackType, EAllowedHitReaction AllowedHitReaction, uint8 AttackTypeMontage, uint8 Damage, AActor* Attacker)
+	FAttackInfo(const EAttackType AttackType, const EAttackStrength AllowedHitReaction, const uint8 AttackTypeMontage, const uint8 Damage, AActor* Attacker)
 		: AttackType(AttackType),
 		AllowedHitReaction(AllowedHitReaction),
 		AttackTypeMontage(AttackTypeMontage),
@@ -124,13 +127,13 @@ struct FAttackInfo
 	void Reset()
 	{
 		AttackType = EAttackType::None;
-		AllowedHitReaction = EAllowedHitReaction::All;
+		AllowedHitReaction = EAttackStrength::Light;
 		AttackTypeMontage = 0;
 		Damage = 0;
 		Attacker = nullptr;
 	}
 	EAttackType AttackType = EAttackType::None;
-	EAllowedHitReaction AllowedHitReaction = EAllowedHitReaction::All;
+	EAttackStrength AllowedHitReaction = EAttackStrength::Light;
 	uint8 AttackTypeMontage = 0;
 	uint8 Damage;
 	AActor* Attacker;

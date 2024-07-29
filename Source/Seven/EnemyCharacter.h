@@ -73,6 +73,8 @@ protected:
 	void SetLightAttacksAmount(int Amount);
 	UFUNCTION(BlueprintCallable)
 	UBehaviorTree* GetBehaviorTree() const;
+	UFUNCTION(BlueprintCallable)
+	void SetAttackStrength(EAttackStrength NewAttackStrength);
 
 	void ReturnAttackToken();
 };

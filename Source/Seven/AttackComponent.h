@@ -24,6 +24,7 @@ class SEVEN_API UAttackComponent : public UActorComponent
 private:
 	UAnimInstance* GetOwnerAnimInstance();
 	ASevenCharacter* GetOwnerCharacter();
+	const ASevenCharacter* GetOwnerCharacter() const;
 
 	int MaxSections = -1;
 	int CurrentSection = -1;
