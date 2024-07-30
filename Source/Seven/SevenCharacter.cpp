@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "AICharacter.h"
 #include "Weapon.h"
+#include "Shield.h"
 #include "Combo.h"	
 #include "MotionWarpingComponent.h"
 #include "AnimationsDA.h"
@@ -74,11 +75,18 @@ void ASevenCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	check(WeaponType);
+
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
-	USkeletalMeshComponent* PlayerMesh = GetMesh();
 	if (EquippedWeapon)
 	{
+		USkeletalMeshComponent* PlayerMesh = GetMesh();
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
+	}
+	if (SevenCharacterType == ESevenCharacterType::Lancet)
+	{
+		USkeletalMeshComponent* PlayerMesh = GetMesh();
+		EquippedShield = GetWorld()->SpawnActor<AShield>(ShieldType);
+		EquippedShield->AttachToSocket(PlayerMesh, "hand_lSocket");
 	}
 	
 	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
@@ -319,6 +327,11 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Blocked)
 	{
+		if (SevenCharacterType == ESevenCharacterType::Lancet)
+		{
+			// Shield
+			Attacker->AttackWasParried();
+		}
 		if (AttackInfo.AttackType == EAttackType::Heavy)
 		{
 			AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::BlockBroken, true);
@@ -326,7 +339,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		}
 		else
 		{
-			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, Animations->Montages[EMontageType::Block]->CompositeSections.Num());
+			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, Animations->Montages[EMontageType::Block]->CompositeSections.Num() - 1);
 			AC_Animation->Play(Animations->Montages[EMontageType::Block], RandomMontageStr, EMontageType::Block, true);
 			return;
 		}
@@ -567,7 +580,6 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 	{
 		return EReceivedHitReaction::Parried;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("SEVEN IS: %s %d"), *GetName(), GetIsBlocking());
 	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanBlock) && GetIsBlocking() && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 	{
 		if (AttackInfo.AttackType == EAttackType::Light)

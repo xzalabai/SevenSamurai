@@ -29,7 +29,7 @@ AWeapon::AWeapon()
 
 void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName)
 {
-	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, "hand_rSocket");
+	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, SocketName);
 	FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
 	SetActorTransform(SocketTransform);
 

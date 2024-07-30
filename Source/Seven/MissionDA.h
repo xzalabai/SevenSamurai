@@ -44,7 +44,7 @@ struct SEVEN_API FUMissionDT : public FTableRowBase
 	EMissionType MissionType;
 
 	UPROPERTY(EditAnywhere)
-	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
+	TMap<TSubclassOf<AEnemyCharacter>, int> EnemiesToSpawn;
 
 	UPROPERTY(EditAnywhere)
 	TMap<EItemType, int32> Reward;
@@ -87,7 +87,7 @@ public:
 	EMissionType MissionType;
 
 	UPROPERTY(EditAnywhere)
-	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
+	TMap<TSubclassOf<AEnemyCharacter>, int> EnemiesToSpawn;
 
 	UPROPERTY(EditAnywhere)
 	TMap<EItemType, int32> Reward;

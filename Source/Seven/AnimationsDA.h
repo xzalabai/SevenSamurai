@@ -10,7 +10,7 @@ class UAnimMontage;
 USTRUCT(BlueprintType)
 struct FAnimationReaction
 {
-	GENERATED_BODY()
+	GENERATED_BODY()	
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TMap<EMontageType, UAnimMontage*> AnimationMapping;

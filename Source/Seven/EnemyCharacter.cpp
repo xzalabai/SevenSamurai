@@ -37,8 +37,6 @@ void AEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);
-
-	check(EnemyScenarios);
 	check(MissionType != EMissionType::NotProvided);
 }
 
@@ -171,7 +169,6 @@ void AEnemyCharacter::NextAttackAvailable()
 
 void AEnemyCharacter::DefendActionResolved()
 {
-	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] DefendActionResolved"));
 	AAIController* AIController = Cast<AAIController>(GetController());
 	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 	BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
@@ -195,8 +192,8 @@ void AEnemyCharacter::SetLightAttacksAmount(int Amount)
 
 UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
 {
-	check(EnemyScenarios->EnemyScenarios.Contains(MissionType))
-	return EnemyScenarios->EnemyScenarios[MissionType];
+	//check(EnemyScenarios->EnemyScenarios.Contains(MissionType))
+	return EnemyScenarios->EnemyScenarios[SevenCharacterType];
 }
 
 void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)

@@ -6,11 +6,11 @@
 #include "EnhancedInputComponent.h"
 #include "SevenCharacter.generated.h"
 
-
 class UAnimMontage;
 class AWeapon;
 class AThrowingKnife;
 class UAICharacter;
+class AShield;
 class UAnimationComponent;
 class UAnimationsDA;
 class ASevenPlayerController;
@@ -69,11 +69,17 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> WeaponType;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AShield> ShieldType;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* VictimDesiredPosition;
 
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY()
+	AShield* EquippedShield;
 
 	UPROPERTY(VisibleAnywhere)
 	USevenCharacterDA* SevenCharacterDA;

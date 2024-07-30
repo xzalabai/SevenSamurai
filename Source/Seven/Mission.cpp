@@ -68,12 +68,12 @@ void AMission::MissionStarted()
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	SevenCharacterCount = GameController->SelectedCharacters.Num();
 
-	for (const TPair<int32, TSubclassOf<AEnemyCharacter>>& Pair : MissionDA->EnemiesToSpawn)
+	for (const TPair<TSubclassOf<AEnemyCharacter>, int32>& Pair : MissionDA->EnemiesToSpawn)
 	{
-		for (int i = 0; i < Pair.Key; i++)
+		for (int i = 0; i < Pair.Value; i++)
 		{
 			const FTransform T(EnemySpawns[i % EnemySpawns.Num()]->GetComponentRotation(), EnemySpawns[i % EnemySpawns.Num()]->GetComponentLocation());
-			AEnemyCharacter* Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(Pair.Value, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+			AEnemyCharacter* Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(Pair.Key, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 			Enemy->MissionType = MissionDA->MissionType;
 			Enemy->Difficulty = MissionDA->Difficulty;
 			// Set AI

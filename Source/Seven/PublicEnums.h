@@ -49,6 +49,7 @@ enum class ESevenCharacterType : uint8
 	NotProvided = 0,
 	Classic = 1,
 	Halbert = 2,
+	Lancet = 3,
 };
 
 UENUM(BlueprintType)

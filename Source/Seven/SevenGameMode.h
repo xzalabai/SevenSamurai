@@ -40,7 +40,7 @@ private:
 	EMissionType MissionType;
 
 	UPROPERTY(EditAnywhere) // TODO Remove for final - this is only for DEBUG! when u start game in combat 
-	TMap<int, TSubclassOf<AEnemyCharacter>> EnemiesToSpawn;
+	TMap<TSubclassOf<AEnemyCharacter>, int> EnemiesToSpawn;
 
 	bool bIsDebugBattle{ false };
 
