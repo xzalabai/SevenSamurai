@@ -80,6 +80,8 @@ enum class EMontageType : uint8
 	HeavyAttackHitReactionDeath,
 };
 
+static const TArray<EMontageType> AttackMontages{ EMontageType::LightAttack, EMontageType::HeavyAttack };
+
 UENUM(BlueprintType)
 enum class EWeaponLevel : uint8
 {

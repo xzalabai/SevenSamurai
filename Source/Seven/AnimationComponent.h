@@ -53,6 +53,7 @@ private:
 	EMontageType CurrentMontageType = EMontageType::None;
 	EMontageType NextMontageType = EMontageType::None;
 	FAnimationToPlay AnimationToPlay;
+	ASevenCharacter* CachedSevenCharacter{ nullptr };
 	
 public:		
 	UAnimationComponent();
@@ -76,6 +77,7 @@ public:
 	bool Guard(bool bEnable);
 	bool IsDefendReactionInProgress() const;
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
+	FORCEINLINE bool IsAttackAnimationRunning() const { return (bActiveMontageRunning && AttackMontages.Contains(CurrentMontageType)); }
 	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontageType; }
 	FName GetCurrentMontageSection();
 

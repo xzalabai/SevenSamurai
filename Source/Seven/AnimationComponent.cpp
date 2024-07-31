@@ -15,23 +15,24 @@ UAnimationComponent::UAnimationComponent()
 
 void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (const ASevenCharacter* SevenCharacter = GetOwnerCharacter())
+	if (CachedSevenCharacter && CachedSevenCharacter->CanBePossessed() && CachedSevenCharacter->GetIsGuarding()) // TODO REMOVE FIRST CONDITION!!!
 	{
-		if (SevenCharacter->CanBePossessed() && SevenCharacter->GetIsGuarding()) // TODO REMOVE FIRST CONDITION!!!
+		if (LockedEnemy)
 		{
-			if (LockedEnemy)
-			{
-				ASevenPlayerController* PlayerController = SevenCharacter->GetSevenPlayerController(); // TODO: Why I cannot assign directly to APlayerController ??????
-				FRotator Rot = UKismetMathLibrary::FindLookAtRotation(SevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
-				Rot.Pitch = Rot.Pitch - 25.0f;
-				PlayerController->SetControlRotation(Rot);
-			}
-			else
-			{
-				Guard(false);
-			}
+			ASevenPlayerController* PlayerController = CachedSevenCharacter->GetSevenPlayerController(); // TODO: Why I cannot assign directly to APlayerController ??????
+			FRotator Rot = UKismetMathLibrary::FindLookAtRotation(CachedSevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
+			Rot.Pitch = Rot.Pitch - 25.0f;
+			PlayerController->SetControlRotation(Rot);
 		}
-		
+		else
+		{
+			Guard(false);
+		}
+	}
+	
+	if (IsAttackAnimationRunning() && CachedSevenCharacter->TargetedEnemy)
+	{
+		WarpAttacker(FString(), CachedSevenCharacter->TargetedEnemy);
 	}
 }
 
@@ -56,7 +57,7 @@ void UAnimationComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] SevenCharacter Not found"));
 	}
 	
-	
+	CachedSevenCharacter = GetOwnerCharacter();
 }
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt)
@@ -72,16 +73,15 @@ void UAnimationComponent::PlayAfterCurrent(UAnimMontage* AnimMontage, const FNam
 
 void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim)
 {
-	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 	// TODO: Understand and FIX this when you will have enough strenght solider
 	const FVector Direction = (Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation()) * Victim->GetActorForwardVector().GetSafeNormal();
-	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Victim->GetActorLocation(), SevenCharacter->GetActorLocation());
+	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Victim->GetActorLocation(), CachedSevenCharacter->GetActorLocation());
 	const FVector FinalPosition = Rotation.RotateVector(FVector(Direction.X, 0, 0)) + Victim->GetActorLocation();
 	Rotation.Yaw = Rotation.Yaw - 180;
 	FTransform T(Rotation, FinalPosition);
 
-	//DrawDebugCoordinateSystem(GetWorld(), T.GetTranslation(), T.GetRotation().Rotator(), 100, true);
-	SevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
+	//DrawDebugDirectionalArrow(GetWorld(), FinalPosition, Victim->GetActorLocation(), 12, FColor::Black, true, -1);
+	CachedSevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
 }
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt)
@@ -98,7 +98,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		if (bActiveMontageRunning && bNextComboTriggerEnabled)
 		{
 			NextMontageType = EMontageType::LightAttack;
-			GetOwnerCharacter()->StopAnimMontage();
+			CachedSevenCharacter->StopAnimMontage();
 		}
 		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
 		{
@@ -122,21 +122,20 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 		if (bCanInterrupt && bActiveMontageRunning)
 		{
 			NextMontageType = MontageType;
-			GetOwnerCharacter()->StopAnimMontage();
+			CachedSevenCharacter->StopAnimMontage();
 		}
 	}
 
-	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
 	UAnimInstance* AnimInstance = GetOwnerAnimInstance();
 
-	if (!SevenCharacter || !AnimInstance)
+	if (!CachedSevenCharacter || !AnimInstance)
 	{
 		return false;
 	}
 	
 	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play Animation %s, section:"), *AnimMontage->GetName(), *SectionName.ToString());
 
-	SevenCharacter->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
+	CachedSevenCharacter->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
 	bActiveMontageRunning = true;
 	CurrentMontageType = MontageType;
@@ -158,7 +157,7 @@ ASevenCharacter* UAnimationComponent::GetOwnerCharacter()
 
 UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 {
-	if (UAnimInstance* AnimInstance = GetOwnerCharacter()->GetMesh()->GetAnimInstance())
+	if (UAnimInstance* AnimInstance = CachedSevenCharacter->GetMesh()->GetAnimInstance())
 	{
 		return AnimInstance;
 	}
@@ -171,16 +170,16 @@ UAnimInstance* UAnimationComponent::GetOwnerAnimInstance()
 
 void UAnimationComponent::OnLayingDead()
 {
-	USkeletalMeshComponent* PlayerMesh = GetOwnerCharacter()->GetMesh();
+	USkeletalMeshComponent* PlayerMesh = CachedSevenCharacter->GetMesh();
 	PlayerMesh->SetCollisionProfileName("Ragdoll");
 	PlayerMesh->SetSimulatePhysics(true);
 	LockedEnemy = nullptr;
-	GetOwnerCharacter()->OnLayingDead();
+	CachedSevenCharacter->OnLayingDead();
 }
 
 void UAnimationComponent::OnEvadeEnded()
 {
-	GetOwnerCharacter()->bIsEvading = false;
+	CachedSevenCharacter->bIsEvading = false;
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -200,12 +199,11 @@ bool UAnimationComponent::Block(bool bEnable)
 		}
 	}
 
-	ASevenCharacter* const SevenCharacter = GetOwnerCharacter();
-	SevenCharacter->bIsBlocking = bEnable;
-	SevenCharacter->bIsGuarding = false;
-	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
-	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : (SevenCharacter->GetIsGuarding() ? 200 : 600);
+	CachedSevenCharacter->bIsBlocking = bEnable;
+	CachedSevenCharacter->bIsGuarding = false;
+	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : (CachedSevenCharacter->GetIsGuarding() ? 200 : 600);
 
 	return true;
 }
@@ -221,16 +219,15 @@ bool UAnimationComponent::Guard(bool bEnable)
 		}
 	}
 		
-	ASevenCharacter* SevenCharacter = GetOwnerCharacter();
-	SevenCharacter->bIsBlocking = false;
-	SevenCharacter->bIsGuarding = bEnable;
-	SevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
-	SevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	SevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
+	CachedSevenCharacter->bIsBlocking = false;
+	CachedSevenCharacter->bIsGuarding = bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
 
 	if (bEnable)
 	{
-		const TArray<ASevenCharacter*> FoundEnemies = SevenCharacter->GetEnemiesInFrontOfCharacer(-1, 200, 1000, 100, true);
+		const TArray<ASevenCharacter*> FoundEnemies = CachedSevenCharacter->GetEnemiesInFrontOfCharacer(-1, 200, 1000, 100, true);
 		if (FoundEnemies.Num() > 0)
 		{
 			LockedEnemy = FoundEnemies[0];
@@ -267,7 +264,7 @@ FName UAnimationComponent::GetCurrentMontageSection()
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
-		*Montage->GetName(), (int)CurrentMontageType, *GetOwnerCharacter()->GetName(), bInterrupted ? 1 :0);
+		*Montage->GetName(), (int)CurrentMontageType, *CachedSevenCharacter->GetName(), bInterrupted ? 1 :0);
 
 	const EMontageType StoppedMontage = CurrentMontageType;
 	
@@ -282,8 +279,8 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 		CurrentMontageType = NextMontageType;
 	}
 	
-	GetOwnerCharacter()->OnAnimationEnded(StoppedMontage, NextMontageType);
-	GetOwnerCharacter()->AC_AttackComponent->OnAnimationEnded(StoppedMontage, NextMontageType);
+	CachedSevenCharacter->OnAnimationEnded(StoppedMontage, NextMontageType);
+	CachedSevenCharacter->AC_AttackComponent->OnAnimationEnded(StoppedMontage, NextMontageType);
 	
 	if (CurrentMontageType == EMontageType::LightAttack && !bInterrupted)
 	{

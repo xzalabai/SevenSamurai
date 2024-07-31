@@ -563,7 +563,7 @@ bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy) const
 
 void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 {
-	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation() + GetActorForwardVector(), Actor->GetActorLocation());
+	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Actor->GetActorLocation());
 	RootComponent->SetWorldRotation(PlayerRot);
 
 	if (Shift != 0)

@@ -54,10 +54,11 @@ const FVector UAICharacter::GetRandomGuardPointAroundEnemy(const ASevenCharacter
 	const FVector EnemyForwardVector = Enemy->GetActorForwardVector();
 	
 	const int Left = FMath::RandBool() ? (-1) : 1;
-	const int RandomOffsetX = FMath::RandRange(500, 1000);
-	const int RandomOffsetY = FMath::RandRange(500, 2000) * Left;
+	//const int RandomOffsetX = FMath::RandRange(500, 1000);
+	const int RandomOffsetX = FMath::RandRange(20, 500);
+	const int RandomOffsetY = FMath::RandRange(20, 500) * Left;
 
-	const FVector EnemyForwardVectorOffset = FVector(EnemyForwardVector.X * RandomOffsetX, EnemyForwardVector.Y * RandomOffsetY, EnemyForwardVector.Z);
+	const FVector EnemyForwardVectorOffset = FVector(EnemyForwardVector.X + RandomOffsetX, EnemyForwardVector.Y + RandomOffsetY, EnemyForwardVector.Z);
 
 	const FVector FinalDestination = FVector(EnemyPosition.X + EnemyForwardVectorOffset.X, EnemyPosition.Y + EnemyForwardVectorOffset.Y, EnemyPosition.Z);
 
