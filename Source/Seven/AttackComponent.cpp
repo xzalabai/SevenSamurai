@@ -102,7 +102,6 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, cons
 FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	// TODO: Damage based on weapon
-	//int DamageToBeDealt = 11 * (CurrentAttackType == EAttackType::Light ? 1 : 2.0f);
 	//int DamageToBeDealt = WeaponDetail.Damage;
 	int DamageToBeDealt = 20;
 	return FAttackInfo(CurrentAttackType, GetOwnerCharacter()->AttackStrength, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
@@ -256,7 +255,7 @@ void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
 	CombosMapping.Emplace(Index, NewObject<UObject>(this, TypeOfCombo));
 	
 	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[Index]);
-	if (Combo)
+	if (Combo && GetOwnerCharacter()->SevenCharacterDA)
 	{
 		GetOwnerCharacter()->SevenCharacterDA->Combos.Add(Combo->GetComboName());
 	}

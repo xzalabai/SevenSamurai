@@ -13,6 +13,8 @@ UCLASS()
 class SEVEN_API AThrowingKnife : public AActor
 {
 	GENERATED_BODY()
+
+	friend class UKnifeThrowCombo;
 	
 public:	
 	AThrowingKnife();

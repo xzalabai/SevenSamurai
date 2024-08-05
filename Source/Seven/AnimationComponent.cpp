@@ -30,7 +30,7 @@ void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		}
 	}
 	
-	if (IsAttackAnimationRunning() && CachedSevenCharacter->TargetedEnemy)
+	if (IsAttackAnimationRunning() && CachedSevenCharacter && CachedSevenCharacter->TargetedEnemy)
 	{
 		WarpAttacker(FString(), CachedSevenCharacter->TargetedEnemy);
 	}
@@ -39,25 +39,11 @@ void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UAnimationComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	EndDelegate.BindUObject(this, &UAnimationComponent::OnAnimationEnded);
-
-	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner()))
-	{
-		if (UAnimInstance* AnimInstance = SevenCharacter->GetMesh()->GetAnimInstance())
-		{
-			AnimInstance->Montage_SetEndDelegate(EndDelegate);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] AnimInstance Not found for %s"), *SevenCharacter->GetName());
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] SevenCharacter Not found"));
-	}
-	
 	CachedSevenCharacter = GetOwnerCharacter();
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	EndDelegate.BindUObject(this, &UAnimationComponent::OnAnimationEnded);
+	UAnimInstance* AnimInstance = CachedSevenCharacter->GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_SetEndDelegate(EndDelegate);	
 }
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt)
@@ -193,7 +179,7 @@ bool UAnimationComponent::Block(bool bEnable)
 	
 	if (bEnable && IsAnimationRunning())
 	{
-		if (bAttackWasPerformed)
+		if (!bAttackWasPerformed)
 		{
 			return false;
 		}
@@ -203,7 +189,7 @@ bool UAnimationComponent::Block(bool bEnable)
 	CachedSevenCharacter->bIsGuarding = false;
 	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : (CachedSevenCharacter->GetIsGuarding() ? 200 : 600);
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? BlockSpeed : (CachedSevenCharacter->GetIsGuarding() ? GuardSpeed : WalkSpeed);
 
 	return true;
 }
@@ -223,7 +209,7 @@ bool UAnimationComponent::Guard(bool bEnable)
 	CachedSevenCharacter->bIsGuarding = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? 200 : 600;
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? GuardSpeed : WalkSpeed;
 
 	if (bEnable)
 	{

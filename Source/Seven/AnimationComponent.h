@@ -54,6 +54,14 @@ private:
 	EMontageType NextMontageType = EMontageType::None;
 	FAnimationToPlay AnimationToPlay;
 	ASevenCharacter* CachedSevenCharacter{ nullptr };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int BlockSpeed{ 190 };
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int GuardSpeed{ 170 };
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int WalkSpeed{ 600 };
+
 	
 public:		
 	UAnimationComponent();

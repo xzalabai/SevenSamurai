@@ -50,6 +50,7 @@ enum class ESevenCharacterType : uint8
 	Classic = 1,
 	Halbert = 2,
 	Lancet = 3,
+	Archer = 4,
 };
 
 UENUM(BlueprintType)

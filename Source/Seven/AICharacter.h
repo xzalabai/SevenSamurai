@@ -15,16 +15,13 @@ class SEVEN_API UAICharacter : public UActorComponent
 
 public:	
 	UAICharacter();
-	void MoveTo(bool bToSevenCharacter);
+	
 	void MoveTo(const FVector& Position);
-	ASevenCharacter* SelectEnemy();
-	const FVector GetRandomGuardPointAroundEnemy(const ASevenCharacter* const Enemy);
 	void RequestFinished(FAIRequestID x, const FPathFollowingResult& xx);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsMovementFinished();
 	UFUNCTION(BlueprintCallable)
 	void ResetMovementFinished();
-	virtual void Fire();
 	void FollowSevenCharacter(const ASevenCharacter* SevenCharacter);
 	
 private:

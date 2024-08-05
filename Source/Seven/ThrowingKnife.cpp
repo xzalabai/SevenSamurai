@@ -20,7 +20,7 @@ AThrowingKnife::AThrowingKnife()
 	ParticleSystem->SetupAttachment(TriggerCollider);
 
 	ProjectileMovementComponent->SetUpdatedComponent(TriggerCollider);
-	ProjectileMovementComponent->InitialSpeed = 1500;
+	ProjectileMovementComponent->InitialSpeed = 2500;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 }
 
@@ -28,7 +28,6 @@ void AThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 	TriggerCollider->OnComponentHit.AddUniqueDynamic(this, &AThrowingKnife::OnHit);
-	AttackInfo = FAttackInfo(EAttackType::Combo, EAttackStrength::Light, -1, 5, GetOwner());
 }
 
 void AThrowingKnife::DestroyActor()
@@ -38,16 +37,16 @@ void AThrowingKnife::DestroyActor()
 
 void AThrowingKnife::FireInDirection(const FVector& ShootDirection)
 {
-	FVector StartLocation(0, 0, 0);
-	FVector EndLocation(100, 0, 0);
-	FColor DebugColor(255, 0, 0); // Red color
-	FColor DebugColor2(0, 255, 0); // Red color
-	float ArrowSize = 10.0f;
-	float Thickness = 2.0f;
-	float Duration = 5.0f;
-	uint8 DepthPriority = 0; // Default depth priority
-	float Length = -1.0f; // Length of the arrow shaft, -1 to use default
-	DrawDebugPoint(GetWorld(), ShootDirection, ArrowSize, DebugColor2, true, Duration, DepthPriority);
+	//FVector StartLocation(0, 0, 0);
+	//FVector EndLocation(100, 0, 0);
+	//FColor DebugColor(255, 0, 0); // Red color
+	//FColor DebugColor2(0, 255, 0); // Red color
+	//float ArrowSize = 10.0f;
+	//float Thickness = 2.0f;
+	//float Duration = 5.0f;
+	//uint8 DepthPriority = 0; // Default depth priority
+	//float Length = -1.0f; // Length of the arrow shaft, -1 to use default
+	//DrawDebugPoint(GetWorld(), ShootDirection, ArrowSize, DebugColor2, true, Duration, DepthPriority);
 
 	UE_LOG(LogTemp, Display, TEXT("[AThrowingKnife] FireInDirection"));
 

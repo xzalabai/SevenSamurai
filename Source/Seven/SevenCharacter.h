@@ -19,7 +19,7 @@ class UAttackComponent;
 class UAttributesComponent;
 class UMotionWarpingComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndDelegate); // Serves for Behavior Tree (BTT Attack callbacks)
 
 UENUM(BlueprintType)
 enum class EReceivedHitReaction : uint8
@@ -163,6 +163,7 @@ public:
 	void PerformWeaponTrace();
 	FORCEINLINE bool CanBePossessed() const { return !bEnemy; }
 	FORCEINLINE bool IsEnemy() const { return bEnemy; }
+	virtual const EAttackStrength GetAttackStrength() const;
 
 protected:
 	// Controllable Int
@@ -191,10 +192,6 @@ protected:
 	virtual void NextComboTriggered(bool bEnable);
 	UFUNCTION(BlueprintCallable)
 	virtual void NextAttackAvailable();
-	UFUNCTION(BlueprintCallable)
-	virtual void AI_Fire();
-	UFUNCTION(BlueprintCallable)
-	virtual void AI_MoveTo(bool bToSevenCharacter, bool bBlockingStance);
 	UFUNCTION(BlueprintCallable)
 	virtual void AI_MoveToPosition(const FVector& Position);
 

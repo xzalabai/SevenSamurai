@@ -9,7 +9,6 @@ void UKnifeThrowCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(AttackerActor);
 	if (SevenCharacter->AC_Animation->Play(ThrowAnimation, "Default", EMontageType::LightAttack, false))
 	{
-		SevenCharacter->AC_AttackComponent->CurrentAttackType = EAttackType::Combo;
 		Attacker = SevenCharacter;
 	}
 }
@@ -22,14 +21,6 @@ void UKnifeThrowCombo::ComboAttackStart()
 		return;
 	}
 
-	const TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, 0, 1600, 300, true);
-
-	if (FoundEnemies.Num() == 0)
-	{
-		// Throw in front of you
-		return;
-	}
-
 	FVector Vector = Attacker->GetMesh()->GetSocketLocation("hand_rSocket");
 	Vector = Vector + Attacker->GetActorForwardVector() * 50;
 	const FRotator Rotation = FRotator::ZeroRotator;
@@ -37,7 +28,9 @@ void UKnifeThrowCombo::ComboAttackStart()
 	FActorSpawnParameters ActorSpawnParameters;
 	ActorSpawnParameters.Owner = Attacker;
 	TObjectPtr<AThrowingKnife> ThrowingKnife = GetWorld()->SpawnActor<AThrowingKnife>(ThrowingKnifeClass, Vector, Rotation, ActorSpawnParameters);
-	ThrowingKnife->FireInDirection(FoundEnemies[0]->GetActorLocation());
+	EAttackType AttackType = Attacker->IsEnemy() ? EAttackType::Throw : EAttackType::Combo; // redefine it (due to incosistency between Throw of Enemy and Throw of Seven
+	ThrowingKnife->AttackInfo = FAttackInfo(AttackType, Attacker->GetAttackStrength(), -1, 5, Attacker);
+	ThrowingKnife->FireInDirection(Attacker->TargetedEnemy->GetActorLocation());
 }
 
 void UKnifeThrowCombo::ComboAttackEnd()
