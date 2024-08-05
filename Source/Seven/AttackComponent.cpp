@@ -7,6 +7,7 @@
 #include "AnimationsDA.h"
 #include "Weapon.h"
 #include "ThrowingKnife.h"
+#include "EnemyCharacter.h"
 
 UAttackComponent::UAttackComponent()
 {
@@ -30,6 +31,8 @@ void UAttackComponent::BeginPlay()
 	{
 		WeaponDetail = FWeaponDetail(200, EWeaponLevel::One);
 	}
+
+	CachedSevenCharacter = GetOwnerCharacter();
 }
 
 
@@ -42,22 +45,28 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 {
 	if (CurrentAttackType != EAttackType::Heavy && CurrentAttackType != EAttackType::Light)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackMontageToBePlayed.CurrentAttackType == %d "), (int)CurrentAttackType);
+		UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]GetAttackMontageToBePlayed.CurrentAttackType == %d "), (int)CurrentAttackType);
 		return TPair<UAnimMontage*, FName>(nullptr, FName());
 	}
 
-	const ASevenCharacter* SevenCharacter = GetOwnerCharacter();
-	UAnimMontage* MontageToBePlayed = CurrentAttackType == EAttackType::Light ? GetOwnerCharacter()->Animations->Montages[EMontageType::LightAttack] : GetOwnerCharacter()->Animations->Montages[EMontageType::HeavyAttack];
+	UAnimMontage* MontageToBePlayed = CurrentAttackType == EAttackType::Light ? GetOwnerCharacter()->Animations->Montages[EMontageType::LightAttack]
+		: CachedSevenCharacter->Animations->Montages[EMontageType::HeavyAttack];
 
-	if (SevenCharacter->AC_Animation->GetCurrentMontageSection() == NAME_None)
+	if (CanPlayRandomAttackMontage())
 	{
-		// No Animation in progress
+		// We allow Enemy to play random Attack Montage
+		CurrentSection = FMath::RandRange(1, MontageToBePlayed->CompositeSections.Num());
+	}
+	else
+	{
+		// Play same montage for Seven
 		CurrentSection = 1;
 	}
-	if (SevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
+
+	if (CachedSevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
 	{
 		// Some Attack animation is in progress
-		CurrentSection = CustomMath::FNameToInt(SevenCharacter->AC_Animation->GetCurrentMontageSection());
+		CurrentSection = CustomMath::FNameToInt(CachedSevenCharacter->AC_Animation->GetCurrentMontageSection());
 		if (CurrentSection < MontageToBePlayed->CompositeSections.Num())
 		{
 			// We can still iterate
@@ -66,7 +75,6 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 		else
 		{
 			CurrentSection = 1;
-			// TODO: HERE SHOULD BE COOLDOWN!
 		}
 
 	}
@@ -202,6 +210,22 @@ bool UAttackComponent::IsComboAttack()
 int UAttackComponent::GetWeaponDamage() const
 {
 	return WeaponDetail.Damage;
+}
+
+bool UAttackComponent::CanPlayRandomAttackMontage() const
+{
+	if (!CachedSevenCharacter->IsEnemy() || CachedSevenCharacter->AC_Animation->GetCurrentMontageSection() != NAME_None)
+	{
+		return false;
+	}
+	
+	const AEnemyCharacter* Enemy = Cast<AEnemyCharacter>(CachedSevenCharacter);
+	if (Enemy->GetLightAttacksAmount() == 0)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void UAttackComponent::UseCombo(const ECombo& Special)

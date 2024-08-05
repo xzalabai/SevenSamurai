@@ -26,6 +26,8 @@ private:
 	ASevenCharacter* GetOwnerCharacter();
 	const ASevenCharacter* GetOwnerCharacter() const;
 
+	ASevenCharacter* CachedSevenCharacter{ nullptr };
+
 	int MaxSections = -1;
 	int CurrentSection = -1;
 
@@ -66,6 +68,7 @@ public:
 	void ComboAttackStart();
 	void ComboAttackEnd();
 	int GetWeaponDamage() const;
+	bool CanPlayRandomAttackMontage() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponDamage(const int NewDamage);

@@ -48,6 +48,7 @@ protected:
 
 public:
 	AEnemyCharacter();
+	FORCEINLINE int GetLightAttacksAmount() const { return LightAttacksAmount; };
 protected:
 	virtual void BeginPlay();
 

@@ -610,14 +610,21 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 	{
 		if (AttackInfo.AttackType == EAttackType::Light && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 		{
-			if (AttackInfo.AttackTypeMontage < 3)
+			if (IsEnemy())
+			{
+				if (AttackInfo.AttackTypeMontage < 3)
+				{
+					return EReceivedHitReaction::Blocked;
+				}
+				else
+				{
+					Block(false);
+					return EReceivedHitReaction::BlockBroken;
+				}
+			}
+			else
 			{
 				return EReceivedHitReaction::Blocked;
-			}
-			else if (IsEnemy())
-			{
-				Block(false);
-				return EReceivedHitReaction::BlockBroken;
 			}
 		}
 		if (AttackInfo.AttackType == EAttackType::Heavy)
@@ -629,7 +636,6 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 		{
 			return EReceivedHitReaction::Blocked;
 		}
-
 	}
 
 	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanEvade) && GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
