@@ -34,7 +34,7 @@ protected:
 	TArray<AActor*> HitActors;
 
 	UPROPERTY()
-	ASevenCharacter* OwnerCharacter;
+	ASevenCharacter* CachedSevenCharacter;
 
 private:
 	// Cached data for Weapon Trace

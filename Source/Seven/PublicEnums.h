@@ -10,6 +10,18 @@ enum class ECombo : uint8
 	ES_Combo3 UMETA(DisplayName = "Combo 3"),
 };
 
+UENUM(BlueprintType)
+enum class EComboType : uint8
+{
+	None,
+	Throw,
+	ClassicRadial,
+	ClassicAttackSequence,
+	HalbertAttackSequence,
+	HalberRadial,
+	LancetShieldDodge,
+};
+
 enum class EAttackType
 {
 	None = 0,

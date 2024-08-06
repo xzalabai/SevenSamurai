@@ -249,22 +249,21 @@ void ASevenCharacter::PerformWeaponTrace()
 /// Callbacks from ABP
 ///////////////////////////////////////////////////////////////////////
 
-bool ASevenCharacter::ParryAttack(const ASevenCharacter* Attacker) const
+bool ASevenCharacter::CanParryAttack(const ASevenCharacter* Attacker) const
 {
-	if (IsBlockingBeforeAttack() || !GetIsBlocking())
+	if (!GetIsBlocking())
+	{
+		return false;
+	}
+	if (IsBlockingBeforeAttack())
 	{
 		return false;
 	}
 	if (GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 	{	
-		// Is not turned towards enemy
 		return false;
 	}
-	if (SevenGameMode->GetEnemyStatus(Attacker->GetUniqueID()) == EEnemyStatus::ParryAvailable)
-	{
-		return true;
-	}
-	return false;
+	return true;
 }
 
 void ASevenCharacter::OnLayingDead()
@@ -601,8 +600,8 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackInfo)
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
-
-	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanParry) && ParryAttack(Attacker))
+	UE_LOG(LogTemp, Warning, TEXT("PARRY: %d %d"), IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanParry) ? 1 : 0, CanParryAttack(Attacker) ? 1 :0);
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanParry) && CanParryAttack(Attacker))
 	{
 		return EReceivedHitReaction::Parried;
 	}

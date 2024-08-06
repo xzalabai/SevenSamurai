@@ -281,7 +281,7 @@ void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
 	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[Index]);
 	if (Combo && GetOwnerCharacter()->SevenCharacterDA)
 	{
-		GetOwnerCharacter()->SevenCharacterDA->Combos.Add(Combo->GetComboName());
+		//GetOwnerCharacter()->SevenCharacterDA->Combos.Add(Combo->GetComboName());
 	}
 	
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
@@ -303,6 +303,11 @@ void UAttackComponent::ComboAttackEnd()
 	}
 	ComboActivated = ECombo::ES_None;
 	LastUsedCombo = nullptr;
+}
+
+TObjectPtr<IComboInterface> UAttackComponent::GetLastUsedCombo() const
+{
+	return LastUsedCombo;
 }
 
 void UAttackComponent::SetWeaponDamage(const int NewDamage)

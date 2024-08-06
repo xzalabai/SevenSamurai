@@ -38,7 +38,11 @@ void UKnifeThrowCombo::ComboAttackEnd()
 
 }
 
-const FName& UKnifeThrowCombo::GetComboName()
+EComboType UKnifeThrowCombo::GetComboType()
 {
-	return ComboName;
+    return ComboType;
+}
+
+void UKnifeThrowCombo::DealDamage(ASevenCharacter* Victim)
+{
 }

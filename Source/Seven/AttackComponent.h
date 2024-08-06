@@ -67,6 +67,7 @@ public:
 	void AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo);
 	void ComboAttackStart();
 	void ComboAttackEnd();
+	TObjectPtr<IComboInterface> GetLastUsedCombo() const;
 	int GetWeaponDamage() const;
 	bool CanPlayRandomAttackMontage() const;
 

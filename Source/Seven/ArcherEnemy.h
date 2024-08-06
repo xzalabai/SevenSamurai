@@ -17,7 +17,4 @@ protected:
 	virtual void BeginPlay();
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual const FVector GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter) override;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UObject> ThrowingCombo;
 };

@@ -48,7 +48,11 @@ void UCombo::ComboAttackEnd()
 
 }
 
-const FName& UCombo::GetComboName()
+EComboType UCombo::GetComboType()
 {
-	return ComboName;
+	return ComboType;
+}
+
+void UCombo::DealDamage(ASevenCharacter* Victim)
+{
 }

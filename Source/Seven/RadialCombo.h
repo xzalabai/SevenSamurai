@@ -7,23 +7,23 @@
 #include "ComboInterface.h"
 #include "RadialCombo.generated.h"
 
-/**
- * 
- */
+class ASevenCharacter;
+
 UCLASS()
 class SEVEN_API URadialCombo : public UObject, public IComboInterface
 {
 
 	GENERATED_BODY()
-	
+protected:
 	TObjectPtr<ASevenCharacter> Attacker;
+
+	UPROPERTY(EditAnywhere)
+	EComboType ComboType;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackerAnimation;
 
-	UPROPERTY(EditDefaultsOnly)
-	FName ComboName;
-
+private:
 	UPROPERTY(EditDefaultsOnly)
 	uint8 BaseDamage{ 0 };
 
@@ -36,9 +36,10 @@ class SEVEN_API URadialCombo : public UObject, public IComboInterface
 	UPROPERTY(EditDefaultsOnly)
 	int32 Thickness{ 0 };
 
-	
+public:
 	virtual void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	virtual void ComboAttackStart() override;
 	virtual void ComboAttackEnd() override;
-	virtual const FName& GetComboName() override;
+	virtual EComboType GetComboType() override;
+	void DealDamage(ASevenCharacter* Victim) override;
 };

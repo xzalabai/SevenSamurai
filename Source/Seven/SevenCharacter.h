@@ -45,6 +45,8 @@ class ASevenCharacter : public ACharacter
 	friend class URadialCombo;
 	friend class UAICharacter;
 	friend class UThrowKnife;
+	friend class UShieldDodgeCombo;
+	friend class UCallbackCombo;
 	friend class UKnifeThrowCombo;
 	friend class ACharacterPicker;
 
@@ -201,7 +203,7 @@ protected:
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	virtual void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
-	bool ParryAttack(const ASevenCharacter* Attacker) const;
+	bool CanParryAttack(const ASevenCharacter* Attacker) const;
 	void AttackWasParried();
 	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo);
 	void CheckIfBlockingBeforeParrying();

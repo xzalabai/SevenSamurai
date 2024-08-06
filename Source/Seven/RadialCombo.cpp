@@ -6,19 +6,13 @@
 
 void URadialCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
-	ASevenCharacter* AttackerCharacter = Cast<ASevenCharacter>(AttackerActor);
-	Attacker = AttackerCharacter;
-	UE_LOG(LogTemp, Error, TEXT("[URadialCombo] Use"));
-	UAnimationComponent* AC_Animation = AttackerCharacter->GetAnimationComponent();
+	Attacker = Cast<ASevenCharacter>(AttackerActor);
+	UAnimationComponent* AC_Animation = Attacker->GetAnimationComponent();
 	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack, false);
 }
 
 void URadialCombo::ComboAttackStart()
 {
-	if (!Attacker)
-	{
-		return;
-	}
 	UE_LOG(LogTemp, Error, TEXT("[URadialCombo] ComboAttackStart"));
 	TArray<ASevenCharacter*> FoundEnemies = Attacker->GetEnemiesInFrontOfCharacer(-1, StartOffset, EndOffset, Thickness, true);
 	FAttackInfo AttackInfo{ EAttackType::Combo, EAttackStrength::Light, 0, BaseDamage, Attacker };
@@ -33,8 +27,12 @@ void URadialCombo::ComboAttackEnd()
 	Attacker = nullptr;
 }
 
-const FName& URadialCombo::GetComboName()
+EComboType URadialCombo::GetComboType()
 {
-	return ComboName;
+    return ComboType;
+}
+
+void URadialCombo::DealDamage(ASevenCharacter* Victim)
+{
 }
 

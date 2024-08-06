@@ -8,15 +8,6 @@
 void AArcherEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	if (AC_AttackComponent)
-	{
-		AC_AttackComponent->AddComboToCharacter(ThrowingCombo);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[AArcherEnemy]ThrowingCombo is nullptr"));
-	}
-	
 }
 
 void AArcherEnemy::Fire(const FInputActionValue& Value)

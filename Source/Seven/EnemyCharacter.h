@@ -23,6 +23,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	uint8 Difficulty{ 1 };
 
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<UObject>> AvailableCombos;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;
@@ -78,6 +81,8 @@ protected:
 	void SetLightAttacksAmount(int Amount);
 	UFUNCTION(BlueprintCallable)
 	UBehaviorTree* GetBehaviorTree() const;
+	UFUNCTION(BlueprintCallable)
+	void UseCombo(const EComboType ComboType);
 	UFUNCTION(BlueprintCallable)
 	void SetAttackStrength(EAttackStrength NewAttackStrength);
 	virtual const EAttackStrength GetAttackStrength() const override;

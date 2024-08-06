@@ -11,6 +11,26 @@
 #include "AIController.h"
 #include "SevenGameMode.h"
 
+AEnemyCharacter::AEnemyCharacter()
+{
+	EasyAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("EasyImpactParticles"));
+	MidAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("MidImpactParticles"));
+	HeavyAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("HeavyImpactParticles"));
+}
+
+void AEnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	for (const TSubclassOf<UObject> Combo : AvailableCombos)
+	{
+		AC_AttackComponent->AddComboToCharacter(Combo);
+	}
+
+	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);
+	check(MissionType != EMissionType::NotProvided);
+}
+
 ASevenCharacter* AEnemyCharacter::FindSevenCharacter() const
 {
 	return SevenGameMode->GetPossessedCharacter();
@@ -42,13 +62,6 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 	ReturnAttackToken();
 }
 
-AEnemyCharacter::AEnemyCharacter()
-{
-	EasyAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("EasyImpactParticles"));
-	MidAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("MidImpactParticles"));
-	HeavyAttackParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("HeavyImpactParticles"));
-}
-
 void AEnemyCharacter::InitiateAttack()
 {
 	LightAttacksAmount--;
@@ -61,14 +74,6 @@ void AEnemyCharacter::InitiateAttack()
 	{
 		bIsImmortal = false;
 	}
-}
-
-void AEnemyCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);
-	check(MissionType != EMissionType::NotProvided);
 }
 
 void AEnemyCharacter::IncomingAttack()
@@ -246,6 +251,13 @@ UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
 {
 	//check(EnemyScenarios->EnemyScenarios.Contains(MissionType))
 	return EnemyScenarios->EnemyScenarios[SevenCharacterType];
+}
+
+void AEnemyCharacter::UseCombo(const EComboType ComboType)
+{
+	AC_AttackComponent->SetCombo(1);
+	AC_AttackComponent->LightAttack(nullptr);
+	ReturnAttackToken();
 }
 
 void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)

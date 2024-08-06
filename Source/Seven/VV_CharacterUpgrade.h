@@ -6,16 +6,6 @@
 #include "Engine/DataTable.h"
 #include "VV_CharacterUpgrade.generated.h"
 
-UENUM(BlueprintType)
-enum class EComboType : uint8
-{
-	ECT_None,
-	ECT_Radial,
-	ECT_AttackSequence,
-	ECT_Heavy,
-	ECT_Throw,
-};
-
 // Definition of Combo (equal for every shop)
 USTRUCT(BlueprintType)
 struct FComboDefiniton

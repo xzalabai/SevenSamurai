@@ -14,14 +14,12 @@ UCLASS(BlueprintType, Blueprintable)
 class SEVEN_API UKnifeThrowCombo : public UObject, public IComboInterface
 {
 	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditDefaultsOnly)
-	FName ComboName;
-
 protected:
 
 	TObjectPtr<ASevenCharacter> Attacker;
+
+	UPROPERTY(EditAnywhere)
+	EComboType ComboType;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* ThrowAnimation;
@@ -33,5 +31,6 @@ public:
 	void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	void ComboAttackStart() override;
 	void ComboAttackEnd() override;
-	virtual const FName& GetComboName() override;
+	virtual EComboType GetComboType() override;
+	void DealDamage(ASevenCharacter* Victim) override;
 };

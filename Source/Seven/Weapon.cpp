@@ -32,11 +32,7 @@ void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, SocketName);
 	FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
 	SetActorTransform(SocketTransform);
-
-	if (ASevenCharacter* Character = Cast<ASevenCharacter>(GetAttachParentActor()))
-	{
-		OwnerCharacter = Character;
-	}
+	CachedSevenCharacter = Cast<ASevenCharacter>(GetAttachParentActor());
 }
 
 void AWeapon::PerformTrace()
