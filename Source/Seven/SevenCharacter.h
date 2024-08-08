@@ -202,7 +202,7 @@ protected:
 	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1,const int32 StartOffset = 200, const int32 EndOffset = 200, const int32 Thickness = 100, const bool bCameraRelative = true) const;
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
 	void RotateTowards(const AActor* Actor, const int Shift = 0);
-	virtual void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
+	virtual void OnAnimationEnded(const EMontageType& StoppedMontage);
 	bool CanParryAttack(const ASevenCharacter* Attacker) const;
 	void AttackWasParried();
 	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo);
@@ -227,7 +227,6 @@ public:
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	FORCEINLINE bool IsAllowedHitReaction(const EAttackStrength Mask, const EAttackStrength UsedAttackStrength) const { return static_cast<uint8>(Mask) & static_cast<uint8>(UsedAttackStrength); }
 	FORCEINLINE bool IsImmortal() const { return bIsImmortal; }
-	FORCEINLINE bool GetIsEvading() const { return bIsEvading; }
 	FORCEINLINE bool GetIsGuarding() const { return bIsGuarding; }
 	FORCEINLINE const int GetTargetedEnemyID() const { return (TargetedEnemy && TargetedEnemy->IsAlive()) ? TargetedEnemy->uniqueID : -1; }
 	FORCEINLINE bool IsBlockingBeforeAttack() const { return bIsBlockingBeforeAttack; }
@@ -237,6 +236,7 @@ public:
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
 	UFUNCTION(BlueprintCallable)
 	void Suicide();
+	UAnimMontage* GetVictimMontageToPlay(bool bDeath, const ESevenCharacterType& AttackerCharacterType, const EMontageType& AttackerMontageType, const EComboType& ComboType = EComboType::None) const;
 	virtual bool IsAlive() const;
 	bool IsSameTeam(const ASevenCharacter* Other) const;
 	ASevenPlayerController* GetSevenPlayerController() const;

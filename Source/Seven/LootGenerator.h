@@ -23,7 +23,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	void OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status);
+	void OnCharacterKilled(const AActor* Actor, const ECharacterState Status);
 	const TPair<EItemType, int> GenerateLootDrop() const;
 		
 };

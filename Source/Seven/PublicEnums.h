@@ -22,15 +22,6 @@ enum class EComboType : uint8
 	LancetShieldDodge,
 };
 
-enum class EAttackType
-{
-	None = 0,
-	Light = 1,
-	Heavy = 2,
-	Combo = 3,
-	Throw = 4, // NOT USED ANYMORE, safely DELETE
-};
-
 UENUM(BlueprintType)
 enum class EAttackStrength : uint8
 {
@@ -43,6 +34,7 @@ enum class EAttackStrength : uint8
 	Light = 0b111,
 	Mid = 0b110,
 	Heavy = 0b100,
+	Undefendable = 0b000,
 };
 
 UENUM(BlueprintType)
@@ -81,19 +73,31 @@ enum class EMontageType : uint8
 	None,
 	Misc,
 	LightAttack,
-	HeavyAttack,
 	Parry,
-	LightAttackHitReaction,
-	HeavyAttackHitReaction,
+	LightAttackHitReaction, // TODO: Remove this (and replace Reactions with something like: Animations->CharacterType->HitReactions->LightAttack / Animations->CharacterType->DeathReactions->LightAttack 
 	Throw, // NOT USED ANYMORE, safely DELETE
+	HitReaction,
 	Block,
 	Evade,
 	BlockBroken,
-	LightAttackHitReactionDeath,
-	HeavyAttackHitReactionDeath,
+	Combo,
+	LightAttackHitReactionDeath, // just for determing what reaction to play .. same as LightAttackHitReaction
 };
 
-static const TArray<EMontageType> AttackMontages{ EMontageType::LightAttack, EMontageType::HeavyAttack };
+static const TArray<EMontageType> AttackMontages{ EMontageType::LightAttack}; // TODO should combo be here?
+static const TArray<EMontageType> MontagePriorityOrder
+	{
+		EMontageType::HitReaction,
+		EMontageType::BlockBroken,
+		EMontageType::Block,
+		EMontageType::Evade,
+		EMontageType::Misc,
+		EMontageType::Throw,
+		EMontageType::Combo,
+		EMontageType::LightAttack,
+		EMontageType::Parry,
+		EMontageType::None,
+	};
 
 UENUM(BlueprintType)
 enum class EWeaponLevel : uint8
@@ -105,7 +109,7 @@ enum class EWeaponLevel : uint8
 };
 
 UENUM(BlueprintType)
-enum class EEnemyStatus : uint8
+enum class ECharacterState : uint8
 {
 	None,
 	Dead,
@@ -133,26 +137,29 @@ enum class EOctagonalDirection
 struct FAttackInfo
 {
 	FAttackInfo() = default;
-	FAttackInfo(const EAttackType AttackType, const EAttackStrength AllowedHitReaction, const uint8 AttackTypeMontage, const uint8 Damage, AActor* Attacker)
-		: AttackType(AttackType),
+	FAttackInfo(const EMontageType MontageType, const EAttackStrength AllowedHitReaction, const uint8 AttackTypeMontage, const uint8 Damage, AActor* Attacker, EComboType ComboType = EComboType::None)
+		: MontageType(MontageType),
 		AllowedHitReaction(AllowedHitReaction),
 		AttackTypeMontage(AttackTypeMontage),
 		Damage(Damage),
-		Attacker(Attacker)
+		Attacker(Attacker),
+		ComboType(ComboType)
 	{}
 	void Reset()
 	{
-		AttackType = EAttackType::None;
+		MontageType = EMontageType::None;
 		AllowedHitReaction = EAttackStrength::Light;
 		AttackTypeMontage = 0;
 		Damage = 0;
 		Attacker = nullptr;
+		ComboType = EComboType::None;
 	}
-	EAttackType AttackType = EAttackType::None;
+	EMontageType MontageType = EMontageType::None;
 	EAttackStrength AllowedHitReaction = EAttackStrength::Light;
 	uint8 AttackTypeMontage = 0;
 	uint8 Damage;
 	AActor* Attacker;
+	EComboType ComboType{ EComboType::None };
 	
 };
 

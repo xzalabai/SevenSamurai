@@ -28,17 +28,8 @@ private:
 
 	ASevenCharacter* CachedSevenCharacter{ nullptr };
 
-	int MaxSections = -1;
-	int CurrentSection = -1;
-
-	bool bHeavyAttackReady = false;
-	bool bHeavyAttackWasReleased = false;
-
 	UPROPERTY(VisibleAnywhere)
 	FWeaponDetail WeaponDetail;
-
-	EAttackType CurrentAttackType = EAttackType::None;
-	FName CurrentAttackTypeMontage;
 
 	UPROPERTY(VisibleAnywhere)
 	ECombo ComboActivated = ECombo::ES_None;
@@ -51,17 +42,13 @@ private:
 
 public:	
 	UAttackComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	const TPair<UAnimMontage*, FName> GetAttackMontageToBePlayed();
-	void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage);
+	const TPair<UAnimMontage*, FName> GetLightAttackMontageToBePlayed();
+	void OnAnimationEnded(const EMontageType& StoppedMontage);
 	FAttackInfo GetAttackInfo() const;
-	bool PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt);
 	bool LightAttack(ASevenCharacter* TargetedEnemy);
+	bool ComboAttack();
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);
-	void ThrowKnife();
-	UFUNCTION(BlueprintCallable)
-	void SetIsHeavyAttackReady(bool bEnable = true);
-	bool IsComboAttack();
+	bool CanUseCombo() const;
 	void UseCombo(const ECombo& Special);
 	void SetCombo(const int8 ID);
 	void AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo);

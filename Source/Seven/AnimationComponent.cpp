@@ -32,6 +32,7 @@ void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	
 	if (IsAttackAnimationRunning() && CachedSevenCharacter && CachedSevenCharacter->TargetedEnemy)
 	{
+		// TODO remove creating FSTRING EVERY TICK Omg!
 		WarpAttacker(FString(), CachedSevenCharacter->TargetedEnemy);
 	}
 }
@@ -46,15 +47,39 @@ void UAnimationComponent::BeginPlay()
 	AnimInstance->Montage_SetEndDelegate(EndDelegate);	
 }
 
-bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt)
+bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType)
 {
 	FString myString = FString::FromInt(SectionName);
-	return Play(AnimMontage, FName(*myString), MontageType, bCanInterrupt);
+	return Play(AnimMontage, FName(*myString), MontageType);
 }
 
-void UAnimationComponent::PlayAfterCurrent(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType& MontageType, bool bCanInterrupt)
+bool UAnimationComponent::CanPlayAnimation(const EMontageType MontageType) const
 {
-	//AnimationToPlay = FAnimationToPlay(AnimMontage, SectionName, MontageType, bCanInterrupt);
+	int PriorityCurrentMontage = MontagePriorityOrder.Find(CurrentMontage.MontageType);
+	int PriorityNextMontage = MontagePriorityOrder.Find(MontageType);
+
+	if (PriorityCurrentMontage < PriorityNextMontage)
+	{
+		return false;
+	}
+	if (PriorityCurrentMontage > PriorityNextMontage)
+	{
+		return true;
+	}
+	if (PriorityCurrentMontage == PriorityNextMontage)
+	{
+		if (MontageType == EMontageType::LightAttack && bNextComboTriggerEnabled)
+		{
+			return true;
+		}
+		if (MontageType == EMontageType::HitReaction)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	return false;
 }
 
 void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim)
@@ -70,61 +95,27 @@ void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenChar
 	CachedSevenCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", T);
 }
 
-bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt)
+bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType)
 {
-	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent].Play %s, bCanInterrupt %d, bActiveMontageRunning %d, bNextComboTriggerEnabled %d MontageType: %d"),
-	//	*GetOwner()->GetName(),
-	//	(bCanInterrupt ? 1 : 0),
-	//	(bActiveMontageRunning ? 1 : 0),
-	//	(bNextComboTriggerEnabled ? 1 : 0),
-	//	(int)MontageType);
-
-	if (MontageType == EMontageType::LightAttack)
+	if (!CanPlayAnimation(MontageType))
 	{
-		if (bActiveMontageRunning && bNextComboTriggerEnabled)
-		{
-			NextMontageType = EMontageType::LightAttack;
-			CachedSevenCharacter->StopAnimMontage();
-		}
-		else if (bActiveMontageRunning && !bNextComboTriggerEnabled)
-		{
-			if (CurrentMontageType != EMontageType::Parry)
-			{
-				return false;
-			}
-		}
-		else if (!bActiveMontageRunning)
-		{
-			NextMontageType = EMontageType::None;
-		}
-	}
-	else
-	{
-		if (!bCanInterrupt && bActiveMontageRunning)
-		{
-			return false;
-		}
-
-		if (bCanInterrupt && bActiveMontageRunning)
-		{
-			NextMontageType = MontageType;
-			CachedSevenCharacter->StopAnimMontage();
-		}
+		return false;
 	}
 
 	UAnimInstance* AnimInstance = GetOwnerAnimInstance();
 
-	if (!CachedSevenCharacter || !AnimInstance)
+	if (!AnimInstance)
 	{
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] AnimInstance is nullptr %s"), *CachedSevenCharacter->GetName());
 		return false;
 	}
-	
-	//UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] Play Animation %s, section:"), *AnimMontage->GetName(), *SectionName.ToString());
 
+	CachedSevenCharacter->StopAnimMontage();
 	CachedSevenCharacter->PlayAnimMontage(AnimMontage, 1.0f, SectionName);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
 	bActiveMontageRunning = true;
-	CurrentMontageType = MontageType;
+	LastPlayedMontage = CurrentMontage;
+	CurrentMontage = FMontage{ MontageType, AnimMontage };
 	return true;
 }
 
@@ -177,7 +168,7 @@ bool UAnimationComponent::Block(bool bEnable)
 {
 	bool &bAttackWasPerformed = bNextComboTriggerEnabled; // We use bNextComboTriggerEnabled also as an indicator of whether attack was already performed.
 	
-	if (bEnable && IsAnimationRunning())
+	if (!CachedSevenCharacter /*TODO this is just for the bug where Enemy hits on the first frame! :D */ && bEnable && IsAnimationRunning())
 	{
 		if (!bAttackWasPerformed)
 		{
@@ -242,7 +233,7 @@ FName UAnimationComponent::GetCurrentMontageSection()
 {
 	if (UAnimInstance* AnimInstance = GetOwnerAnimInstance())
 	{
-		return AnimInstance->Montage_GetCurrentSection();
+		return AnimInstance->Montage_GetCurrentSection(CurrentMontage.AnimMontage);
 	}
 	return NAME_None;
 }
@@ -250,29 +241,30 @@ FName UAnimationComponent::GetCurrentMontageSection()
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
-		*Montage->GetName(), (int)CurrentMontageType, *CachedSevenCharacter->GetName(), bInterrupted ? 1 :0);
+		*Montage->GetName(), (int)CurrentMontage.MontageType, *CachedSevenCharacter->GetName(), bInterrupted ? 1 :0);
 
-	const EMontageType StoppedMontage = CurrentMontageType;
+	CachedSevenCharacter->OnAnimationEnded(LastPlayedMontage.MontageType);
+	CachedSevenCharacter->AC_AttackComponent->OnAnimationEnded(LastPlayedMontage.MontageType);
 	
+	if (LastPlayedMontage.MontageType == EMontageType::LightAttack)
+	{
+		if (!bInterrupted)
+		{
+			NextComboTriggered(false);
+		}
+		else
+		{
+			CachedSevenCharacter->AttackEnd();
+		}
+	}
+
 	if (!bInterrupted)
 	{
 		bActiveMontageRunning = false;
-		NextMontageType = EMontageType::None;
-		CurrentMontageType = EMontageType::None;
+		CurrentMontage.Reset();
+		
 	}
-	else
-	{
-		CurrentMontageType = NextMontageType;
-	}
-	
-	CachedSevenCharacter->OnAnimationEnded(StoppedMontage, NextMontageType);
-	CachedSevenCharacter->AC_AttackComponent->OnAnimationEnded(StoppedMontage, NextMontageType);
-	
-	if (CurrentMontageType == EMontageType::LightAttack && !bInterrupted)
-	{
-		//GetOwnerCharacter()->AttackEnd(); // This is called already
-		NextComboTriggered(false);
-	}
+	LastPlayedMontage.Reset(); // TODO: Not sure where to put this :(
 }
 
 void UAnimationComponent::OnAnimationStarted(UAnimMontage* Montage)

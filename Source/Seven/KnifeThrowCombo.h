@@ -27,6 +27,19 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AThrowingKnife> ThrowingKnifeClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	uint8 BaseDamage{ 0 };
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 StartOffset{ 0 };
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 EndOffset{ 0 };
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 Thickness{ 0 };
+
+
 public:
 	void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	void ComboAttackStart() override;

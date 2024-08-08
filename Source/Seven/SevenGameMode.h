@@ -13,7 +13,7 @@ class AMission;
 class ASevenCharacter;
 class ASevenPlayerController;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const AActor* Actor, const EEnemyStatus Status);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const AActor* Actor, const ECharacterState Status);
 
 UCLASS(minimalapi)
 class ASevenGameMode : public AGameModeBase
@@ -25,10 +25,10 @@ private:
 	TArray<const ASevenCharacter*> SevenCharacters;
 
 	UPROPERTY()
-	TMap<int8, EEnemyStatus> EnemiesStatus;
+	TMap<int8, ECharacterState> EnemiesStatus;
 
 	UPROPERTY()
-	TMap<int8, EEnemyStatus> SevenCharactersStatus;
+	TMap<int8, ECharacterState> SevenCharactersStatus;
 
 	UPROPERTY()
 	TArray<const ASevenCharacter*> Enemies;
@@ -56,14 +56,14 @@ public:
 
 public:
 	const TArray<const ASevenCharacter*> GetSevenCharacters() const;
-	void UpdateStatus(const AActor* Actor, const EEnemyStatus Status = EEnemyStatus::None);
+	void UpdateStatus(const AActor* Actor, const ECharacterState Status = ECharacterState::None);
 	ASevenCharacter* GetAnyAliveEnemy();
 	ASevenCharacter* GetPossessedCharacter() const;
 	ASevenPlayerController* GetSevenPlayerController() const;
-	TMap<int8, EEnemyStatus> GetSevenCharactersStatus() const;
+	TMap<int8, ECharacterState> GetSevenCharactersStatus() const;
 	TArray<const ASevenCharacter*> GetAIControlledAllies() const;
-	bool HasAnyEnemyStatus(const EEnemyStatus& Status) const;
-	const EEnemyStatus GetEnemyStatus(const int8 CharacterID) const;
+	bool HasAnyEnemyStatus(const ECharacterState& Status) const;
+	const ECharacterState GetEnemyStatus(const int8 CharacterID) const;
 	void MissionEnd(bool bWin);
 	void UpdateMissionParameters(AMission* Mission);
 };

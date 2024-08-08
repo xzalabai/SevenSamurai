@@ -16,7 +16,7 @@ const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
 	return SevenCharacters;
 }
 
-void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status)
+void ASevenGameMode::UpdateStatus(const AActor* Actor, const ECharacterState Status)
 {
 	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
 	if (!SevenCharacter)
@@ -59,7 +59,7 @@ void ASevenGameMode::UpdateStatus(const AActor* Actor, const EEnemyStatus Status
 
 	OnStatusUpdate.Broadcast(Actor, Status);
 
-	if (SevenCharacter == GetPossessedCharacter() && Status == EEnemyStatus::Dead)
+	if (SevenCharacter == GetPossessedCharacter() && Status == ECharacterState::Dead)
 	{
 		ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 		SevenPlayerController->Switch(FInputActionValue());
@@ -100,7 +100,7 @@ ASevenPlayerController* ASevenGameMode::GetSevenPlayerController() const
 	}
 }
 
-TMap<int8, EEnemyStatus> ASevenGameMode::GetSevenCharactersStatus() const
+TMap<int8, ECharacterState> ASevenGameMode::GetSevenCharactersStatus() const
 {
 	return SevenCharactersStatus;
 }
@@ -122,7 +122,7 @@ TArray<const ASevenCharacter*> ASevenGameMode::GetAIControlledAllies() const
 	return AIControlledAllies;
 }
 
-bool ASevenGameMode::HasAnyEnemyStatus(const EEnemyStatus& Status) const
+bool ASevenGameMode::HasAnyEnemyStatus(const ECharacterState& Status) const
 {
 	for (auto& Enemy : EnemiesStatus)
 	{
@@ -134,7 +134,7 @@ bool ASevenGameMode::HasAnyEnemyStatus(const EEnemyStatus& Status) const
 	return false;
 }
 
-const EEnemyStatus ASevenGameMode::GetEnemyStatus(const int8 CharacterID) const
+const ECharacterState ASevenGameMode::GetEnemyStatus(const int8 CharacterID) const
 {
 	return (EnemiesStatus.Contains(CharacterID) ? EnemiesStatus[CharacterID] : SevenCharactersStatus[CharacterID]);
 }
@@ -174,13 +174,11 @@ CRITICAL - TURN OFF OPTIMIZATION
 CRITICAL - Create ControllableInterface for controlling characters, so there is no CAST in PlayerController every key !!!!!!!
 Maybe - Create View For 3rd person (so it's not controlled directly in Seven
 High - Remove all GetActorOfClass (also in blueprints - BP_MV_PlayerController etc
-High - Put OnStatusUpdate to ASevenGameMode
 High - Remove ComboManager and move newly created structs to PublicEnums (I guess)
 High - Cache SevenGameMode where it's used often!!!
 High - make sync between AIController, EnemyCharacter, TargetedEnemy, EnemyToAttack etc... so they it is being choosed in AIController and everyone follows it
 High - FIND OUT WHY AC_ATTACKCOMPONENT cannot have UPROPERTY() - bc it's null
 High - Fix weird Character rotation after some animation is performed on steep surface
-High - Fix bug when Heavy Attack is loading and player receives hit.
 High - Make a BASE for Character, then derive for SevenCharacter and AEnemy
 High - Make an Array of all new generated missions -> which persists the whole game (so the missions are not holding only due to some reference ...)
 High - rename Combo to LightCombo or smth.

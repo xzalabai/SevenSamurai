@@ -36,7 +36,6 @@ void AShield::BeginPlay()
 
 void AShield::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Error, TEXT("[AShield] HIT CHARACTER %s"), *OtherActor->GetName());
 	if (ASevenCharacter* HitEnemy = Cast<ASevenCharacter>(OtherActor))
 	{
 		if (HitEnemy != CachedSevenCharacter && CachedSevenCharacter->GetAttackComponent()->GetLastUsedCombo())

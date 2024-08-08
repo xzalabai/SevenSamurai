@@ -41,7 +41,6 @@ void AVV_CharacterUpgrade::OnOverlapAction()
 void AVV_CharacterUpgrade::BuyCombo(USevenCharacterDA* SevenCharacterDA, int Index) const
 {
 	const FComboWithPrice& ComboToBePurchased = AvailableCombos[Index];
-	SevenCharacterDA->Combos.Add(ComboToBePurchased.Combo.Name);
 	SevenCharacterDA->CombosObj.Add(ComboToBePurchased.Combo.UObject);
 }
 

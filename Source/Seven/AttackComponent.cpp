@@ -35,23 +35,10 @@ void UAttackComponent::BeginPlay()
 	CachedSevenCharacter = GetOwnerCharacter();
 }
 
-
-void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+const TPair<UAnimMontage*, FName> UAttackComponent::GetLightAttackMontageToBePlayed()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
-{
-	if (CurrentAttackType != EAttackType::Heavy && CurrentAttackType != EAttackType::Light)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]GetAttackMontageToBePlayed.CurrentAttackType == %d "), (int)CurrentAttackType);
-		return TPair<UAnimMontage*, FName>(nullptr, FName());
-	}
-
-	UAnimMontage* MontageToBePlayed = CurrentAttackType == EAttackType::Light ? GetOwnerCharacter()->Animations->Montages[EMontageType::LightAttack]
-		: CachedSevenCharacter->Animations->Montages[EMontageType::HeavyAttack];
-
+	UAnimMontage* MontageToBePlayed = GetOwnerCharacter()->Animations->Montages[EMontageType::LightAttack];
+	int CurrentSection = 1;
 	if (CanPlayRandomAttackMontage())
 	{
 		// We allow Enemy to play random Attack Montage
@@ -65,7 +52,7 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 
 	if (CachedSevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
 	{
-		// Some Attack animation is in progress
+		// Attack animation is in progress
 		CurrentSection = CustomMath::FNameToInt(CachedSevenCharacter->AC_Animation->GetCurrentMontageSection());
 		if (CurrentSection < MontageToBePlayed->CompositeSections.Num())
 		{
@@ -76,35 +63,16 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetAttackMontageToBePlayed()
 		{
 			CurrentSection = 1;
 		}
-
 	}
+
 	const FName SectionToPlay = CustomMath::IntToFName(CurrentSection);
-	return TPair< UAnimMontage*, FName> (MontageToBePlayed, SectionToPlay);
+	return TPair<UAnimMontage*, FName> (MontageToBePlayed, SectionToPlay);
 }
 
 
-void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage, const EMontageType &NextMontage)
+void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage)
 {
-	if (StoppedMontage == EMontageType::LightAttack && NextMontage != EMontageType::LightAttack)
-	{
-		// Reset if Stopped was Attack and it wasn't stopped by another attack
-		if (CurrentAttackType == EAttackType::Heavy)
-		{
-			bHeavyAttackReady = false;
-			bHeavyAttackWasReleased = false;
-		}
-	
-		CurrentSection = 1;
-		CurrentAttackType = EAttackType::None;
-		CurrentAttackTypeMontage = NAME_None;
-
-		LastUsedCombo = nullptr;
-	}
-	if (StoppedMontage == EMontageType::Throw) // TODO: Can be deleted?
-	{
-		CurrentAttackType = EAttackType::None;
-		CurrentAttackTypeMontage = NAME_None;
-	}
+	LastUsedCombo = nullptr; // TODO Maybe bad
 }
 
 FAttackInfo UAttackComponent::GetAttackInfo() const
@@ -112,99 +80,50 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 	// TODO: Damage based on weapon
 	//int DamageToBeDealt = WeaponDetail.Damage;
 	int DamageToBeDealt = 20;
-	return FAttackInfo(CurrentAttackType, GetOwnerCharacter()->AttackStrength, CustomMath::FNameToInt(CurrentAttackTypeMontage), DamageToBeDealt, GetOwner());
-}
+	EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
+	EMontageType AttackerMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+	int AttackerMontageSection = CustomMath::FNameToInt(CachedSevenCharacter->AC_Animation->GetCurrentMontageSection());
+	UE_LOG(LogTemp, Warning, TEXT("ATTACK TYPE MONTAGE: %d"), (int)AttackerMontageSection);
 
-bool UAttackComponent::PlayAttack(ASevenCharacter* TargetedEnemy, bool bWarp, bool canInterrupt)
-{
-	const TPair<UAnimMontage*, FName> NextAttack = GetAttackMontageToBePlayed();
-	CurrentAttackTypeMontage = NextAttack.Value;
-	
-	if (!NextAttack.Key)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]HeavyAttack.NextAttack.Key is nullptr"));
-		return false;
-	}
-
-	if (GetOwnerCharacter()->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack, canInterrupt))
-	{
-		if (TargetedEnemy && bWarp)
-		{
-			GetOwnerCharacter()->AC_Animation->WarpAttacker("MW_LightAttackAttacker", TargetedEnemy);
-		}
-	}
-	else
-	{
-		return false;
-	}
-	return true;
+	return FAttackInfo(AttackerMontageType, GetOwnerCharacter()->AttackStrength, AttackerMontageSection, DamageToBeDealt, CachedSevenCharacter, ComboType);
 }
 
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	// TODO: Find a better place for turning off block!
-	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
-	SevenCharacter->Block(false);
+	CachedSevenCharacter->Block(false);
+	const TPair<UAnimMontage*, FName> NextAttack = GetLightAttackMontageToBePlayed();
+	bool bAnimationIsPlaying = CachedSevenCharacter->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack);
+	return bAnimationIsPlaying;
+}
 
-	if (IsComboAttack())
+bool UAttackComponent::ComboAttack()
+{
+	if (CanUseCombo())
 	{
-		UseCombo(ComboActivated);
-		CurrentAttackType = EAttackType::Combo;
-		CurrentAttackTypeMontage = NAME_None;
+		UseCombo(ComboActivated); // TODO can combo interrupt everything???
 		return true;
 	}
-
-	if (CurrentAttackType == EAttackType::Heavy)
-	{
-		// Don't interrupt heavy
-		return false;
-	}
-	CurrentAttackType = EAttackType::Light;
-	
-	return PlayAttack(TargetedEnemy, TargetedEnemy ? true : false, true);
+	return false;
 }
 
 void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased)
 {
-	if (CurrentAttackType != EAttackType::Heavy && bReleased)
-	{
-		// Was holding mouse and there was not attack
-		return;
-	}
-	else if (CurrentAttackType == EAttackType::None)
-	{
-		// Initialization phase of attack
-		CurrentAttackType = EAttackType::Heavy;
-		CurrentAttackTypeMontage = NAME_None;
-		PlayAttack(nullptr, false, true);
-	}
-	else if (CurrentAttackType == EAttackType::Heavy && bReleased && !bHeavyAttackReady)
-	{
-		// Released too soon, wait until Attack is Ready (punishment for Heavy attack)
-		bHeavyAttackWasReleased = true;
-		return;
-	}
-	else if (CurrentAttackType == EAttackType::Heavy && bHeavyAttackReady && bReleased)
-	{
-		// Released during Idle, play attack
-		PlayAttack(TargetedEnemy, true, true);
-		bHeavyAttackReady = false;
-	}
+		
 }
 
-void UAttackComponent::SetIsHeavyAttackReady(bool bEnable)
+bool UAttackComponent::CanUseCombo() const
 {
-	if (bHeavyAttackWasReleased)
+	if (CombosMapping.Num() == 0 || !CombosMapping.Contains((int)ComboActivated))
 	{
-		// If we already released mouse, perform attack
-		PlayAttack(nullptr, false, true);
+		return false;
 	}
-	bHeavyAttackReady = true;
-}
 
-bool UAttackComponent::IsComboAttack()
-{
-	return ComboActivated != ECombo::ES_None;
+	if (ComboActivated != ECombo::ES_None && CachedSevenCharacter->AC_Animation->CanPlayAnimation(EMontageType::Combo))
+	{
+		return true;
+	}
+	return false;
 }
 
 int UAttackComponent::GetWeaponDamage() const
@@ -230,18 +149,11 @@ bool UAttackComponent::CanPlayRandomAttackMontage() const
 
 void UAttackComponent::UseCombo(const ECombo& Special)
 {
-	if (CombosMapping.Num() == 0 || !CombosMapping.Contains((int)Special))
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent].UseCombo is Empty"));
-		ComboAttackEnd();
-		return;
-	}
-
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo %d"), (uint8)Special);
 	
 	if (IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[(uint8)Special]))
 	{
-		Combo->Use(GetOwner(), nullptr);
+		Combo->Use(GetOwner(), CachedSevenCharacter->TargetedEnemy);
 		LastUsedCombo = Combo;
 	}
 	else
@@ -278,12 +190,7 @@ void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
 	int Index = CombosMapping.Num() + 1;
 	CombosMapping.Emplace(Index, NewObject<UObject>(this, TypeOfCombo));
 	
-	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[Index]);
-	if (Combo && GetOwnerCharacter()->SevenCharacterDA)
-	{
-		//GetOwnerCharacter()->SevenCharacterDA->Combos.Add(Combo->GetComboName());
-	}
-	
+	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[Index]);	
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
 }
 
@@ -320,10 +227,7 @@ void UAttackComponent::SetWeaponDamage(const int NewDamage)
 
 void UAttackComponent::OnAttackStart()
 {
-	if ((CurrentAttackType == EAttackType::Light || CurrentAttackType == EAttackType::Heavy) && GetOwnerCharacter()->EquippedWeapon)
-	{
-		GetOwnerCharacter()->EquippedWeapon->AttackStart();
-	}
+	GetOwnerCharacter()->EquippedWeapon->AttackStart();
 }
 
 ASevenCharacter* UAttackComponent::GetOwnerCharacter()

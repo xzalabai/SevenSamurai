@@ -9,26 +9,18 @@ class UAnimInstance;
 class ASevenCharacter;
 
 USTRUCT()
-struct FAnimationToPlay
+struct FMontage
 {
 	GENERATED_BODY()
-	FAnimationToPlay() = default;
-	FAnimationToPlay(UAnimMontage* AnimMontage, const FName SectionName, const EMontageType MontageType, bool bCanInterrupt)
-		: AnimMontage(AnimMontage), SectionName(SectionName), MontageType(MontageType), bCanInterrupt(bCanInterrupt) {}
-	
-	UAnimMontage* AnimMontage = nullptr;
-	FName SectionName = FName();
-	EMontageType MontageType = EMontageType::None;
-	bool bCanInterrupt = false;
-	bool IsSet() { return MontageType != EMontageType::None; }
+
+	EMontageType MontageType{ EMontageType::None };
+	UAnimMontage* AnimMontage{ nullptr };
+
 	void Reset()
 	{
-		AnimMontage = nullptr;
-		SectionName = FName();
 		MontageType = EMontageType::None;
-		bCanInterrupt = false;
+		AnimMontage = nullptr;
 	}
-		
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -49,10 +41,10 @@ protected:
 private:
 	bool bActiveMontageRunning = false;
 	bool bNextComboTriggerEnabled = false;
-	int8 currentMontageSection = -1;
-	EMontageType CurrentMontageType = EMontageType::None;
-	EMontageType NextMontageType = EMontageType::None;
-	FAnimationToPlay AnimationToPlay;
+	UPROPERTY()
+	FMontage CurrentMontage{};
+	UPROPERTY()
+	FMontage LastPlayedMontage{};
 	ASevenCharacter* CachedSevenCharacter{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -70,9 +62,9 @@ public:
 	void OnAnimationStarted(UAnimMontage* Montage);
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType, bool bCanInterrupt = false);
-	bool Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType, bool bCanInterrupt);
-	void PlayAfterCurrent(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType& MontageType, bool bCanInterrupt);
+	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType);
+	bool Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType);
+	bool CanPlayAnimation(const EMontageType MontageType) const;
 	void WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim);
 	
 	UFUNCTION(BlueprintCallable)
@@ -85,8 +77,8 @@ public:
 	bool Guard(bool bEnable);
 	bool IsDefendReactionInProgress() const;
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
-	FORCEINLINE bool IsAttackAnimationRunning() const { return (bActiveMontageRunning && AttackMontages.Contains(CurrentMontageType)); }
-	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontageType; }
+	FORCEINLINE bool IsAttackAnimationRunning() const { return (bActiveMontageRunning && AttackMontages.Contains(CurrentMontage.MontageType)); }
+	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontage.MontageType; }
 	FName GetCurrentMontageSection();
 
 	TArray<AActor*> HitActors;

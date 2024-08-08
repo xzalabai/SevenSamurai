@@ -7,7 +7,7 @@ void UCallbackCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
 	Attacker = Cast<ASevenCharacter>(AttackerActor);
 	UAnimationComponent* AC_Animation = Attacker->GetAnimationComponent();
-	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack, false);
+	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack);
 }
 
 void UCallbackCombo::ComboAttackStart()
@@ -29,6 +29,6 @@ EComboType UCallbackCombo::GetComboType()
 
 void UCallbackCombo::DealDamage(ASevenCharacter* Victim)
 {
-	Victim->ReceivedHit(FAttackInfo(EAttackType::Heavy, EAttackStrength::Heavy, 0, 10, Attacker));
+	Victim->ReceivedHit(FAttackInfo(EMontageType::Combo, EAttackStrength::Undefendable, 0, 10, Attacker, GetComboType()));
 	Attacker->EquippedShield->EnableShieldHits(false);
 }

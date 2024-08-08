@@ -126,15 +126,29 @@ void ASevenCharacter::NextAttackAvailable()
 
 void ASevenCharacter::Fire(const FInputActionValue& Value)
 {
-	//UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]Fire"));
 	// Order is important (because EnemyCharacter listens to UpdateStatus)
 	TargetedEnemy = GetClosestEnemyInRange();
-	SevenGameMode->UpdateStatus(this, EEnemyStatus::IncomingAttack);
-	AC_AttackComponent->LightAttack(TargetedEnemy);
+
+	if (AC_AttackComponent->ComboActivated != ECombo::ES_None)
+	{
+		AC_AttackComponent->ComboAttack();
+		// Intentionally don't inform attacker about Combo (so he couldn't use predefined defend)
+	}
+	else
+	{
+		AC_AttackComponent->LightAttack(TargetedEnemy);
+		SevenGameMode->UpdateStatus(this, ECharacterState::IncomingAttack);
+	}
 }
 
 void ASevenCharacter::Block(bool bEnable)
 {
+	if (!AC_Animation)
+	{
+		// TODO: Fix: This is due to error when entered the battle and enemy immediately want's to defend (and nothing is ready yet)
+		return;
+	}
+
 	AC_Animation->Block(bEnable);
 
 	if (bEnable)
@@ -193,10 +207,7 @@ void ASevenCharacter::Special(int ID)
 
 void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter]FireRMB %d"), (uint8)TriggerEvent);
 
-	TargetedEnemy = GetClosestEnemyInRange();
-	AC_AttackComponent->HeavyAttack(TargetedEnemy, (TriggerEvent == ETriggerEvent::Completed || TriggerEvent == ETriggerEvent::Canceled));
 }
 
 /// Inputs
@@ -213,11 +224,12 @@ void ASevenCharacter::AttackStart()
 
 void ASevenCharacter::AttackEnd()
 {
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] AttackEnd"));
 	//AC_Animation->OnAnimationEnded(nullptr, false);
 	TargetedEnemy = nullptr;
 	bIsImmortal = false;
 	OnAttackEnd.Broadcast();
-	SevenGameMode->UpdateStatus(this, EEnemyStatus::AttackEnd);
+	SevenGameMode->UpdateStatus(this, ECharacterState::AttackEnd);
 }
 
 void ASevenCharacter::ComboAttackStart()
@@ -235,7 +247,7 @@ void ASevenCharacter::AttackWasParried()
 {
 	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] AttackWasParried"));
 	AttackEnd();
-	AC_Animation->Play(Animations->Montages[EMontageType::Parry], "1", EMontageType::Parry, true);
+	AC_Animation->Play(Animations->Montages[EMontageType::Parry], "1", EMontageType::Parry);
 }
 
 void ASevenCharacter::PerformWeaponTrace()
@@ -268,7 +280,7 @@ bool ASevenCharacter::CanParryAttack(const ASevenCharacter* Attacker) const
 
 void ASevenCharacter::OnLayingDead()
 {
-	SevenGameMode->UpdateStatus(this, EEnemyStatus::Dead);
+	SevenGameMode->UpdateStatus(this, ECharacterState::Dead);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetGenerateOverlapEvents(false);
@@ -278,6 +290,50 @@ void ASevenCharacter::OnLayingDead()
 	}
 }
 
+UAnimMontage* ASevenCharacter::GetVictimMontageToPlay(bool bDeath, const ESevenCharacterType& AttackerCharacterType, const EMontageType& AttackerMontageType, const EComboType& ComboType) const
+{
+	UAnimMontage* MontageToPlay{ nullptr };
+	if (bDeath)
+	{
+		switch (AttackerMontageType)
+		{
+		case EMontageType::LightAttack:
+			MontageToPlay = Animations->Reactions[AttackerCharacterType].AnimationMapping[EMontageType::LightAttackHitReactionDeath];
+			break;
+		case EMontageType::Throw:
+			MontageToPlay = Animations->Reactions[AttackerCharacterType].AnimationMapping[EMontageType::LightAttackHitReactionDeath];
+			break;
+		case EMontageType::Combo:
+			MontageToPlay = Animations->ComboAnimations->ComboDeathReactions[ComboType];
+			break;
+		default:
+			UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] Unresolved attack type: %d"), (int)AttackerMontageType);
+			check(1 == 0);
+			return nullptr;
+		}
+	}
+	else
+	{
+		switch (AttackerMontageType)
+		{
+		case EMontageType::LightAttack:
+			MontageToPlay = Animations->Reactions[AttackerCharacterType].AnimationMapping[EMontageType::LightAttackHitReaction];
+			break;
+		case EMontageType::Throw:
+			MontageToPlay = Animations->Reactions[AttackerCharacterType].AnimationMapping[EMontageType::LightAttackHitReaction];
+			break;
+		case EMontageType::Combo:
+			MontageToPlay = Animations->ComboAnimations->ComboHitReactions[ComboType];
+			break;
+		default:
+			UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] Unresolved attack type: %d"), (int)AttackerMontageType);
+			check(1 == 0);
+			return nullptr;
+		}
+	}
+	return MontageToPlay;
+}
+
 void ASevenCharacter::Suicide()
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Suicide CHEAT"));
@@ -285,7 +341,7 @@ void ASevenCharacter::Suicide()
 
 	// TODO: For now, random receivedHit animation is being played
 	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction, true);
+	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction);
 }
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
@@ -303,7 +359,6 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		return;
 	}
 	
-	// CHEAT
 	if (IsSameTeam(Attacker))
 	{
 		return;
@@ -320,8 +375,9 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	
 	if (ReceivedHitReaction == EReceivedHitReaction::Parried)
 	{
-		AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry, true);
+		AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry);
 		Attacker->AttackWasParried();
+		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Parried"), *GetName());
 		bIsImmortal = true;
 		AC_Attribute->Add(EItemType::XP, 10);
 		return;
@@ -335,89 +391,32 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 			Attacker->AttackWasParried();
 			return;
 		}
-		if (AttackInfo.AttackType == EAttackType::Heavy)
-		{
-			AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::BlockBroken, true);
-			return;
-		}
 		else
 		{
 			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, Animations->Montages[EMontageType::Block]->CompositeSections.Num() - 1);
-			AC_Animation->Play(Animations->Montages[EMontageType::Block], RandomMontageStr, EMontageType::Block, true);
+			AC_Animation->Play(Animations->Montages[EMontageType::Block], RandomMontageStr, EMontageType::Block);
 			return;
 		}
 	}
 
 	if (ReceivedHitReaction == EReceivedHitReaction::BlockBroken)
 	{
-		AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::BlockBroken, true);
+		AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::BlockBroken);
 		return;
 	}
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Evaded)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Evaded"));
 		bIsImmortal = true;
 		AC_Attribute->Add(EItemType::XP, 10);
 		return;
 	}
 
-	if (ReceivedHitReaction == EReceivedHitReaction::Dead)
-	{
-		// Dead
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP == 0"));
-		EMontageType MontageType;
-
-		switch (AttackInfo.AttackType)
-		{
-		case EAttackType::Light:
-			MontageType = EMontageType::LightAttackHitReactionDeath;
-			break;
-		case EAttackType::Heavy:
-			MontageType = EMontageType::HeavyAttackHitReactionDeath;
-			break;
-		case EAttackType::Throw:
-			MontageType = EMontageType::LightAttackHitReactionDeath;
-			break;
-		default:
-			UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] Unresolved attack type: %d"), (int)AttackInfo.AttackType);
-			check(1 == 0);
-			return;
-		}
-
-		// TODO: For now, random receivedHit animation is being played
-		UAnimMontage* MontageToPlay = Animations->Reactions[Attacker->SevenCharacterType].AnimationMapping[MontageType];
-		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), MontageType, true);
-	}
-
-	if (ReceivedHitReaction == EReceivedHitReaction::Hit)
-	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.GetHit.HP != 0"));
-		
-		EMontageType MontageType;
-		
-		switch (AttackInfo.AttackType)
-		{
-			case EAttackType::Light:
-				MontageType = EMontageType::LightAttackHitReaction;
-				break;
-			case EAttackType::Heavy:
-				MontageType = EMontageType::HeavyAttackHitReaction;
-				break;
-			case EAttackType::Throw:
-				MontageType = EMontageType::LightAttackHitReaction;
-				break;
-			default:
-				UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] Unresolved attack type: %d"), (int)AttackInfo.AttackType);
-				check(1 == 0);
-				return;
-		}
-
-		// TODO: For now, random receivedHit animation is being played
-		UAnimMontage* MontageToPlay = Animations->Reactions[Attacker->SevenCharacterType].AnimationMapping[MontageType];
-		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), MontageType, true);
-	}
+	bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
+	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
+	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
 }
 
 bool ASevenCharacter::IsSameTeam(const ASevenCharacter* Other) const
@@ -437,7 +436,7 @@ void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
-	if (AC_Animation->Play(Animations->Montages[EMontageType::Evade], (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade, false))
+	if (AC_Animation->Play(Animations->Montages[EMontageType::Evade], (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade))
 	{
 		bIsEvading = true;
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
@@ -446,7 +445,7 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 
 void ASevenCharacter::CheckIfBlockingBeforeParrying()
 {
-	if (SevenGameMode->HasAnyEnemyStatus(EEnemyStatus::ParryAvailable))
+	if (SevenGameMode->HasAnyEnemyStatus(ECharacterState::ParryAvailable))
 	{
 		bIsBlockingBeforeAttack = false;
 	}
@@ -478,22 +477,6 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
  			 }
  		 }
  	 }
-  
-	 //auto filter = [&]()
-		// {
-		//	 for (FHitResult& HitResult : HitResults)
-		//	 {
-		//		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
-		//		 {
-		//			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->isEnemy() != isEnemy()))
-		//			 {
-		//				 FoundActors.Add(Enemy);
-		//			 }
-		//		 }
-		//	 }
-		// };
-	 
-	 //filter();
 	 return FoundActors;
 }
 
@@ -522,19 +505,20 @@ EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
 	return EOctagonalDirection::None;
 }
 
-void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage)
+void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 {
 	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
-
-	if (StoppedMontage == EMontageType::Parry || StoppedMontage == EMontageType::Evade)
-	{
-		bIsImmortal = false;
-		bIsBlockingBeforeAttack = true;
-	}
+	bIsImmortal = false;
+	bIsBlockingBeforeAttack = true;
 }
 
 bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy) const
 {
+	if (!bIsEvading)
+	{
+		return false;
+	}
+
 	EOctagonalDirection EvadeDirection = OctagonalDirection::GetOctagonalDirectionFName(AC_Animation->GetCurrentMontageSection());
 	//EOctagonalDirection EvadeDirection = EOctagonalDirection::None;
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway %d"), EvadeDirection);
@@ -600,14 +584,36 @@ void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
 EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackInfo)
 {
 	const ASevenCharacter* Attacker = Cast<ASevenCharacter>(AttackInfo.Attacker);
-	UE_LOG(LogTemp, Warning, TEXT("PARRY: %d %d"), IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanParry) ? 1 : 0, CanParryAttack(Attacker) ? 1 :0);
+	
+	if (AttackInfo.MontageType == EMontageType::Combo)
+	{
+		if (IsEvadingAway(Attacker))
+		{
+			return EReceivedHitReaction::Evaded;
+		}
+		else
+		{
+			const uint16& NewHP = AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
+			if (NewHP == 0)
+			{
+				return EReceivedHitReaction::Dead;
+			}
+			else
+			{
+				return EReceivedHitReaction::Hit;
+			}
+		}
+		
+	}
+	
 	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanParry) && CanParryAttack(Attacker))
 	{
 		return EReceivedHitReaction::Parried;
 	}
+
 	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanBlock) && GetIsBlocking())
 	{
-		if (AttackInfo.AttackType == EAttackType::Light && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
+		if (AttackInfo.MontageType == EMontageType::LightAttack && !GetEnemiesInFrontOfCharacer(Attacker->GetUniqueID()).IsEmpty())
 		{
 			if (IsEnemy())
 			{
@@ -626,18 +632,13 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 				return EReceivedHitReaction::Blocked;
 			}
 		}
-		if (AttackInfo.AttackType == EAttackType::Heavy)
-		{
-			Block(false);
-			return EReceivedHitReaction::BlockBroken;
-		}
-		else if (AttackInfo.AttackType == EAttackType::Throw)
+		else if (AttackInfo.MontageType == EMontageType::Throw)
 		{
 			return EReceivedHitReaction::Blocked;
 		}
 	}
 
-	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanEvade) && GetIsEvading() && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
+	if (IsAllowedHitReaction(AttackInfo.AllowedHitReaction, EAttackStrength::CanEvade) && IsEvadingAway(Cast<ASevenCharacter>(AttackInfo.Attacker)))
 	{
 		return EReceivedHitReaction::Evaded;
 	}

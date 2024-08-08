@@ -86,7 +86,7 @@ public:
 	void ActivateMission(bool bEnable);
 	void MissionStarted();
 	void MoveAlliesToPlace();
-	void OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
+	void OnStatusUpdate(const AActor* Actor, const ECharacterState Status);
 protected:
 	virtual void BeginPlay() override;
 };

@@ -40,8 +40,5 @@ public:
 	FWeaponDetail WeaponDetail;
 
 	UPROPERTY(EditAnywhere)
-	TArray<FName> Combos;
-
-	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<UObject>> CombosObj;
 };

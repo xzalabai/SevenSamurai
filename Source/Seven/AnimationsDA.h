@@ -16,6 +16,19 @@ public:
 	TMap<EMontageType, UAnimMontage*> AnimationMapping;
 };
 
+
+UCLASS()
+class SEVEN_API UComboAnimationsDA : public UDataAsset
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EComboType, UAnimMontage*> ComboHitReactions;
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EComboType, UAnimMontage*> ComboDeathReactions;
+};
+
 UCLASS()
 class SEVEN_API UAnimationsDA : public UDataAsset
 {
@@ -29,4 +42,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TMap<ESevenCharacterType, FAnimationReaction> Reactions;
+
+	UPROPERTY(EditDefaultsOnly)
+	UComboAnimationsDA* ComboAnimations;
 };

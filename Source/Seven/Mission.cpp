@@ -102,9 +102,9 @@ void AMission::MoveAlliesToPlace()
 	}
 }
 
-void AMission::OnStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
+void AMission::OnStatusUpdate(const AActor* Actor, const ECharacterState Status)
 {
-	if (Status != EEnemyStatus::Dead)
+	if (Status != ECharacterState::Dead)
 	{
 		return;
 	}

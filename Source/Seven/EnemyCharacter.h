@@ -62,8 +62,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
 	
-	void OnSevenCharacterStatusUpdate(const AActor* Actor, const EEnemyStatus Status);
-	virtual void OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage) override;
+	void OnSevenCharacterStatusUpdate(const AActor* Actor, const ECharacterState Status);
+	virtual void OnAnimationEnded(const EMontageType& StoppedMontage) override;
 	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
 	virtual void OnLayingDead() override;
 	void SetDefendReactionInProgress() const;

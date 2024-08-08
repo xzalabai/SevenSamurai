@@ -12,8 +12,6 @@ class ASevenCharacter;
 UCLASS()
 class SEVEN_API AShield : public AActor
 {
-	friend class ASevenCharacter;
-
 	GENERATED_BODY()
 
 protected:

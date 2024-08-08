@@ -16,17 +16,17 @@ void ULootGenerator::BeginPlay()
 	Super::BeginPlay();
 	//TODO: This class won't be probably used :(
 	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	SevenGameMode->OnStatusUpdate.AddUObject(this, &ULootGenerator::OnCharacterKilled);
+	//SevenGameMode->OnStatusUpdate.AddUObject(this, &ULootGenerator::OnCharacterKilled);
 
 	check(GoldItemSubclass != nullptr);
 	check(RiceItemSubclass != nullptr);
 }
 
-void ULootGenerator::OnCharacterKilled(const AActor* Actor, const EEnemyStatus Status)
+void ULootGenerator::OnCharacterKilled(const AActor* Actor, const ECharacterState Status)
 {
 	//const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
 
-	//if (Status != EEnemyStatus::Dead || !KilledCharacter->IsEnemy())
+	//if (Status != ECharacterState::Dead || !KilledCharacter->IsEnemy())
 	//{
 	//	return;
 	//}

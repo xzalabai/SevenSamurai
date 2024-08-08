@@ -67,18 +67,13 @@ void AEnemyCharacter::InitiateAttack()
 	LightAttacksAmount--;
 	if (LightAttacksAmount >= 0)
 	{
-		bIsImmortal = true; // TODO: rly should be here?
 		Fire(FInputActionValue());
-	}
-	else
-	{
-		bIsImmortal = false;
 	}
 }
 
 void AEnemyCharacter::IncomingAttack()
 {
-	SevenGameMode->UpdateStatus(this, EEnemyStatus::IncomingAttack);
+	SevenGameMode->UpdateStatus(this, ECharacterState::IncomingAttack);
 
 	if (ASevenCharacter* EnemyToAttack = FindSevenCharacter())
 	{
@@ -109,27 +104,27 @@ void AEnemyCharacter::IncomingAttack()
 void AEnemyCharacter::ParryAvailable(bool bEnable)
 {
 	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] ParryAvailable %d"), bEnable ? 1 : 0);
-	SevenGameMode->UpdateStatus(this, bEnable ? EEnemyStatus::ParryAvailable : EEnemyStatus::ParryUnavailable);
+	SevenGameMode->UpdateStatus(this, bEnable ? ECharacterState::ParryAvailable : ECharacterState::ParryUnavailable);
 }
 
-void AEnemyCharacter::OnSevenCharacterStatusUpdate(const AActor* Actor, const EEnemyStatus Status)
+void AEnemyCharacter::OnSevenCharacterStatusUpdate(const AActor* Actor, const ECharacterState Status)
 {
 	const ASevenCharacter* const SevenCharacter = Cast<ASevenCharacter>(Actor);
 
-	if (Status == EEnemyStatus::IncomingAttack || Status == EEnemyStatus::AttackEnd)
+	if (Status == ECharacterState::IncomingAttack || Status == ECharacterState::AttackEnd)
 	{
 		if (SevenCharacter->GetTargetedEnemyID() == uniqueID)
 		{
 			AAIController* AIController = Cast<AAIController>(GetController());
 			UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
-			BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), Status == EEnemyStatus::IncomingAttack ? true : false);
+			BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), Status == ECharacterState::IncomingAttack ? true : false);
 		}
 	}
 }
 
-void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage, const EMontageType& NextMontage)
+void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 {
-	Super::OnAnimationEnded(StoppedMontage, NextMontage);
+	Super::OnAnimationEnded(StoppedMontage);
 	SetDefendReactionInProgress();
 }
 

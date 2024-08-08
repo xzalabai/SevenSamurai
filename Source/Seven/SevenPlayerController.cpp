@@ -120,13 +120,13 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 	const ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	const TArray<const ASevenCharacter*>& SevenCharacters = SevenGameMode->GetSevenCharacters();
-	const TMap<int8, EEnemyStatus>& SevenCharactersStatus = SevenGameMode->GetSevenCharactersStatus();
+	const TMap<int8, ECharacterState>& SevenCharactersStatus = SevenGameMode->GetSevenCharactersStatus();
 
 	for (const ASevenCharacter* SevenCharacter : SevenCharacters)
 	{
 		if (IsValid(SevenCharacter))
 		{
-			if (SevenCharacter != GetPossessedCharacter() && SevenCharactersStatus[SevenCharacter->GetUniqueID()] != EEnemyStatus::Dead)
+			if (SevenCharacter != GetPossessedCharacter() && SevenCharactersStatus[SevenCharacter->GetUniqueID()] != ECharacterState::Dead)
 			{
 				SwitchSevenCharacter(SevenCharacter);
 				break;
