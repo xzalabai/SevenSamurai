@@ -30,7 +30,7 @@ AWeapon::AWeapon()
 void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketName)
 {
 	AttachToComponent(PlayerMesh, FAttachmentTransformRules::KeepWorldTransform, SocketName);
-	FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
+	const FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
 	SetActorTransform(SocketTransform);
 	CachedSevenCharacter = Cast<ASevenCharacter>(GetAttachParentActor());
 }
@@ -63,8 +63,7 @@ void AWeapon::PerformTrace()
 			if (ASevenCharacter* Target = Cast<ASevenCharacter>(HitActor))
 			{
 				Target->ReceivedHit(AttackInfo);
-				HitActors.Add(Hit.GetActor());
-				//UE_LOG(LogTemp, Display, TEXT("[AWeapon] PerformTrace.Hit:%s"), *Hit.GetActor()->GetName());
+				HitActors.Add(HitActor);
 			}
 		}
 		

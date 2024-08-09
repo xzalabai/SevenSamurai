@@ -7,7 +7,7 @@ void UCallbackCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
 	Attacker = Cast<ASevenCharacter>(AttackerActor);
 	UAnimationComponent* AC_Animation = Attacker->GetAnimationComponent();
-	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack);
+	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::Combo);
 }
 
 void UCallbackCombo::ComboAttackStart()
@@ -22,7 +22,7 @@ void UCallbackCombo::ComboAttackEnd()
 	Attacker->EquippedShield->EnableShieldHits(false);
 }
 
-EComboType UCallbackCombo::GetComboType()
+EComboType UCallbackCombo::GetComboType() const
 {
 	return ComboType;
 }

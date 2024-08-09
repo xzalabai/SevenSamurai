@@ -15,6 +15,5 @@ class SEVEN_API AArcherEnemy : public AEnemyCharacter
 	GENERATED_BODY()
 protected:
 	virtual void BeginPlay();
-	virtual void Fire(const FInputActionValue& Value) override;
 	virtual const FVector GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter) override;
 };

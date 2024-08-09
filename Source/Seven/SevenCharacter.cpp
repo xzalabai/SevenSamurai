@@ -77,20 +77,19 @@ void ASevenCharacter::BeginPlay()
 	check(WeaponType);
 
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType);
+	USkeletalMeshComponent* PlayerMesh = GetMesh();
+
 	if (EquippedWeapon)
 	{
-		USkeletalMeshComponent* PlayerMesh = GetMesh();
 		EquippedWeapon->AttachToSocket(PlayerMesh, "hand_rSocket");
 	}
 	if (SevenCharacterType == ESevenCharacterType::Lancet)
 	{
-		USkeletalMeshComponent* PlayerMesh = GetMesh();
 		EquippedShield = GetWorld()->SpawnActor<AShield>(ShieldType);
 		EquippedShield->AttachToSocket(PlayerMesh, "hand_lSocket");
 	}
 	
-	uniqueID = UniqueIDCounter++; // Because of https://stackoverflow.com/questions/67414701/initializing-static-variables-in-ue4-c 
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Created ASevenCharacter with ID %d"), GetUniqueID());
+	uniqueID = UniqueIDCounter++;
 
 	SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this);
@@ -219,7 +218,7 @@ void ASevenCharacter::FireRMB(const ETriggerEvent& TriggerEvent)
 
 void ASevenCharacter::AttackStart()
 {
-	AC_AttackComponent->OnAttackStart();
+	EquippedWeapon->AttackStart();
 }
 
 void ASevenCharacter::AttackEnd()
@@ -252,14 +251,25 @@ void ASevenCharacter::AttackWasParried()
 
 void ASevenCharacter::PerformWeaponTrace()
 {
-	if (EquippedWeapon)
-	{
-		EquippedWeapon->PerformTrace();
-	}
+	EquippedWeapon->PerformTrace();
 }
 
 /// Callbacks from ABP
 ///////////////////////////////////////////////////////////////////////
+
+int8 ASevenCharacter::GetMappedComboKey(const EComboType& ComboType) const
+{
+	for (const TPair<int8, UObject* >& ComboUObject : AC_AttackComponent->CombosMapping)
+	{
+		IComboInterface* Combo = Cast<IComboInterface>(ComboUObject.Value);
+		if (ComboType == Combo->GetComboType())
+		{
+			return ComboUObject.Key;
+		}
+	}
+	UE_LOG(LogTemp, Fatal, TEXT("[ASevenCharacter] GetMappedComboKey Unable to map Combo: %d"), (int) ComboType);
+	return -1;
+}
 
 bool ASevenCharacter::CanParryAttack(const ASevenCharacter* Attacker) const
 {

@@ -250,9 +250,10 @@ UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
 
 void AEnemyCharacter::UseCombo(const EComboType ComboType)
 {
-	AC_AttackComponent->SetCombo(1);
-	AC_AttackComponent->LightAttack(nullptr);
-	ReturnAttackToken();
+	check(ComboType != EComboType::None);
+	Special(GetMappedComboKey(ComboType));
+	AC_AttackComponent->ComboAttack();
+	ReturnAttackToken(); // TODO: return attack combo AFTER THE ATTACK!!!
 }
 
 void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)

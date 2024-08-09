@@ -24,19 +24,20 @@ void AShield::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 
 void AShield::EnableShieldHits(bool bEnable)
 {
+	BlockCollider->SetUseCCD(bEnable);
 	BlockCollider->SetGenerateOverlapEvents(bEnable);
 }
 
 void AShield::BeginPlay()
 {
 	Super::BeginPlay();
-	BlockCollider->OnComponentHit.AddUniqueDynamic(this, &AShield::OnHit);
+	BlockCollider->OnComponentBeginOverlap.AddDynamic(this, &AShield::OnOverlapBegin);
 	EnableShieldHits(false);
 }
 
-void AShield::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void AShield::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (ASevenCharacter* HitEnemy = Cast<ASevenCharacter>(OtherActor))
+	if (ASevenCharacter* HitEnemy = Cast<ASevenCharacter>(OtherActor)) // TODO: Consider insteadd of this having tags..
 	{
 		if (HitEnemy != CachedSevenCharacter && CachedSevenCharacter->GetAttackComponent()->GetLastUsedCombo())
 		{

@@ -31,7 +31,7 @@ void UAttackComponent::BeginPlay()
 	{
 		WeaponDetail = FWeaponDetail(200, EWeaponLevel::One);
 	}
-
+	CombosMapping.Reserve(5);
 	CachedSevenCharacter = GetOwnerCharacter();
 }
 
@@ -150,48 +150,47 @@ bool UAttackComponent::CanPlayRandomAttackMontage() const
 void UAttackComponent::UseCombo(const ECombo& Special)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo %d"), (uint8)Special);
-	
-	if (IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[(uint8)Special]))
-	{
-		Combo->Use(GetOwner(), CachedSevenCharacter->TargetedEnemy);
-		LastUsedCombo = Combo;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent].UseCombo Combo Cast was not succesfull"));
-	}
+	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[(uint8)Special]);
+	Combo->Use(CachedSevenCharacter, CachedSevenCharacter->TargetedEnemy);
+	LastUsedCombo = Combo;
 	ComboActivated = ECombo::ES_None;
 }
 
 void UAttackComponent::SetCombo(const int8 ID)
 {
-	// Player pressed one of keys for combos (we store it) 
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]SetCombo %d is activated."), ID);
-	if (ID == 1)
+	switch (ID)
 	{
+	case 1:
 		ComboActivated = ECombo::ES_Combo1;
-	}
-	else if (ID == 2)
-	{
+		break;
+	case 2:
 		ComboActivated = ECombo::ES_Combo2;
-	}
-	else if (ID == 3)
-	{
+		break;
+	case 3:
 		ComboActivated = ECombo::ES_Combo3;
-	}
-	else
-	{
+		break;
+	default:
+		ComboActivated = ECombo::ES_None;
 		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]SetCombo Unidentified combo."));
 	}
 }
 
-void UAttackComponent::AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo)
+void UAttackComponent::AddComboToCharacter(const TSubclassOf<UObject> Combo)
 {
-	int Index = CombosMapping.Num() + 1;
-	CombosMapping.Emplace(Index, NewObject<UObject>(this, TypeOfCombo));
+	CombosMapping.Emplace(CombosMapping.Num() + 1, NewObject<UObject>(this, Combo));
+
+	const IComboInterface* ICombo = Cast<IComboInterface>(CombosMapping[CombosMapping.Num()]);
+	if (!ICombo)
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("[UAttackComponent]AddComboToCharacter Combo has no EComboType Defined %s"), *Combo.GetDefaultObject()->GetName());
+	}
+	if (ICombo->GetComboType() == EComboType::None)
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("[UAttackComponent]AddComboToCharacter Combo's EComboType is unknown type: %d"), (int)ICombo->GetComboType());
+	}
 	
-	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[Index]);	
-	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]BuyCombo Combo: %s was added to the Inventory under key %d"), *TypeOfCombo->GetName(), CombosMapping.Num());
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent]AddComboToCharacter Combo of type EComboType: %d was added under %d"), ICombo->GetComboType(), CombosMapping.Num());
 }
 
 void UAttackComponent::ComboAttackStart()
@@ -223,11 +222,6 @@ void UAttackComponent::SetWeaponDamage(const int NewDamage)
 	WeaponDetail.Damage = NewDamage;
 	ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(GetOwner());
 	SevenCharacter->SevenCharacterDA->WeaponDetail = FWeaponDetail(WeaponDetail.Damage, WeaponDetail.WeaponLevel);
-}
-
-void UAttackComponent::OnAttackStart()
-{
-	GetOwnerCharacter()->EquippedWeapon->AttackStart();
 }
 
 ASevenCharacter* UAttackComponent::GetOwnerCharacter()

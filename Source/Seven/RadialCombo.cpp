@@ -8,7 +8,7 @@ void URadialCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
 	Attacker = Cast<ASevenCharacter>(AttackerActor);
 	UAnimationComponent* AC_Animation = Attacker->GetAnimationComponent();
-	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack);
+	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::Combo);
 }
 
 void URadialCombo::ComboAttackStart()
@@ -27,7 +27,7 @@ void URadialCombo::ComboAttackEnd()
 	Attacker = nullptr;
 }
 
-EComboType URadialCombo::GetComboType()
+EComboType URadialCombo::GetComboType() const
 {
     return ComboType;
 }

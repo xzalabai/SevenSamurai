@@ -3,7 +3,6 @@
 #include "MotionWarpingComponent.h"
 #include "AnimationComponent.h"
 
-
 void UCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 {
 	ASevenCharacter* AttackerCharacter = Cast<ASevenCharacter>(AttackerActor);
@@ -28,13 +27,13 @@ void UCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 	// Rotate and play animation
 	AttackerCharacter->RotateTowards(VictimCharacter);
 	UAnimationComponent* AC_Animation = AttackerCharacter->GetAnimationComponent();
-	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::LightAttack);
+	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::Combo);
 
 	// Victim
 	// Rotate and play animation
 	//VictimCharacter->RotateTowards(AttackerCharacter);
 	AC_Animation = VictimCharacter->GetAnimationComponent();
-	AC_Animation->Play(VictimAnimation, "Default", EMontageType::LightAttack);
+	AC_Animation->Play(VictimAnimation, "Default", EMontageType::HitReaction);
 	
 	VictimCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackComboVictim", AttackerCharacter->VictimDesiredPosition->GetComponentTransform());
 }
@@ -48,7 +47,7 @@ void UCombo::ComboAttackEnd()
 
 }
 
-EComboType UCombo::GetComboType()
+EComboType UCombo::GetComboType() const
 {
 	return ComboType;
 }

@@ -51,7 +51,7 @@ public:
 	bool CanUseCombo() const;
 	void UseCombo(const ECombo& Special);
 	void SetCombo(const int8 ID);
-	void AddComboToCharacter(TSubclassOf<UObject> TypeOfCombo);
+	void AddComboToCharacter(const TSubclassOf<UObject> Combo);
 	void ComboAttackStart();
 	void ComboAttackEnd();
 	TObjectPtr<IComboInterface> GetLastUsedCombo() const;
@@ -60,8 +60,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponDamage(const int NewDamage);
-
-	void OnAttackStart();
 
 protected:
 	virtual void BeginPlay() override;

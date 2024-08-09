@@ -20,6 +20,8 @@ enum class EComboType : uint8
 	HalbertAttackSequence,
 	HalberRadial,
 	LancetShieldDodge,
+	LancetAttack1,
+	LancetAttack2,
 };
 
 UENUM(BlueprintType)

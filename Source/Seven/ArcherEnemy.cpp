@@ -10,17 +10,6 @@ void AArcherEnemy::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AArcherEnemy::Fire(const FInputActionValue& Value)
-{
-	//Attack
-	UE_LOG(LogTemp, Display, TEXT("[AArcherEnemy]Fire"));
-
-	AC_AttackComponent->SetCombo(1);
-	TargetedEnemy = FindSevenCharacter();
-	AC_AttackComponent->LightAttack(TargetedEnemy);
-	ReturnAttackToken();
-}
-
 const FVector AArcherEnemy::GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter)
 {
 	const FVector EnemyPosition = SevenCharacter->GetActorLocation();

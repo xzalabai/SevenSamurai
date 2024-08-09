@@ -58,6 +58,13 @@ class ASevenCharacter : public ACharacter
 
 	GENERATED_BODY()
 
+public:
+	UPROPERTY()
+	AWeapon* EquippedWeapon;
+
+	UPROPERTY()
+	AShield* EquippedShield;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,12 +83,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* VictimDesiredPosition;
-
-	UPROPERTY()
-	AWeapon* EquippedWeapon;
-
-	UPROPERTY()
-	AShield* EquippedShield;
 
 	UPROPERTY(VisibleAnywhere)
 	USevenCharacterDA* SevenCharacterDA;
@@ -210,6 +211,7 @@ protected:
 	bool IsEvadingAway(const ASevenCharacter *Enemy) const;
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
 	virtual void OnLayingDead();
+	int8 GetMappedComboKey(const EComboType& ComboType) const;
 
 public:
 	/** Returns CameraBoom subobject **/

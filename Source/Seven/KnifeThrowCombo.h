@@ -44,6 +44,6 @@ public:
 	void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	void ComboAttackStart() override;
 	void ComboAttackEnd() override;
-	virtual EComboType GetComboType() override;
+	virtual EComboType GetComboType() const override;
 	void DealDamage(ASevenCharacter* Victim) override;
 };
