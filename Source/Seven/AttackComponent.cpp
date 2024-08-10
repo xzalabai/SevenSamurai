@@ -77,15 +77,71 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage)
 
 FAttackInfo UAttackComponent::GetAttackInfo() const
 {
-	// TODO: Damage based on weapon
-	//int DamageToBeDealt = WeaponDetail.Damage;
-	int DamageToBeDealt = 20;
-	EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
-	EMontageType AttackerMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
-	int AttackerMontageSection = CustomMath::FNameToInt(CachedSevenCharacter->AC_Animation->GetCurrentMontageSection());
-	UE_LOG(LogTemp, Warning, TEXT("ATTACK TYPE MONTAGE: %d"), (int)AttackerMontageSection);
+	const int DamageToBeDealt = 0;
+	const EMontageType AttackerMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+	const EAttackStrength AttackStrength = GetAttackStrength();
+	const EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
+	const bool bbreakBlock = GetAttackCanBreakBlock();
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].GetAttackInfo:\nAttackerMontageType: %s \n, AttackStrength: %s \n, ComboType: %s \n DamageToBeDealth %d\n CanBreakBlock: %d"),
+		*UEnum::GetValueAsString(AttackerMontageType),
+		*UEnum::GetValueAsString(AttackStrength),
+		*UEnum::GetValueAsString(ComboType),
+		DamageToBeDealt,
+		bbreakBlock ? 1 : 0
+		);
 
-	return FAttackInfo(AttackerMontageType, GetOwnerCharacter()->AttackStrength, AttackerMontageSection, DamageToBeDealt, CachedSevenCharacter, ComboType);
+	return FAttackInfo(AttackerMontageType, AttackStrength, bbreakBlock, DamageToBeDealt, CachedSevenCharacter, ComboType);
+}
+
+EAttackStrength UAttackComponent::GetAttackStrength() const
+{
+	const EMontageType CurrentMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+	if (CurrentMontageType == EMontageType::LightAttack)
+	{
+		return EAttackStrength::Light;
+	}
+	
+	if (CurrentMontageType == EMontageType::Combo)
+	{
+		EComboType ComboType = LastUsedCombo->GetComboType();
+		if (CachedSevenCharacter->IsEnemy())
+		{
+			// TODO:DO Mapping for these strength
+			if (ComboType == EComboType::Throw)
+			{
+				// Only exception. If enemy shoots arrow, it should be defendable (althought it is a combo)
+				return EAttackStrength::Light;
+			}
+			if (ComboType == EComboType::LancetAttack2)
+			{
+				return EAttackStrength::Light;
+			}
+			else
+			{
+				return EAttackStrength::Heavy;
+			}
+		}
+		else
+		{
+			return EAttackStrength::Undefendable;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int) CurrentMontageType);
+		return EAttackStrength::Light;
+	}
+}
+
+bool UAttackComponent::GetAttackCanBreakBlock() const
+{
+	return false;
+
+	/*if (CachedSevenCharacter->IsEnemy() && CachedSevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
+	{
+		return false;
+	}
+	return bAttackCanBreakBlock;*/
 }
 
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)

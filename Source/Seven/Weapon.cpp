@@ -7,7 +7,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "PublicEnums.h"
-#include "AttackComponent.h"
 #include "SevenCharacter.h"
 
 AWeapon::AWeapon()
@@ -33,6 +32,9 @@ void AWeapon::AttachToSocket(USkeletalMeshComponent* PlayerMesh, FName SocketNam
 	const FTransform SocketTransform = PlayerMesh->GetSocketTransform(SocketName);
 	SetActorTransform(SocketTransform);
 	CachedSevenCharacter = Cast<ASevenCharacter>(GetAttachParentActor());
+
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(CachedSevenCharacter);
 }
 
 void AWeapon::PerformTrace()
@@ -74,11 +76,6 @@ void AWeapon::AttackStart()
 {
 	HitActors.Empty();
 	OutHit.Empty();
-	ActorsToIgnore.Add(this);
-	ActorsToIgnore.Add(GetAttachParentActor());
-
-	TObjectPtr<ASevenCharacter> SevenCharacter = Cast<ASevenCharacter>(GetAttachParentActor());
-
-	AttackInfo = SevenCharacter->GetAttackComponent()->GetAttackInfo();
+	AttackInfo = CachedSevenCharacter->GetAttackInfo();
 }
 

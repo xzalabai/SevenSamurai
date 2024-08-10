@@ -42,6 +42,7 @@ class ASevenCharacter : public ACharacter
 	friend class UAttackComponent;
 
 	friend class UCombo;
+	friend class AWeapon;
 	friend class URadialCombo;
 	friend class UAICharacter;
 	friend class UThrowKnife;
@@ -166,7 +167,7 @@ public:
 	void PerformWeaponTrace();
 	FORCEINLINE bool CanBePossessed() const { return !bEnemy; }
 	FORCEINLINE bool IsEnemy() const { return bEnemy; }
-	virtual const EAttackStrength GetAttackStrength() const;
+	FAttackInfo GetAttackInfo() const;
 
 protected:
 	// Controllable Int
@@ -196,6 +197,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void NextAttackAvailable();
 	UFUNCTION(BlueprintCallable)
+	virtual void AttackCanBreakBlock();
+	UFUNCTION(BlueprintCallable)
 	virtual void AI_MoveToPosition(const FVector& Position);
 
 protected:
@@ -206,7 +209,7 @@ protected:
 	virtual void OnAnimationEnded(const EMontageType& StoppedMontage);
 	bool CanParryAttack(const ASevenCharacter* Attacker) const;
 	void AttackWasParried();
-	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo);
+	EReceivedHitReaction GetHitReaction(const FAttackInfo& AttackInfo) const;
 	void CheckIfBlockingBeforeParrying();
 	bool IsEvadingAway(const ASevenCharacter *Enemy) const;
 	EOctagonalDirection GetDirection(const FVector2D& Vector) const;
@@ -236,18 +239,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }
 	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
+	virtual EReceivedHitReaction GetSuccessfulHitReaction(const uint8 Damage) const;
 	UFUNCTION(BlueprintCallable)
 	void Suicide();
 	UAnimMontage* GetVictimMontageToPlay(bool bDeath, const ESevenCharacterType& AttackerCharacterType, const EMontageType& AttackerMontageType, const EComboType& ComboType = EComboType::None) const;
 	virtual bool IsAlive() const;
 	bool IsSameTeam(const ASevenCharacter* Other) const;
 	ASevenPlayerController* GetSevenPlayerController() const;
-	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool CanStealAttackToken() { return AttackToken == 0; }
+	FORCEINLINE bool CanStealAttackToken() const { return AttackToken == 0; }
 	void StealAttackToken(const uint8 enemyUniqueID);
 	UFUNCTION(BlueprintCallable)
 	void ResetAttackToken();
-	FORCEINLINE const uint8 GetAttackTokenOwner() const { return AttackToken; }
+	FORCEINLINE uint8 GetAttackTokenOwner() const { return AttackToken; }
 };
 

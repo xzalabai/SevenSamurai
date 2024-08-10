@@ -41,7 +41,7 @@ void AShield::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	{
 		if (HitEnemy != CachedSevenCharacter && CachedSevenCharacter->GetAttackComponent()->GetLastUsedCombo())
 		{
-			CachedSevenCharacter->GetAttackComponent()->GetLastUsedCombo()->DealDamage(HitEnemy);
+			CachedSevenCharacter->ReceivedHit(CachedSevenCharacter->GetAttackInfo());
 		}
 	}
 }

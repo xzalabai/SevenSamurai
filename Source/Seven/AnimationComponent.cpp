@@ -15,11 +15,11 @@ UAnimationComponent::UAnimationComponent()
 
 void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (CachedSevenCharacter && CachedSevenCharacter->CanBePossessed() && CachedSevenCharacter->GetIsGuarding()) // TODO REMOVE FIRST CONDITION!!!
+	if (CachedSevenCharacter->CanBePossessed() && CachedSevenCharacter->GetIsGuarding())
 	{
 		if (LockedEnemy)
 		{
-			ASevenPlayerController* PlayerController = CachedSevenCharacter->GetSevenPlayerController(); // TODO: Why I cannot assign directly to APlayerController ??????
+			ASevenPlayerController* PlayerController = CachedSevenCharacter->GetSevenPlayerController();
 			FRotator Rot = UKismetMathLibrary::FindLookAtRotation(CachedSevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
 			Rot.Pitch = Rot.Pitch - 25.0f;
 			PlayerController->SetControlRotation(Rot);
@@ -30,10 +30,9 @@ void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		}
 	}
 	
-	if (IsAttackAnimationRunning() && CachedSevenCharacter && CachedSevenCharacter->TargetedEnemy)
+	if (IsAttackAnimationRunning() && CachedSevenCharacter->TargetedEnemy)
 	{
-		// TODO remove creating FSTRING EVERY TICK Omg!
-		WarpAttacker(FString(), CachedSevenCharacter->TargetedEnemy);
+		WarpAttacker(CachedSevenCharacter->TargetedEnemy);
 	}
 }
 
@@ -49,14 +48,19 @@ void UAnimationComponent::BeginPlay()
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType)
 {
-	FString myString = FString::FromInt(SectionName);
-	return Play(AnimMontage, FName(*myString), MontageType);
+	return Play(AnimMontage, CustomMath::IntToFName(SectionName), MontageType);
 }
 
 bool UAnimationComponent::CanPlayAnimation(const EMontageType MontageType) const
 {
 	int PriorityCurrentMontage = MontagePriorityOrder.Find(CurrentMontage.MontageType);
 	int PriorityNextMontage = MontagePriorityOrder.Find(MontageType);
+
+	if (CurrentMontage.MontageType == EMontageType::Parry && (MontageType == EMontageType::LightAttack || MontageType == EMontageType::Combo))
+	{
+		// Exception: If parry is performed, we want to be able to attack
+		return true;
+	}
 
 	if (PriorityCurrentMontage < PriorityNextMontage)
 	{
@@ -82,7 +86,7 @@ bool UAnimationComponent::CanPlayAnimation(const EMontageType MontageType) const
 	return false;
 }
 
-void UAnimationComponent::WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim)
+void UAnimationComponent::WarpAttacker(const ASevenCharacter* Victim)
 {
 	// TODO: Understand and FIX this when you will have enough strenght solider
 	const FVector Direction = (Victim->VictimDesiredPosition->GetComponentLocation() - Victim->GetActorLocation()) * Victim->GetActorForwardVector().GetSafeNormal();
@@ -216,17 +220,6 @@ bool UAnimationComponent::Guard(bool bEnable)
 	}
 
 	return true;
-}
-
-bool UAnimationComponent::IsDefendReactionInProgress() const
-{
-	if (GetCurrentMontageType() == EMontageType::Block ||
-		GetCurrentMontageType() == EMontageType::Evade ||
-		GetCurrentMontageType() == EMontageType::Parry)
-	{
-		return true;
-	}
-	return false;
 }
 
 FName UAnimationComponent::GetCurrentMontageSection()

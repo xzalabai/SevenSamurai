@@ -42,14 +42,9 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 	TargetedEnemy = FindSevenCharacter();
 	if (TargetedEnemy)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter]Fire.TargetedEnemy %s"), *TargetedEnemy->GetName());
-		//MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackAttacker", TargetedEnemy->VictimDesiredPosition->GetComponentTransform());
-
-		// Rotate character towards enemy
-		FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetedEnemy->GetActorLocation());
-		RootComponent->SetWorldRotation(PlayerRot);
-
-		if (!AC_AttackComponent->LightAttack(TargetedEnemy))
+		RotateTowards(TargetedEnemy);
+		bool bLightAttackPlaying = AC_AttackComponent->LightAttack(TargetedEnemy);
+		if (!bLightAttackPlaying)
 		{
 			AttackEnd();
 		}
@@ -58,8 +53,12 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 	{
 		AttackEnd();
 	}
+}
 
+void AEnemyCharacter::AttackEnd()
+{
 	ReturnAttackToken();
+	Super::AttackEnd();
 }
 
 void AEnemyCharacter::InitiateAttack()
@@ -107,12 +106,11 @@ void AEnemyCharacter::ParryAvailable(bool bEnable)
 	SevenGameMode->UpdateStatus(this, bEnable ? ECharacterState::ParryAvailable : ECharacterState::ParryUnavailable);
 }
 
-void AEnemyCharacter::OnSevenCharacterStatusUpdate(const AActor* Actor, const ECharacterState Status)
+void AEnemyCharacter::OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status)
 {
-	const ASevenCharacter* const SevenCharacter = Cast<ASevenCharacter>(Actor);
-
 	if (Status == ECharacterState::IncomingAttack || Status == ECharacterState::AttackEnd)
 	{
+		//UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] OnSevenCharacterStatusUpdate: MY ID: %d, attack ID %d"), uniqueID, SevenCharacter->GetTargetedEnemyID());
 		if (SevenCharacter->GetTargetedEnemyID() == uniqueID)
 		{
 			AAIController* AIController = Cast<AAIController>(GetController());
@@ -125,46 +123,57 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const AActor* Actor, const EC
 void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 {
 	Super::OnAnimationEnded(StoppedMontage);
-	SetDefendReactionInProgress();
+	SetDefendActionInProgress(false); // In case of Evade
 }
 
 void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
-	SetDefendReactionInProgress();
 	Super::ReceivedHit(AttackInfo);
-	ReturnAttackToken();
 }
 
-void AEnemyCharacter::OnLayingDead()
+bool AEnemyCharacter::DefendAgainstIncomingAttack(EMontageType DefendMontage)
 {
-	Super::OnLayingDead();
+	SetDefendActionInProgress(true);
+	DefendActionResolved();
+
+	if (!AC_Animation->CanPlayAnimation(DefendMontage) || DefendMontage == EMontageType::None)
+	{
+		return false;
+	}
+
+	if (HasAttackStarted())
+	{
+		return false;
+	}
+
+	if (DefendMontage == EMontageType::Block)
+	{
+		Block(true);
+		return true;
+	}
+	else if (DefendMontage == EMontageType::Evade)
+	{
+		const TArray<FInputActionValue::Axis2D> PossibleEvades = { FInputActionValue::Axis2D(0,-1),  FInputActionValue::Axis2D(-1, 0), FInputActionValue::Axis2D(1,0) };
+		const int RandomEvadeIndex = FMath::RandRange(0, PossibleEvades.Num() - 1);
+		Evade(PossibleEvades[RandomEvadeIndex]);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	return false;
 }
 
-void AEnemyCharacter::SetDefendReactionInProgress() const
+void AEnemyCharacter::SetDefendActionInProgress(const bool bInProgress) const
 {
+	//UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] SetDefendActionInProgress %d"), bInProgress ? 1 : 0);
 	AAIController* AIController = Cast<AAIController>(GetController());
-	if (!AIController)
-	{
-		return;
-	}
-
 	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
-	
-	if (!BlackBoardComponent)
-	{
-		return;
-	}
-	FName BBValue = FName(TEXT("bDefendReactionInProgress"));
-	bool const bPreviousValue = BlackBoardComponent->GetValueAsBool(BBValue);
-	bool const bNewValue = AC_Animation->IsDefendReactionInProgress();
-	if (bPreviousValue == bNewValue)
-	{
-		return;
-	}
-	UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] Set Defend %d"), bNewValue ? 1 : 0);
 
-	BlackBoardComponent->SetValueAsBool(BBValue, bNewValue);
-	
+	const FName BBValue{ TEXT("bDefendReactionInProgress") };
+	bool const bPreviousValue = BlackBoardComponent->GetValueAsBool(BBValue);
+	BlackBoardComponent->SetValueAsBool(BBValue, bInProgress);
 }
 
 void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
@@ -202,12 +211,12 @@ const FVector AEnemyCharacter::GetRandomPointAroundCharacter(const ASevenCharact
 
 bool AEnemyCharacter::TryStealAttackToken()
 {
-	if (ASevenCharacter* EnemyToAttack = FindSevenCharacter())
+	if (ASevenCharacter* const EnemyToAttack = FindSevenCharacter())
 	{
 		if (EnemyToAttack->CanStealAttackToken() || EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 		{
 			EnemyToAttack->StealAttackToken(uniqueID);
-			SevenCharacterToAttack = EnemyToAttack;
+			TargetedEnemy = EnemyToAttack;
 			return true;
 		}
 	}
@@ -226,17 +235,6 @@ void AEnemyCharacter::DefendActionResolved()
 	BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), false);
 }
 
-void AEnemyCharacter::PerformEvade()
-{
-	// TODO: pls change it to be more efficient :D 
-	const TArray<FInputActionValue::Axis2D> PossibleEvades = { FInputActionValue::Axis2D(0,-1),  FInputActionValue::Axis2D(-1, 0), FInputActionValue::Axis2D(1,0)};
-	const int RandomEvadeIndex = FMath::RandRange(0, PossibleEvades.Num() - 1);
-
-	Super::Evade(PossibleEvades[RandomEvadeIndex]);
-	
-	// TODO: find a better way on how to forbid next evading (since loop goes there again.
-}
-
 void AEnemyCharacter::SetLightAttacksAmount(int Amount)
 {
 	LightAttacksAmount = Amount;
@@ -244,7 +242,6 @@ void AEnemyCharacter::SetLightAttacksAmount(int Amount)
 
 UBehaviorTree* AEnemyCharacter::GetBehaviorTree() const
 {
-	//check(EnemyScenarios->EnemyScenarios.Contains(MissionType))
 	return EnemyScenarios->EnemyScenarios[SevenCharacterType];
 }
 
@@ -253,7 +250,6 @@ void AEnemyCharacter::UseCombo(const EComboType ComboType)
 	check(ComboType != EComboType::None);
 	Special(GetMappedComboKey(ComboType));
 	AC_AttackComponent->ComboAttack();
-	ReturnAttackToken(); // TODO: return attack combo AFTER THE ATTACK!!!
 }
 
 void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)
@@ -261,18 +257,27 @@ void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)
 	AttackStrength = NewAttackStrength;
 }
 
-const EAttackStrength AEnemyCharacter::GetAttackStrength() const
+bool AEnemyCharacter::HasAttackStarted() const
 {
-	return AttackStrength;
+	if (AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack || AC_Animation->GetCurrentMontageType() == EMontageType::Combo)
+	{
+		// Attack animation started
+		return true;
+	}
+	if (SevenGameMode->GetEnemyStatus(uniqueID) == ECharacterState::IncomingAttack)
+	{
+		// Attack is imminent
+		return true;
+	}
+	return false;
 }
 
 void AEnemyCharacter::ReturnAttackToken()
 {
-	if (SevenCharacterToAttack)
+	if (TargetedEnemy)
 	{
-		//UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].ReturnAttackToken Returning Attack Token"));
-		SevenCharacterToAttack->ResetAttackToken();
-		SevenCharacterToAttack = nullptr;
+		TargetedEnemy->ResetAttackToken();
+		TargetedEnemy = nullptr;
 	}
 }
 

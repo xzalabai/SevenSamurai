@@ -26,9 +26,3 @@ EComboType UCallbackCombo::GetComboType() const
 {
 	return ComboType;
 }
-
-void UCallbackCombo::DealDamage(ASevenCharacter* Victim)
-{
-	Victim->ReceivedHit(FAttackInfo(EMontageType::Combo, EAttackStrength::Undefendable, 0, 10, Attacker, GetComboType()));
-	Attacker->EquippedShield->EnableShieldHits(false);
-}

@@ -10,20 +10,15 @@
 ASevenGameMode::ASevenGameMode()
 {
 	AC_LootGenerator = CreateDefaultSubobject<ULootGenerator>(TEXT("LootGenerator"));
+	CachedSevenPlayerController = nullptr;
 }
 const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
 {
 	return SevenCharacters;
 }
 
-void ASevenGameMode::UpdateStatus(const AActor* Actor, const ECharacterState Status)
+void ASevenGameMode::UpdateStatus(const ASevenCharacter* SevenCharacter, const ECharacterState Status)
 {
-	const ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(Actor);
-	if (!SevenCharacter)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[ASevenGameMode].UpdateStatus SevenCharacter is nullptr"));
-		return;
-	}
 	const int8 CharacterID = SevenCharacter->GetUniqueID();
 
 	if (SevenCharacter && SevenCharacter->IsEnemy())
@@ -53,11 +48,11 @@ void ASevenGameMode::UpdateStatus(const AActor* Actor, const ECharacterState Sta
 		}
 		if (SevenCharacter->IsPlayerControlled())
 		{
-			OnSevenCharacterStatusUpdate.Broadcast(Actor, Status);
+			OnSevenCharacterStatusUpdate.Broadcast(SevenCharacter, Status);
 		}
 	}
 
-	OnStatusUpdate.Broadcast(Actor, Status);
+	OnStatusUpdate.Broadcast(SevenCharacter, Status);
 
 	if (SevenCharacter == GetPossessedCharacter() && Status == ECharacterState::Dead)
 	{
@@ -81,23 +76,16 @@ ASevenCharacter* ASevenGameMode::GetAnyAliveEnemy()
 
 ASevenCharacter* ASevenGameMode::GetPossessedCharacter() const
 {
-	const ASevenPlayerController* SevenPlayerController = GetSevenPlayerController();
-	ASevenCharacter* PossessedCharacter = SevenPlayerController->GetPawn<ASevenCharacter>();
-	return PossessedCharacter;
+	if (!CachedSevenPlayerController)
+	{
+		CachedSevenPlayerController = GetSevenPlayerController();
+	}
+	return CachedSevenPlayerController->GetPawn<ASevenCharacter>();
 }
 
 ASevenPlayerController* ASevenGameMode::GetSevenPlayerController() const
 {
-	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (SevenPlayerController)
-	{
-		return SevenPlayerController;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UGameController].SevenPlayerController is NULLPTR"));
-		return nullptr;
-	}
+	return Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
 TMap<int8, ECharacterState> ASevenGameMode::GetSevenCharactersStatus() const

@@ -51,7 +51,3 @@ EComboType UCombo::GetComboType() const
 {
 	return ComboType;
 }
-
-void UCombo::DealDamage(ASevenCharacter* Victim)
-{
-}

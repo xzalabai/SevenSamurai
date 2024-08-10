@@ -25,8 +25,3 @@ EComboType UWeaponCallbackCombo::GetComboType() const
 {
 	return ComboType;
 }
-
-void UWeaponCallbackCombo::DealDamage(ASevenCharacter* Victim)
-{
-
-}

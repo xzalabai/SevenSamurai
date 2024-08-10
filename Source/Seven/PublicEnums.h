@@ -1,6 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
 
+class ASevenCharacter;
+
 UENUM(BlueprintType)
 enum class ECombo : uint8
 {
@@ -28,7 +30,6 @@ UENUM(BlueprintType)
 enum class EAttackStrength : uint8
 {
 	// I feel immortal after writing this
-	None = 0b000, // Should not be used
 	CanBlock = 0b001,
 	CanParry = 0b010,
 	CanEvade = 0b100,
@@ -94,7 +95,6 @@ static const TArray<EMontageType> MontagePriorityOrder
 		EMontageType::Block,
 		EMontageType::Evade,
 		EMontageType::Misc,
-		EMontageType::Throw,
 		EMontageType::Combo,
 		EMontageType::LightAttack,
 		EMontageType::Parry,
@@ -139,10 +139,10 @@ enum class EOctagonalDirection
 struct FAttackInfo
 {
 	FAttackInfo() = default;
-	FAttackInfo(const EMontageType MontageType, const EAttackStrength AllowedHitReaction, const uint8 AttackTypeMontage, const uint8 Damage, AActor* Attacker, EComboType ComboType = EComboType::None)
+	FAttackInfo(const EMontageType MontageType, const EAttackStrength AttackStrength, const bool bAttackCanBreakBlock, const uint8 Damage, ASevenCharacter* Attacker, EComboType ComboType = EComboType::None)
 		: MontageType(MontageType),
-		AllowedHitReaction(AllowedHitReaction),
-		AttackTypeMontage(AttackTypeMontage),
+		AttackStrength(AttackStrength),
+		bAttackCanBreakBlock(bAttackCanBreakBlock),
 		Damage(Damage),
 		Attacker(Attacker),
 		ComboType(ComboType)
@@ -150,17 +150,17 @@ struct FAttackInfo
 	void Reset()
 	{
 		MontageType = EMontageType::None;
-		AllowedHitReaction = EAttackStrength::Light;
-		AttackTypeMontage = 0;
+		AttackStrength = EAttackStrength::Undefendable;
+		bAttackCanBreakBlock = false;
 		Damage = 0;
 		Attacker = nullptr;
 		ComboType = EComboType::None;
 	}
-	EMontageType MontageType = EMontageType::None;
-	EAttackStrength AllowedHitReaction = EAttackStrength::Light;
-	uint8 AttackTypeMontage = 0;
-	uint8 Damage;
-	AActor* Attacker;
+	EMontageType MontageType{ EMontageType::None };
+	EAttackStrength AttackStrength{ EAttackStrength::Undefendable};
+	bool bAttackCanBreakBlock{ false };
+	uint8 Damage{ 0 };
+	ASevenCharacter* Attacker{ nullptr };
 	EComboType ComboType{ EComboType::None };
 	
 };
@@ -169,40 +169,35 @@ namespace CustomMath
 {
 	// No typechecking in these methods
 
-	static FString GetRandomNumber_FString(int Start, int End)
+	static FString GetRandomNumber_FString(const int Start, const int End)
 	{
-		int RandomMontage = FMath::RandRange(Start, End);
-		return FString::FromInt(RandomMontage);
+		return FString::FromInt(FMath::RandRange(Start, End));
 	}
 
-	static FName GetRandomNumber_FName(int Start, int End)
+	static FName GetRandomNumber_FName(const int Start, const int End)
 	{
-		int RandomMontage = FMath::RandRange(Start, End);
-		return FName(*FString::FromInt(RandomMontage));
+		return FName(*FString::FromInt(FMath::RandRange(Start, End)));
 	}
 
-	static FName IntToFName(int Number)
+	static FName IntToFName(const int Number)
 	{
 		return FName(*FString::FromInt(Number));
 	}
 
-	static int FNameToInt(FName Name)
+	static int FNameToInt(const FName& Name)
 	{
-		FString Str = Name.ToString();
-		return  FCString::Atoi(*Str);
+		return FCString::Atoi(*Name.ToString());
 	}
 
-	static FName ConcatFNameAndInt(const FName& Name, int32 Number)
+	static FName ConcatFNameAndInt(const FName& Name, const int32 Number)
 	{
-		FString CombinedString = Name.ToString() + FString::FromInt(Number);
-		FName CombinedName(*CombinedString);
-
-		return CombinedName;
+		const FString CombinedString = Name.ToString() + FString::FromInt(Number);
+		return (*CombinedString);
 	}
 
 	static FName ConcatFNameAndFName(const FName& First, const FName& Second)
 	{
-		const FString& ConcatenatedString = First.ToString() + Second.ToString();
+		const FString ConcatenatedString = First.ToString() + Second.ToString();
 		return FName(*ConcatenatedString);
 	}
 };
@@ -214,13 +209,12 @@ namespace OctagonalDirection
 		return (EOctagonalDirection)Direction;
 	}
 
-	static EOctagonalDirection GetOctagonalDirectionFName(FName Direction)
+	static EOctagonalDirection GetOctagonalDirectionFName(const FName& Direction)
 	{
 		if (Direction == NAME_None)
+		{
 			return EOctagonalDirection::None;
-
-		FString Text = Direction.ToString();
-		int Num = FCString::Atoi(*Text);
-		return GetOctagonalDirectionInt(Num);
+		}
+		return GetOctagonalDirectionInt(FCString::Atoi(*Direction.ToString()));
 	}
 }

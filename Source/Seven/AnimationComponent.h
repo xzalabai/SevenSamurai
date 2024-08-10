@@ -29,6 +29,7 @@ class SEVEN_API UAnimationComponent : public UActorComponent
 	GENERATED_BODY()
 
 	friend class UAttackComponent;
+	friend class ASevenCharacter;
 
 public:	
 	FOnMontageEnded EndDelegate;
@@ -50,7 +51,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int BlockSpeed{ 190 };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int GuardSpeed{ 170 };
+	int GuardSpeed{ 154 };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int WalkSpeed{ 600 };
 
@@ -65,7 +66,7 @@ public:
 	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType);
 	bool Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType);
 	bool CanPlayAnimation(const EMontageType MontageType) const;
-	void WarpAttacker(const FString& WarpName, const ASevenCharacter* Victim);
+	void WarpAttacker(const ASevenCharacter* Victim);
 	
 	UFUNCTION(BlueprintCallable)
 	void OnLayingDead();
@@ -75,7 +76,6 @@ public:
 	
 	bool Block(bool bEnable);
 	bool Guard(bool bEnable);
-	bool IsDefendReactionInProgress() const;
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
 	FORCEINLINE bool IsAttackAnimationRunning() const { return (bActiveMontageRunning && AttackMontages.Contains(CurrentMontage.MontageType)); }
 	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontage.MontageType; }

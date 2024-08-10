@@ -39,6 +39,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	FWeaponDetail WeaponDetail;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (MustImplement = "ComboInterface"))
 	TArray<TSubclassOf<UObject>> CombosObj;
 };

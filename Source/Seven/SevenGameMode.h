@@ -13,7 +13,7 @@ class AMission;
 class ASevenCharacter;
 class ASevenPlayerController;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const AActor* Actor, const ECharacterState Status);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const ASevenCharacter* SevenCharacter, const ECharacterState Status);
 
 UCLASS(minimalapi)
 class ASevenGameMode : public AGameModeBase
@@ -33,6 +33,9 @@ private:
 	UPROPERTY()
 	TArray<const ASevenCharacter*> Enemies;
 
+	UPROPERTY()
+	mutable ASevenPlayerController* CachedSevenPlayerController{ nullptr };
+	 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ASevenCharacter> SevenToSpawn; // TODO Remove for final - this is only for DEBUG! when u start game in combat 
 
@@ -56,7 +59,7 @@ public:
 
 public:
 	const TArray<const ASevenCharacter*> GetSevenCharacters() const;
-	void UpdateStatus(const AActor* Actor, const ECharacterState Status = ECharacterState::None);
+	void UpdateStatus(const ASevenCharacter* SevenCharacter, const ECharacterState Status = ECharacterState::None);
 	ASevenCharacter* GetAnyAliveEnemy();
 	ASevenCharacter* GetPossessedCharacter() const;
 	ASevenPlayerController* GetSevenPlayerController() const;

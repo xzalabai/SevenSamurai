@@ -45,5 +45,4 @@ public:
 	void ComboAttackStart() override;
 	void ComboAttackEnd() override;
 	virtual EComboType GetComboType() const override;
-	void DealDamage(ASevenCharacter* Victim) override;
 };

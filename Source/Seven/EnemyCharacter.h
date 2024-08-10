@@ -23,13 +23,10 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	uint8 Difficulty{ 1 };
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (MustImplement = "ComboInterface", BlueprintBaseOnly))
 	TArray<TSubclassOf<UObject>> AvailableCombos;
 
 protected:
-	UPROPERTY()
-	TObjectPtr<ASevenCharacter> SevenCharacterToAttack;
-
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* EasyAttackParticle;
 
@@ -49,6 +46,8 @@ protected:
 
 	virtual void Fire(const FInputActionValue& Value) override;
 
+	virtual void AttackEnd() override;
+
 public:
 	AEnemyCharacter();
 	FORCEINLINE int GetLightAttacksAmount() const { return LightAttacksAmount; };
@@ -62,11 +61,10 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
 	
-	void OnSevenCharacterStatusUpdate(const AActor* Actor, const ECharacterState Status);
+	void OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status);
 	virtual void OnAnimationEnded(const EMontageType& StoppedMontage) override;
 	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
-	virtual void OnLayingDead() override;
-	void SetDefendReactionInProgress() const;
+	void SetDefendActionInProgress(const bool bInProgress) const;
 	UFUNCTION(BlueprintCallable)
 	virtual void MoveTo(bool bToSevenCharacter);
 	virtual const FVector GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter);
@@ -76,16 +74,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DefendActionResolved();
 	UFUNCTION(BlueprintCallable)
-	virtual void PerformEvade();
-	UFUNCTION(BlueprintCallable)
 	void SetLightAttacksAmount(int Amount);
 	UFUNCTION(BlueprintCallable)
 	UBehaviorTree* GetBehaviorTree() const;
 	UFUNCTION(BlueprintCallable)
 	void UseCombo(const EComboType ComboType);
 	UFUNCTION(BlueprintCallable)
+	bool DefendAgainstIncomingAttack(EMontageType DefendMontage);
+	UFUNCTION(BlueprintCallable)
 	void SetAttackStrength(EAttackStrength NewAttackStrength);
-	virtual const EAttackStrength GetAttackStrength() const override;
+	
+	bool HasAttackStarted() const;
 
 	void ReturnAttackToken();
 };

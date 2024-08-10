@@ -102,24 +102,22 @@ void AMission::MoveAlliesToPlace()
 	}
 }
 
-void AMission::OnStatusUpdate(const AActor* Actor, const ECharacterState Status)
+void AMission::OnStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status)
 {
 	if (Status != ECharacterState::Dead)
 	{
 		return;
 	}
 		
-	const ASevenCharacter* KilledCharacter = Cast<ASevenCharacter>(Actor);
 	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-	if (KilledCharacter->IsEnemy())
+	if (SevenCharacter->IsEnemy())
 	{
 		++EnemyKilledCount;
 
 		if (EnemyKilledCount == EnemyCount)
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
-
 			SevenGameMode->MissionEnd(true);
 		}
 
@@ -131,7 +129,6 @@ void AMission::OnStatusUpdate(const AActor* Actor, const ECharacterState Status)
 		if (SevenCharactersKilledCount == SevenCharacterCount)
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
-
 			SevenGameMode->MissionEnd(false);
 		}
 	}

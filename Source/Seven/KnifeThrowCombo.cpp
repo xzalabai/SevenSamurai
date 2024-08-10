@@ -1,7 +1,6 @@
 #include "KnifeThrowCombo.h"
 #include "ThrowingKnife.h"
 #include "AnimationComponent.h"
-#include "AttackComponent.h"
 #include "SevenCharacter.h"
 
 void UKnifeThrowCombo::Use(AActor* AttackerActor, AActor* VictimActor)
@@ -34,8 +33,7 @@ void UKnifeThrowCombo::ComboAttackStart()
 	FActorSpawnParameters ActorSpawnParameters;
 	ActorSpawnParameters.Owner = Attacker;
 	TObjectPtr<AThrowingKnife> const ThrowingKnife = GetWorld()->SpawnActor<AThrowingKnife>(ThrowingKnifeClass, Vector, Rotation, ActorSpawnParameters);
-	EMontageType MontageType = Attacker->IsEnemy() ? EMontageType::Throw : EMontageType::Combo; // redefine it (due to incosistency between Throw of Enemy and Throw of Seven
-	ThrowingKnife->AttackInfo = FAttackInfo(MontageType, Attacker->GetAttackStrength(), -1, 5, Attacker, EComboType::Throw);
+	ThrowingKnife->AttackInfo = Attacker->GetAttackInfo();
 	ThrowingKnife->FireInDirection(TargetedEnemy->GetActorLocation());
 }
 
@@ -47,8 +45,4 @@ void UKnifeThrowCombo::ComboAttackEnd()
 EComboType UKnifeThrowCombo::GetComboType() const
 {
     return ComboType;
-}
-
-void UKnifeThrowCombo::DealDamage(ASevenCharacter* Victim)
-{
 }

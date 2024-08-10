@@ -7,6 +7,7 @@
 
 class USphereComponent;
 class UMissionDA;
+class ASevenCharacter;
 class AEnemyCharacter;
 
 UENUM(BlueprintType)
@@ -86,7 +87,7 @@ public:
 	void ActivateMission(bool bEnable);
 	void MissionStarted();
 	void MoveAlliesToPlace();
-	void OnStatusUpdate(const AActor* Actor, const ECharacterState Status);
+	void OnStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status);
 protected:
 	virtual void BeginPlay() override;
 };
