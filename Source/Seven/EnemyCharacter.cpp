@@ -148,7 +148,7 @@ bool AEnemyCharacter::DefendAgainstIncomingAttack(EMontageType DefendMontage)
 
 	if (DefendMontage == EMontageType::Block)
 	{
-		Block(true);
+		AC_Animation->SwitchStances(EStances::Block);
 		return true;
 	}
 	else if (DefendMontage == EMontageType::Evade)

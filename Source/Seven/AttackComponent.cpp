@@ -147,7 +147,7 @@ bool UAttackComponent::GetAttackCanBreakBlock() const
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	// TODO: Find a better place for turning off block!
-	CachedSevenCharacter->Block(false);
+	CachedSevenCharacter->AC_Animation->SwitchStances(EStances::Guard);
 	const TPair<UAnimMontage*, FName> NextAttack = GetLightAttackMontageToBePlayed();
 	bool bAnimationIsPlaying = CachedSevenCharacter->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack);
 	return bAnimationIsPlaying;

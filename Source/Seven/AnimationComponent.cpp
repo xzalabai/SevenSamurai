@@ -15,18 +15,17 @@ UAnimationComponent::UAnimationComponent()
 
 void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (CachedSevenCharacter->CanBePossessed() && CachedSevenCharacter->GetIsGuarding())
+	if (CachedSevenCharacter->CanBePossessed())
 	{
 		if (LockedEnemy)
 		{
-			ASevenPlayerController* PlayerController = CachedSevenCharacter->GetSevenPlayerController();
 			FRotator Rot = UKismetMathLibrary::FindLookAtRotation(CachedSevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
 			Rot.Pitch = Rot.Pitch - 25.0f;
-			PlayerController->SetControlRotation(Rot);
+			CachedPlayerController->SetControlRotation(Rot);
 		}
 		else
 		{
-			Guard(false);
+			LockTarget(false);
 		}
 	}
 	
@@ -43,7 +42,13 @@ void UAnimationComponent::BeginPlay()
 	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	EndDelegate.BindUObject(this, &UAnimationComponent::OnAnimationEnded);
 	UAnimInstance* AnimInstance = CachedSevenCharacter->GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_SetEndDelegate(EndDelegate);	
+	AnimInstance->Montage_SetEndDelegate(EndDelegate);
+	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] BeginPlay for %s"), *GetName());
+	if (CachedSevenCharacter->CanBePossessed())
+	{
+		CachedPlayerController = CachedSevenCharacter->GetSevenPlayerController();
+	}
+	
 }
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType)
@@ -168,11 +173,17 @@ void UAnimationComponent::NextComboTriggered(bool bEnable)
 	bNextComboTriggerEnabled = bEnable;
 }
 
-bool UAnimationComponent::Block(bool bEnable)
+bool UAnimationComponent::Block(const bool bEnable)
 {
+	if (!CachedSevenCharacter)
+	{
+		// TODO: This should not happen
+		return false;
+	}
+
 	bool &bAttackWasPerformed = bNextComboTriggerEnabled; // We use bNextComboTriggerEnabled also as an indicator of whether attack was already performed.
 	
-	if (!CachedSevenCharacter /*TODO this is just for the bug where Enemy hits on the first frame! :D */ && bEnable && IsAnimationRunning())
+	if (bEnable && IsAnimationRunning())
 	{
 		if (!bAttackWasPerformed)
 		{
@@ -181,45 +192,89 @@ bool UAnimationComponent::Block(bool bEnable)
 	}
 
 	CachedSevenCharacter->bIsBlocking = bEnable;
-	CachedSevenCharacter->bIsGuarding = false;
 	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? BlockSpeed : (CachedSevenCharacter->GetIsGuarding() ? GuardSpeed : WalkSpeed);
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = BlockSpeed;
 
 	return true;
 }
 
-bool UAnimationComponent::Guard(bool bEnable)
+bool UAnimationComponent::Guard(const bool bEnable)
 {
-	bool& bAttackWasPerformed = bNextComboTriggerEnabled; // We use bNextComboTriggerEnabled also as an indicator of whether attack was already performed
-	if (bEnable && IsAnimationRunning())
+	if (!CachedSevenCharacter)
 	{
-		if (bAttackWasPerformed)
-		{
-			return false;
-		}
+		// TODO: This should not happen
+		return false;
 	}
-		
-	CachedSevenCharacter->bIsBlocking = false;
 	CachedSevenCharacter->bIsGuarding = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bEnable;
-	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = bEnable ? GuardSpeed : WalkSpeed;
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = GuardSpeed;
+	return true;
+}
 
+bool UAnimationComponent::Run(const bool bEnable)
+{
+	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = !bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->bOrientRotationToMovement = bEnable;
+	CachedSevenCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
+	return true;
+}
+
+void UAnimationComponent::LockTarget(bool bEnable, const ASevenCharacter* EnemyToLock)
+{
 	if (bEnable)
 	{
-		const TArray<ASevenCharacter*> FoundEnemies = CachedSevenCharacter->GetEnemiesInFrontOfCharacer(-1, 200, 1000, 100, true);
-		if (FoundEnemies.Num() > 0)
+		if (!EnemyToLock)
 		{
-			LockedEnemy = FoundEnemies[0];
-		}
+			const TArray<ASevenCharacter*> FoundEnemies = CachedSevenCharacter->GetEnemiesInFrontOfCharacer(-1, 200, 1000, 100, true);
+			if (FoundEnemies.Num() > 0)
+			{
+				EnemyToLock = FoundEnemies[0];
+			}
+		}	
 	}
 	else
 	{
 		LockedEnemy = nullptr;
 	}
+}
 
-	return true;
+void UAnimationComponent::SwitchStances(const EStances NewStance)
+{
+	if (NewStance == Stance)
+	{
+		return;
+	}
+
+	if (Stance == EStances::Block)
+	{
+		Block(false);
+	}
+	else if (Stance == EStances::Guard)
+	{
+		Guard(false);
+	}
+	else if (Stance == EStances::Run)
+	{
+		Run(false);
+	}
+
+	if (NewStance == EStances::Block)
+	{
+		Block(true);
+	}
+	if (NewStance == EStances::Guard)
+	{
+		Guard(true);
+	}
+	if (NewStance == EStances::Run)
+	{
+		Run(true);
+	}
+
+	Stance = NewStance;
 }
 
 FName UAnimationComponent::GetCurrentMontageSection()

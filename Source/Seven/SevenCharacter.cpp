@@ -93,6 +93,9 @@ void ASevenCharacter::BeginPlay()
 
 	SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this);
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] BeginPlay for %s"), *GetName());
+	AC_Animation->SwitchStances(EStances::Guard);
+	
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -108,9 +111,9 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 	StopJumping();
 }
 
-void ASevenCharacter::ToggleMovement(const FInputActionValue& Value)
+void ASevenCharacter::LockTarget(const bool bEnable)
 {
-	Guard(bIsGuarding ? false : true);
+	AC_Animation->LockTarget(bEnable);
 }
 
 void ASevenCharacter::NextComboTriggered(bool bEnable)
@@ -150,7 +153,13 @@ void ASevenCharacter::Block(bool bEnable)
 		// TODO: Fix: This is due to error when entered the battle and enemy immediately want's to defend (and nothing is ready yet)
 		return;
 	}
-	AC_Animation->Block(bEnable);
+	if (!bEnable && AC_Animation->Stance == EStances::Run)
+	{
+		// don't switch when started sprinting during block (and still hold finger)
+		return;
+	}
+	
+	AC_Animation->SwitchStances(bEnable ? EStances::Block : EStances::Guard);
 
 	if (bEnable)
 	{
@@ -164,7 +173,12 @@ void ASevenCharacter::Block(bool bEnable)
 
 void ASevenCharacter::Guard(bool bEnable)
 {
-	AC_Animation->Guard(bEnable);
+	//AC_Animation->Guard(bEnable);
+}
+
+void ASevenCharacter::Run(bool bEnable)
+{
+	AC_Animation->SwitchStances(bEnable ? EStances::Run : EStances::Guard);
 }
 
 void ASevenCharacter::Move(const FInputActionValue& Value)
@@ -256,13 +270,13 @@ void ASevenCharacter::PerformWeaponTrace()
 	EquippedWeapon->PerformTrace();
 }
 
-/// Callbacks from ABP
-///////////////////////////////////////////////////////////////////////
-
 void ASevenCharacter::AttackCanBreakBlock()
 {
-	AC_AttackComponent->bAttackCanBreakBlock = true;
+	//AC_AttackComponent->bAttackCanBreakBlock = true;
 }
+
+/// Callbacks from ABP
+///////////////////////////////////////////////////////////////////////
 
 int8 ASevenCharacter::GetMappedComboKey(const EComboType& ComboType) const
 {
@@ -350,11 +364,6 @@ UAnimMontage* ASevenCharacter::GetVictimMontageToPlay(bool bDeath, const ESevenC
 	return MontageToPlay;
 }
 
-EReceivedHitReaction ASevenCharacter::GetSuccessfulHitReaction(const uint8 Damage) const
-{
-	return AC_Attribute->GetHP() - Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
-}
-
 void ASevenCharacter::Suicide()
 {
 	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Suicide CHEAT"));
@@ -420,7 +429,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 
 	if (ReceivedHitReaction == EReceivedHitReaction::BlockBroken)
 	{
-		Block(false);
+		AC_Animation->SwitchStances(EStances::Guard);
 		AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::BlockBroken);
 		return;
 	}
@@ -491,7 +500,31 @@ TArray<ASevenCharacter*> ASevenCharacter::GetEnemiesInFrontOfCharacer(const int8
  	 {
  		 if (ASevenCharacter* Enemy = Cast<ASevenCharacter>(HitResult.GetActor()))
  		 {
- 			 if ((!FoundActors.Contains(Enemy)) && (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID) && Enemy->IsAlive() && (Enemy->IsEnemy() != IsEnemy()) && Enemy->GetUniqueID() != GetUniqueID())
+			 if (!Enemy->IsAlive())
+			 {
+				 // dead
+				 continue;
+			 }
+
+			 if (Enemy->GetUniqueID() == GetUniqueID())
+			 {
+				 // self
+				 continue;
+			 }
+
+			 if (Enemy->IsEnemy() == IsEnemy())
+			 {
+				 // teamnate
+				 continue;
+			 }
+
+			 if (FoundActors.Contains(Enemy))
+			 {
+				 // already included
+				 continue;
+			 }
+
+ 			 if (EnemyID == -1 || Enemy->GetUniqueID() == EnemyID)
  			 {
  				 FoundActors.Add(Enemy);
  			 }
@@ -644,6 +677,11 @@ void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)
 void ASevenCharacter::ResetAttackToken()
 {
 	AttackToken = 0;
+}
+
+EReceivedHitReaction ASevenCharacter::GetSuccessfulHitReaction(const uint8 Damage) const
+{
+	return AC_Attribute->GetHP() - Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
 }
 
 ASevenPlayerController* ASevenCharacter::GetSevenPlayerController() const

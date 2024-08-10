@@ -29,7 +29,7 @@ public:
 	class UInputAction* WSADAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* SprintAction;
+	class UInputAction* RunAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
@@ -38,7 +38,7 @@ public:
 	class UInputAction* FireAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* ToggleMovementAction;
+	class UInputAction* LockTargetAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireRMBAction;
@@ -64,11 +64,11 @@ public:
 	void Space(const FInputActionValue& Value);
 	void StopSpace(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
-	void Sprint(const FInputActionValue& Value);
+	void Run(const FInputActionValue& Value, const ETriggerEvent TriggerEvent);
 	void StartMovement(const FInputActionValue& Value, const bool bSprint);
 	void Look(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
-	void ToggleMovement(const FInputActionValue& Value);
+	void LockTarget(const FInputActionValue& Value);
 	//void FireRMBStart(const FInputActionValue& Value);
 	void FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent);
 	void Switch(const FInputActionValue& Value);
@@ -79,6 +79,8 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
+
+	bool bLockTarget{ false };
 
 	ASevenCharacter* GetPossessedCharacter();
 };

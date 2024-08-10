@@ -55,13 +55,18 @@ void ASevenPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASevenPlayerController::Look);
 		//Action
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Fire);
-		EnhancedInputComponent->BindAction(ToggleMovementAction, ETriggerEvent::Completed, this, &ASevenPlayerController::ToggleMovement);
+		EnhancedInputComponent->BindAction(LockTargetAction, ETriggerEvent::Completed, this, &ASevenPlayerController::LockTarget);
 		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Started, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Started);
 		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Completed, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Completed);
-		EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Canceled, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Canceled);
 
-		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &ASevenPlayerController::BlockStart);
-		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ASevenPlayerController::BlockEnd);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ASevenPlayerController::Run, ETriggerEvent::Started);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Run, ETriggerEvent::Completed);
+
+
+		//EnhancedInputComponent->BindAction(FireRMBAction, ETriggerEvent::Canceled, this, &ASevenPlayerController::FireRMB, ETriggerEvent::Canceled);
+
+		//EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &ASevenPlayerController::BlockStart);
+		//EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ASevenPlayerController::BlockEnd);
 		
 		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Completed, this, &ASevenPlayerController::Switch);
 		
@@ -91,16 +96,25 @@ void ASevenPlayerController::Move(const FInputActionValue& Value)
 	ControllerCharacter->Move(Value);
 }
 
+void ASevenPlayerController::Run(const FInputActionValue& Value, const ETriggerEvent TriggerEvent)
+{
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] Run %d"), (int) TriggerEvent);
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	//ControllerCharacter->FireRMB(TriggerEvent);
+	ControllerCharacter->Run(TriggerEvent == ETriggerEvent::Started ? true : false);
+}
+
 void ASevenPlayerController::Fire(const FInputActionValue& Value)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
 	ControllerCharacter->Fire(Value);
 }
 
-void ASevenPlayerController::ToggleMovement(const FInputActionValue& Value)
+void ASevenPlayerController::LockTarget(const FInputActionValue& Value)
 {
+	bLockTarget = !bLockTarget;
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->ToggleMovement(Value);
+	ControllerCharacter->LockTarget(bLockTarget);
 }
 
 void ASevenPlayerController::Look(const FInputActionValue& Value)
@@ -112,7 +126,7 @@ void ASevenPlayerController::Look(const FInputActionValue& Value)
 void ASevenPlayerController::FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->FireRMB(TriggerEvent);
+	ControllerCharacter->Block(TriggerEvent == ETriggerEvent::Started ? true : false);
 }
 
 void ASevenPlayerController::Switch(const FInputActionValue& Value)
@@ -149,14 +163,14 @@ void ASevenPlayerController::Special(const FInputActionValue& Value, const int8 
 
 void ASevenPlayerController::BlockStart(const FInputActionValue& Value)
 {
-	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Block(true);
+	//ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	//ControllerCharacter->Block(true);
 }
 
 void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 {
-	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Block(false);
+	//ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
+	//ControllerCharacter->Block(false);
 }
 
 ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()

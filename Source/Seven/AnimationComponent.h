@@ -7,6 +7,16 @@
 
 class UAnimInstance;
 class ASevenCharacter;
+class ASevenPlayerController;
+
+UENUM(BlueprintType)
+enum class EStances : uint8
+{
+	None,
+	Run,
+	Block,
+	Guard
+};
 
 USTRUCT()
 struct FMontage
@@ -38,6 +48,8 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	ASevenCharacter* LockedEnemy{ nullptr };
+	UPROPERTY(BlueprintReadOnly)
+	EStances Stance{ EStances::None };
 
 private:
 	bool bActiveMontageRunning = false;
@@ -47,6 +59,7 @@ private:
 	UPROPERTY()
 	FMontage LastPlayedMontage{};
 	ASevenCharacter* CachedSevenCharacter{ nullptr };
+	ASevenPlayerController* CachedPlayerController{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int BlockSpeed{ 190 };
@@ -74,8 +87,11 @@ public:
 	void OnEvadeEnded();
 	void NextComboTriggered(bool bEnable);
 	
-	bool Block(bool bEnable);
-	bool Guard(bool bEnable);
+	bool Block(const bool bEnable);
+	bool Guard(const bool bEnable);
+	bool Run(const bool bEnable);
+	void LockTarget(bool bEnable, const ASevenCharacter* EnemyToLock = nullptr);
+	void SwitchStances(const EStances NewStance);
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
 	FORCEINLINE bool IsAttackAnimationRunning() const { return (bActiveMontageRunning && AttackMontages.Contains(CurrentMontage.MontageType)); }
 	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontage.MontageType; }
