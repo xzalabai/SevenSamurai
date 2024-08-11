@@ -61,6 +61,7 @@ public:
 	const TArray<const ASevenCharacter*> GetSevenCharacters() const;
 	void UpdateStatus(const ASevenCharacter* SevenCharacter, const ECharacterState Status = ECharacterState::None);
 	ASevenCharacter* GetAnyAliveEnemy();
+	UFUNCTION(BlueprintCallable)
 	ASevenCharacter* GetPossessedCharacter() const;
 	ASevenPlayerController* GetSevenPlayerController() const;
 	TMap<int8, ECharacterState> GetSevenCharactersStatus() const;

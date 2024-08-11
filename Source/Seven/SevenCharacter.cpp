@@ -111,9 +111,10 @@ void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 	StopJumping();
 }
 
-void ASevenCharacter::LockTarget(const bool bEnable)
+void ASevenCharacter::LockTarget(const bool bEnable, const ASevenCharacter* EnemyToLock)
 {
-	AC_Animation->LockTarget(bEnable);
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] LockTarget %d"), bEnable ? 1 : 0);
+	AC_Animation->LockTarget(bEnable, EnemyToLock);
 }
 
 void ASevenCharacter::NextComboTriggered(bool bEnable)
@@ -671,6 +672,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 
 void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].StealAttackToken from: %d "), enemyUniqueID);
 	AttackToken = enemyUniqueID;
 }
 
@@ -686,6 +688,5 @@ EReceivedHitReaction ASevenCharacter::GetSuccessfulHitReaction(const uint8 Damag
 
 ASevenPlayerController* ASevenCharacter::GetSevenPlayerController() const
 {
-	ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	return SevenPlayerController;
+	return Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }

@@ -15,18 +15,11 @@ UAnimationComponent::UAnimationComponent()
 
 void UAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (CachedSevenCharacter->CanBePossessed())
+	if (CachedSevenCharacter->CanBePossessed() && LockedEnemy)
 	{
-		if (LockedEnemy)
-		{
-			FRotator Rot = UKismetMathLibrary::FindLookAtRotation(CachedSevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
-			Rot.Pitch = Rot.Pitch - 25.0f;
-			CachedPlayerController->SetControlRotation(Rot);
-		}
-		else
-		{
-			LockTarget(false);
-		}
+		FRotator Rot = UKismetMathLibrary::FindLookAtRotation(CachedSevenCharacter->GetActorLocation(), LockedEnemy->GetActorLocation());
+		Rot.Pitch = Rot.Pitch - 25.0f;
+		CachedPlayerController->SetControlRotation(Rot);
 	}
 	
 	if (IsAttackAnimationRunning() && CachedSevenCharacter->TargetedEnemy)
@@ -44,11 +37,11 @@ void UAnimationComponent::BeginPlay()
 	UAnimInstance* AnimInstance = CachedSevenCharacter->GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_SetEndDelegate(EndDelegate);
 	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] BeginPlay for %s"), *GetName());
+	
 	if (CachedSevenCharacter->CanBePossessed())
 	{
 		CachedPlayerController = CachedSevenCharacter->GetSevenPlayerController();
 	}
-	
 }
 
 bool UAnimationComponent::Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType)
@@ -124,7 +117,8 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
 	bActiveMontageRunning = true;
 	LastPlayedMontage = CurrentMontage;
-	CurrentMontage = FMontage{ MontageType, AnimMontage };
+	CurrentMontage = FMontage{ MontageType, AnimMontage, Stance };
+	Stance = EStances::None;
 	return true;
 }
 
@@ -233,7 +227,8 @@ void UAnimationComponent::LockTarget(bool bEnable, const ASevenCharacter* EnemyT
 			{
 				EnemyToLock = FoundEnemies[0];
 			}
-		}	
+		}
+		LockedEnemy = EnemyToLock;
 	}
 	else
 	{
@@ -309,6 +304,7 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	if (!bInterrupted)
 	{
 		bActiveMontageRunning = false;
+		SwitchStances(CurrentMontage.LastStance);
 		CurrentMontage.Reset();
 		
 	}

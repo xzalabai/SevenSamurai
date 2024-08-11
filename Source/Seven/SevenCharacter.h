@@ -175,12 +175,13 @@ protected:
 	virtual void Look(const FInputActionValue& Value);
 	virtual void Space(const FInputActionValue& Value);
 	virtual void Fire(const FInputActionValue& Value);
-	virtual void LockTarget(const bool bEnable);
 	virtual void FireRMB(const ETriggerEvent& TriggerEvent);
 	UFUNCTION(BlueprintCallable)
 	virtual void Block(bool bEnable);
 	UFUNCTION(BlueprintCallable)
 	virtual void Guard(bool bEnable);
+	UFUNCTION(BlueprintCallable)
+	virtual void LockTarget(const bool bEnable, const ASevenCharacter* EnemyToLock = nullptr);
 	virtual void Run(bool bEnable);
 	virtual void StopSpace(const FInputActionValue& Value);
 	virtual void Evade(const FInputActionValue& Value);
@@ -249,6 +250,7 @@ public:
 	ASevenPlayerController* GetSevenPlayerController() const;
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool CanStealAttackToken() const { return AttackToken == 0; }
+	UFUNCTION(BlueprintCallable) // just for BP Seven Game Mode
 	void StealAttackToken(const uint8 enemyUniqueID);
 	UFUNCTION(BlueprintCallable)
 	void ResetAttackToken();

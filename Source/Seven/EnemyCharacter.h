@@ -60,7 +60,6 @@ protected:
 	void IncomingAttack();
 	UFUNCTION(BlueprintCallable)
 	void ParryAvailable(bool bEnable);
-	
 	void OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status);
 	virtual void OnAnimationEnded(const EMontageType& StoppedMontage) override;
 	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;

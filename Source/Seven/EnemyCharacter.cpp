@@ -72,6 +72,7 @@ void AEnemyCharacter::InitiateAttack()
 
 void AEnemyCharacter::IncomingAttack()
 {
+	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] IncomingAttack"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::IncomingAttack);
 
 	if (ASevenCharacter* EnemyToAttack = FindSevenCharacter())
@@ -189,7 +190,7 @@ void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
 	FVector FinalDestination = bToSevenCharacter ? EnemyToAttack->GetActorLocation() : GetRandomPointAroundCharacter(EnemyToAttack);
 	AIController->SetFocus(EnemyToAttack);
 	AIController->SetMoveBlockDetection(false);
-	AIController->MoveToLocation(FinalDestination, 80.0f);
+	AIController->MoveToLocation(FinalDestination, 100.0f);
 }
 
 const FVector AEnemyCharacter::GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter)

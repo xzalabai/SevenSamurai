@@ -25,11 +25,13 @@ struct FMontage
 
 	EMontageType MontageType{ EMontageType::None };
 	UAnimMontage* AnimMontage{ nullptr };
+	EStances LastStance{ EStances::None };
 
 	void Reset()
 	{
 		MontageType = EMontageType::None;
 		AnimMontage = nullptr;
+		LastStance = EStances::None;
 	}
 };
 
@@ -47,7 +49,7 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	ASevenCharacter* LockedEnemy{ nullptr };
+	const ASevenCharacter* LockedEnemy{ nullptr };
 	UPROPERTY(BlueprintReadOnly)
 	EStances Stance{ EStances::None };
 
@@ -59,12 +61,12 @@ private:
 	UPROPERTY()
 	FMontage LastPlayedMontage{};
 	ASevenCharacter* CachedSevenCharacter{ nullptr };
-	ASevenPlayerController* CachedPlayerController{ nullptr };
+	AController* CachedPlayerController{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int BlockSpeed{ 190 };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int GuardSpeed{ 154 };
+	int GuardSpeed{ 150 };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int WalkSpeed{ 600 };
 
@@ -84,7 +86,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnLayingDead();
 	UFUNCTION(BlueprintCallable)
-	void OnEvadeEnded();
+	void OnEvadeEnded(); // TODO: Remove bIsEvading and instead check if montage Evade is still in progress.
 	void NextComboTriggered(bool bEnable);
 	
 	bool Block(const bool bEnable);

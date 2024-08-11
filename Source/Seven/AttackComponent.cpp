@@ -72,7 +72,10 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetLightAttackMontageToBePla
 
 void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage)
 {
-	LastUsedCombo = nullptr; // TODO Maybe bad
+	if (StoppedMontage == EMontageType::Combo)
+	{
+		LastUsedCombo = nullptr;
+	}
 }
 
 FAttackInfo UAttackComponent::GetAttackInfo() const
