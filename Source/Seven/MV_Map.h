@@ -70,12 +70,12 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	FVector GetRandomPointOnMap(const AMV_Area* const Area = nullptr, const bool bShift = false, const int32 OverlapRadius = -1) const;
+	FVector GetRandomPointOnMap(const int8 AreaIndex = -1, const bool bShift = false, const int32 OverlapRadius = -1) const;
 	AMV_Map();
 	const TObjectPtr<AMVSevenCharacter> GetMVSevenCharacter() const;
 
 private:
-	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, EMissionType MissionType = EMissionType::NotProvided);
+	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, const EMissionType MissionType = EMissionType::NotProvided);
 	void GenerateQuestGiver(const int8 Index = -1);
 	void GenerateEntites();
 	void SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn = FAMV_QuestInfo());
@@ -83,6 +83,8 @@ private:
 	void LoadSevenCharacter(const FPlayerStats& PlayerStats);
 	void LoadSavedEntities(const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn);
 	void LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn);
+	void LoadAreasInfo(const TArray<FAMV_Area>& AreasInfo);
+	bool GotAreaLiberated(const AMV_Area* const Area) const;
 	bool IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const;
 	int32 GetActiveEnemies() const;
 };

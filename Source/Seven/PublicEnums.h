@@ -78,7 +78,6 @@ enum class EMontageType : uint8
 	LightAttack,
 	Parry,
 	LightAttackHitReaction, // TODO: Remove this (and replace Reactions with something like: Animations->CharacterType->HitReactions->LightAttack / Animations->CharacterType->DeathReactions->LightAttack 
-	Throw, // NOT USED ANYMORE, safely DELETE
 	HitReaction,
 	Block,
 	Evade,

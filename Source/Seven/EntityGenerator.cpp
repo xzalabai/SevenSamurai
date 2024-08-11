@@ -56,10 +56,9 @@ UMissionDA* UEntityGenerator::GenerateMission(const uint8 AreaIndex, EMissionTyp
 		return nullptr;
 	}
 
-	const FString ContextString;
 	UMissionDA* NewMissionDA = NewObject<UMissionDA>();
 
-	FUMissionDT* Mission = MissionsDT->FindRow<FUMissionDT>(NameToFind, ContextString, true);
+	const FUMissionDT* Mission = MissionsDT->FindRow<FUMissionDT>(NameToFind, FString(), true);
 	ConvertMissionToMissionDA(Mission, NewMissionDA);
 	NewMissionDA->AreaIndex = AreaIndex;
 

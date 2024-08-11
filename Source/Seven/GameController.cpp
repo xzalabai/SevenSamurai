@@ -6,6 +6,7 @@
 #include "SevenCharacterDA.h"
 #include "MVSevenCharacter.h"
 #include "MV_EntityBase.h"
+#include "MV_Area.h"
 #include "MV_Map.h"
 #include "Quest.h"
 #include "AttributesComponent.h"
@@ -33,6 +34,15 @@ void UGameController::SaveActiveQuests(const TArray<const AMV_QuestGiver*>& Acti
 void UGameController::SaveTime(const FTime& Time)
 {
 	ActiveTime = Time;
+}
+
+void UGameController::SaveAreasInfo(const TArray<AMV_Area*>& Areas)
+{
+	AreasInfo.Empty();
+	for (const AMV_Area* Area : Areas)
+	{
+		AreasInfo.Add(FAMV_Area{ Area->UniqueAreaID, Area->ActiveEnemiesInArea, Area->TotalEnemiesInArea, Area->AreaStatus });
+	}
 }
 
 void UGameController::SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> MVSevenCharacter)
@@ -88,6 +98,7 @@ void UGameController::SaveGame()
 	SaveActiveQuests(Map->ActiveQuestGivers);
 	SaveTime(Map->Time);
 	SaveMVSevenCharacter(Map->MVSevenCharacter);
+	SaveAreasInfo(Map->Areas);
 }
 
 const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() const
@@ -98,6 +109,11 @@ const TArray<FAMV_EntityBaseInfo> UGameController::RetrieveActiveEntities() cons
 const TArray<FAMV_QuestInfo> UGameController::RetrieveActiveQuests() const
 {
 	return ActiveQuestInfo;
+}
+
+const TArray<FAMV_Area> UGameController::RetrieveAreasInfo() const
+{
+	return AreasInfo;
 }
 
 FTime UGameController::RetrieveTime() const
@@ -187,15 +203,20 @@ void UGameController::MissionEnd(const TArray<const ASevenCharacter*>& SevenChar
 
 	if (bWin)
 	{
-		// Change to completed
 		UE_LOG(LogTemp, Warning, TEXT("[UGameController].MissionEnd Character WON! Changing the Entity to be open!"));
-		Entity.MissionDA->MissionStatus = EStatus::Completed;
+		Entity.MissionDA->MissionStatus = EStatus::Completed; // this looks like we modify value, but we modify pointer and address stored.
 		
 		if (QuestInfo.Quest)
 		{
 			// Finished Mission was part of an active quest.
 			QuestInfo.Quest->QuestStatus = EStatus::Completed;
 			ActiveQuestInfo.RemoveSwap(QuestInfo);
+		}
+		
+		if (Entity.MissionDA->MissionType == EMissionType::Enemy)
+		{
+			// TODO: This should be elsewhere .. handled in MV_Map?
+			AreasInfo[Entity.MissionDA->AreaIndex].ActiveEnemiesInArea -= 1;
 		}
 
 		// Remove Mission from ActiveEntities

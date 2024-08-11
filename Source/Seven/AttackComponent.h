@@ -48,6 +48,7 @@ public:
 	void OnAnimationEnded(const EMontageType& StoppedMontage);
 	FAttackInfo GetAttackInfo() const;
 	EAttackStrength GetAttackStrength() const;
+	uint8 GetDamage() const;
 	bool GetAttackCanBreakBlock() const;
 	bool LightAttack(ASevenCharacter* TargetedEnemy);
 	bool ComboAttack();

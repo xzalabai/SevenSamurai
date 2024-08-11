@@ -37,11 +37,9 @@ void AMV_AIController::MoveCharacterTo(const FVector& Position)
 
 void AMV_AIController::MoveToRandomPosition()
 {
-	//UE_LOG(LogTemp, Display, TEXT("[AMV_AIController].MoveToRandomPosition"));
 	const AMV_EntityBase* Entity = Cast<AMV_EntityBase>(GetPawn());
-	FVector Position = Map->GetRandomPointOnMap();
+	FVector Position = Map->GetRandomPointOnMap(Entity->GetMissionDA()->AreaIndex);
 	MoveCharacterTo(Position);
-	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FVector(Position.X, Position.Y, GetPawn()->GetActorLocation().Z));
 }
 
 void AMV_AIController::MoveToSevenCharacter()

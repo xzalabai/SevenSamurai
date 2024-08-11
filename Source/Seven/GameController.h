@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "PublicEnums.h"
+#include "MV_Area.h"
 #include "Templates/UniquePtr.h"
 #include "MissionDA.h"
 #include "GameController.generated.h"
@@ -56,6 +57,24 @@ struct FTime
 
 	UPROPERTY(VisibleAnywhere)
 	EDayPart DayPart{ EDayPart::Night };
+};
+
+USTRUCT(BlueprintType)
+struct FAMV_Area
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int8 UniqueAreaID;
+	
+	UPROPERTY()
+	int8 ActiveEnemiesInArea{ 0 };
+
+	UPROPERTY()
+	int8 TotalEnemiesInArea{ 0 }; // In total (in the beginning)
+
+	UPROPERTY()
+	EAreaStatus AreaStatus{ EAreaStatus::OccupiedByEnemies };
 };
 
 USTRUCT(BlueprintType)
@@ -134,11 +153,15 @@ private:
 	FPlayerStats PlayerStats;
 
 	UPROPERTY()
+	TArray<FAMV_Area> AreasInfo;
+
+	UPROPERTY()
 	int VisitedVillageID{ -1 };
 
 	void SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
 	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
 	void SaveTime(const FTime& Time);
+	void SaveAreasInfo(const TArray<AMV_Area*>& Areas);
 	void SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> MVSevenCharacter);
 	void ProcessRewards(const bool bWin, const UMissionDA* const MissionDA);
 	void SaveGame();
@@ -146,6 +169,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	const TArray<FAMV_EntityBaseInfo> RetrieveActiveEntities() const;
 	const TArray<FAMV_QuestInfo> RetrieveActiveQuests() const;
+	const TArray<FAMV_Area> RetrieveAreasInfo() const;
 	FTime RetrieveTime() const;
 	void SetStartedEntity(AMV_EntityBase* EntityToStart, UMissionDA* Mission);
 	void SetStartedQuest(const UQuest* QuestToStart);

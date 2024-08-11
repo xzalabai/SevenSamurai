@@ -37,6 +37,7 @@ void AMV_Map::BeginPlay()
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn = GameController->RetrieveActiveEntities();
 	const TArray<FAMV_QuestInfo>& QuestGiversToSoawn = GameController->RetrieveActiveQuests();
+	const TArray<FAMV_Area>& AreasInfo = GameController->RetrieveAreasInfo();
 	Time = GameController->RetrieveTime();
 	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 
@@ -51,6 +52,7 @@ void AMV_Map::BeginPlay()
 		LoadSavedEntities(EntitiesToSpawn);
 		LoadSavedQuests(QuestGiversToSoawn);
 		LoadSevenCharacter(GameController->GetPlayerStats());
+		LoadAreasInfo(AreasInfo);
 	}
 }
 
@@ -113,15 +115,16 @@ void AMV_Map::Tick(float DeltaTime)
 	UE_LOG(LogTemp, Error, TEXT("[AMV_Map].Tick hour - %d, day - %d month - %d, year - %d"), Time.Hour, Time.Day, Time.Month, Time.Year);
 }
 
-FVector AMV_Map::GetRandomPointOnMap(const AMV_Area* const Area, const bool bShift, const int32 OverlapRadius) const
+FVector AMV_Map::GetRandomPointOnMap(const int8 AreaIndex, const bool bShift, const int32 OverlapRadius) const
 {
 	bool bCanOverlap = (OverlapRadius == -1);
-	FVector RandomPoint;
+	const bool bWithinArea = AreaIndex == -1 ? false : true;
 	const FBoxSphereBounds SpriteBounds = GetRenderComponent()->CalcBounds(GetRenderComponent()->GetComponentTransform());
-	const FVector Origin = Area ? Area->BoxComponent->Bounds.Origin : SpriteBounds.Origin;
-	const FVector Extent = Area ? Area->BoxComponent->Bounds.BoxExtent : SpriteBounds.BoxExtent;
+	const FVector Origin = bWithinArea ? Areas[AreaIndex]->BoxComponent->Bounds.Origin : SpriteBounds.Origin;
+	const FVector Extent = bWithinArea ? Areas[AreaIndex]->BoxComponent->Bounds.BoxExtent : SpriteBounds.BoxExtent;
+	FVector RandomPoint;
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 40; i++)
 	{
 		RandomPoint = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
 		RandomPoint.Z = SpriteBounds.Origin.Z + (bShift ? 1 : 0);
@@ -147,9 +150,9 @@ const TObjectPtr<AMVSevenCharacter> AMV_Map::GetMVSevenCharacter() const
 	return MVSevenCharacter;
 }
 
-const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, EMissionType MissionType)
+const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, const EMissionType MissionType)
 {
-	FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
+	const FVector RandomPoint = GetRandomPointOnMap(Index, true, 100);
 	UMissionDA* NewMission = AC_EntityGenerator->GenerateMission(Index, MissionType);
 	if (NewMission == nullptr)
 	{
@@ -164,7 +167,7 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 {
 	// Creates new Quest (alongside with a new Mission - goal of the Quest).
 
-	const FVector RandomPoint = GetRandomPointOnMap((Index >= 0 ? Areas[Index] : nullptr), true, 100);
+	const FVector RandomPoint = GetRandomPointOnMap(Index, true, 100);
 	const AMV_EntityBase* NewEntity = GenerateEntity(Index, EMissionType::AbandonedRuins);
 	if (!NewEntity)
 	{
@@ -182,19 +185,22 @@ void AMV_Map::GenerateQuestGiver(const int8 Index)
 
 void AMV_Map::GenerateEntites()
 {
-	for (int i = 0; i < Areas.Num() - 1; i++)
+	for (int i = 0; i < Areas.Num(); ++i)
 	{
+		AMV_Area* const Area = Areas[i];
 		// Generate Enemies
-		for (int j = 0; j < 3; j++)
+		for (int j = 0; j < 2; ++j)
 		{
-			GenerateEntity(-1, EMissionType::Enemy);
+			GenerateEntity(i, EMissionType::Enemy);
+			Area->ActiveEnemiesInArea++;
+			Area->TotalEnemiesInArea++;
 		}
 
 		// Generate Villages
 		GenerateEntity(i, EMissionType::LiberatePlace);
 
 		// Generate Random Entities around ...
-		for (int j = 0; j < 20; j++)
+		for (int j = 0; j < 10; ++j)
 		{
 			//GenerateEntity(i);
 		}
@@ -257,6 +263,36 @@ void AMV_Map::LoadSavedQuests(const TArray<FAMV_QuestInfo>& QuestGiversToSpawn)
 	{
 		SpawnQuestGiver(QuestToSpawn);
 	}
+}
+
+void AMV_Map::LoadAreasInfo(const TArray<FAMV_Area>& AreasInfo)
+{
+	check(Areas.Num() > 0)
+
+	for (int i = 0; i < Areas.Num(); ++i)
+	{
+		check(Areas[i]->UniqueAreaID == AreasInfo[i].UniqueAreaID);
+
+		Areas[i]->TotalEnemiesInArea = AreasInfo[i].TotalEnemiesInArea;
+		Areas[i]->ActiveEnemiesInArea = AreasInfo[i].ActiveEnemiesInArea;
+		Areas[i]->AreaStatus = AreasInfo[i].AreaStatus;		
+		
+		if (GotAreaLiberated(Areas[i]))
+		{
+			// Area is now liberated
+			Areas[i]->AreaStatus = EAreaStatus::Liberated;
+			UE_LOG(LogTemp, Warning, TEXT("[AMV_Map].LoadAreasInfo AREA %d GOT LIBERATED !!! WOHOO"), i);
+		}
+	}
+}
+
+bool AMV_Map::GotAreaLiberated(const AMV_Area* const Area) const
+{
+	if (Area->ActiveEnemiesInArea == 0 && Area->AreaStatus == EAreaStatus::OccupiedByEnemies)
+	{
+		return true;
+	}
+	return false;
 }
 
 bool AMV_Map::IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const

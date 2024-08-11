@@ -81,7 +81,7 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage)
 
 FAttackInfo UAttackComponent::GetAttackInfo() const
 {
-	const int DamageToBeDealt = 0;
+	const int DamageToBeDealt = GetDamage();
 	const EMontageType AttackerMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
 	const EAttackStrength AttackStrength = GetAttackStrength();
 	const EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
@@ -107,6 +107,11 @@ EAttackStrength UAttackComponent::GetAttackStrength() const
 	
 	if (CurrentMontageType == EMontageType::Combo)
 	{
+		if (!LastUsedCombo)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int)CurrentMontageType);
+			return EAttackStrength::Light;
+		}
 		EComboType ComboType = LastUsedCombo->GetComboType();
 		if (CachedSevenCharacter->IsEnemy())
 		{
@@ -134,6 +139,39 @@ EAttackStrength UAttackComponent::GetAttackStrength() const
 	{
 		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int) CurrentMontageType);
 		return EAttackStrength::Light;
+	}
+}
+
+uint8 UAttackComponent::GetDamage() const
+{
+	const EMontageType CurrentMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+
+	if (CurrentMontageType == EMontageType::LightAttack)
+	{
+		return 50;
+	}
+	else if (CurrentMontageType == EMontageType::Combo)
+	{
+		if (!LastUsedCombo)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int)CurrentMontageType);
+			return 1;
+		}
+		EComboType ComboType = LastUsedCombo->GetComboType();
+
+		if (ComboType == EComboType::Throw)
+		{
+			return 10;
+		}
+		else
+		{
+			return 50;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetDamage Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int)CurrentMontageType);
+		return 0;
 	}
 }
 
