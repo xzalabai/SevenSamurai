@@ -34,10 +34,10 @@ void AMission::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	CachedSevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	
-	SevenGameMode->UpdateMissionParameters(this);
-	SevenGameMode->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
+	CachedSevenGameMode->UpdateMissionParameters(this);
+	CachedSevenGameMode->OnStatusUpdate.AddUObject(this, &AMission::OnStatusUpdate);
 
 	Area->OnComponentBeginOverlap.AddDynamic(this, &AMission::OnOverlapBegin);
 
@@ -68,33 +68,33 @@ void AMission::MissionStarted()
 	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	SevenCharacterCount = GameController->SelectedCharacters.Num();
 
-	for (const TPair<TSubclassOf<AEnemyCharacter>, int32>& Pair : MissionDA->EnemiesToSpawn)
+	for (const FEnemyToSpawn& EnemyToSpawn : MissionDA->EnemiesToSpawn)
 	{
-		for (int i = 0; i < Pair.Value; i++)
+		check(EnemyToSpawn.EnemyLevelDA);
+		check(EnemyToSpawn.SevenCharacterType != ESevenCharacterType::NotProvided);
+		check(CachedSevenGameMode->EnemiesCharacterMapping.Contains(EnemyToSpawn.SevenCharacterType));
+
+		const TSubclassOf<ASevenCharacter>& EnemyClass = CachedSevenGameMode->EnemiesCharacterMapping[EnemyToSpawn.SevenCharacterType];
+		for (int i = 0; i < EnemyToSpawn.Amount; ++i)
 		{
 			const FTransform T(EnemySpawns[i % EnemySpawns.Num()]->GetComponentRotation(), EnemySpawns[i % EnemySpawns.Num()]->GetComponentLocation());
-			AEnemyCharacter* Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(Pair.Key, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+			AEnemyCharacter* const Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 			Enemy->MissionType = MissionDA->MissionType;
-			Enemy->Difficulty = MissionDA->Difficulty;
-			// Set AI
+			Enemy->EnemyLevelDA = EnemyToSpawn.EnemyLevelDA;
 			Enemy->FinishSpawning(T);
 			++EnemyCount;
-			UE_LOG(LogTemp, Display, TEXT("[AMission] Spawn Enemy: %d, %d"), Pair.Key, i);
 		}
 	}
-	UE_LOG(LogTemp, Display, TEXT("[AMission].MissionStarted: %d, SevenCharactersCount: %d, EnemyCount: %d"), ID, SevenCharacterCount, EnemyCount);
-
 	MoveAlliesToPlace();
 }
 
 void AMission::MoveAlliesToPlace()
 {
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	const TArray<const ASevenCharacter*>& AIControlledAllies = SevenGameMode->GetAIControlledAllies();
+	UE_LOG(LogTemp, Warning, TEXT("[UMissions].MoveSevenCharactersToPlace AIAlly move to mission area."));
+	const TArray<const ASevenCharacter*>& AIControlledAllies = CachedSevenGameMode->GetAIControlledAllies();
 
 	for (const ASevenCharacter* AIAlly : AIControlledAllies)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UMissions].MoveSevenCharactersToPlace AIAlly move to mission area: %d"), AIAlly->GetUniqueID());
 		AAIController* AIController = Cast<AAIController>(AIAlly->GetController());
 		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 		BlackBoardComponent->SetValueAsBool(TEXT("bFollowPlayer"), false);
@@ -109,8 +109,6 @@ void AMission::OnStatusUpdate(const ASevenCharacter* SevenCharacter, const EChar
 		return;
 	}
 		
-	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
 	if (SevenCharacter->IsEnemy())
 	{
 		++EnemyKilledCount;
@@ -118,7 +116,7 @@ void AMission::OnStatusUpdate(const ASevenCharacter* SevenCharacter, const EChar
 		if (EnemyKilledCount == EnemyCount)
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd WIN"));
-			SevenGameMode->MissionEnd(true);
+			CachedSevenGameMode->MissionEnd(true);
 		}
 
 	}
@@ -129,7 +127,7 @@ void AMission::OnStatusUpdate(const ASevenCharacter* SevenCharacter, const EChar
 		if (SevenCharactersKilledCount == SevenCharacterCount)
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UMissions].OnMissionEnd LOST"));
-			SevenGameMode->MissionEnd(false);
+			CachedSevenGameMode->MissionEnd(false);
 		}
 	}
 }

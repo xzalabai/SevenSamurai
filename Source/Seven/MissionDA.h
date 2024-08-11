@@ -3,7 +3,9 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Mission.h"
+#include "Containers/Map.h"
 #include "Engine/DataTable.h"
+#include "EnemyLevelDA.h"
 #include "MissionDA.generated.h"
 
 class UPaperSprite;
@@ -18,6 +20,22 @@ enum class EStatus : uint8
 	Aborted,
 	FinishedWithWin,
 	FinishedWithLose,
+};
+
+USTRUCT(BlueprintType)
+struct SEVEN_API FEnemyToSpawn
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ESevenCharacterType SevenCharacterType{ ESevenCharacterType::NotProvided }; // TODO: change so we select only ESevenCharacterType and then in Mission.cpp it will load the BP!
+
+	UPROPERTY(EditAnywhere)
+	UEnemyLevelDA* EnemyLevelDA{ nullptr };
+
+	UPROPERTY(EditAnywhere)
+	int Amount;
+
 };
 
 USTRUCT(BlueprintType)
@@ -44,7 +62,7 @@ struct SEVEN_API FUMissionDT : public FTableRowBase
 	EMissionType MissionType;
 
 	UPROPERTY(EditAnywhere)
-	TMap<TSubclassOf<AEnemyCharacter>, int> EnemiesToSpawn;
+	TArray<FEnemyToSpawn> EnemiesToSpawn;
 
 	UPROPERTY(EditAnywhere)
 	TMap<EItemType, int32> Reward;
@@ -87,7 +105,7 @@ public:
 	EMissionType MissionType;
 
 	UPROPERTY(EditAnywhere)
-	TMap<TSubclassOf<AEnemyCharacter>, int> EnemiesToSpawn;
+	TArray<FEnemyToSpawn> EnemiesToSpawn;
 
 	UPROPERTY(EditAnywhere)
 	TMap<EItemType, int32> Reward;

@@ -15,6 +15,7 @@ class UAnimationComponent;
 class UAnimationsDA;
 class ASevenPlayerController;
 class USevenCharacterDA;
+class UEnemyLevelDA;
 class UAttackComponent;
 class UAttributesComponent;
 class UMotionWarpingComponent;
@@ -127,6 +128,9 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnAttackEndDelegate OnAttackEnd;
+
+	UPROPERTY(BlueprintReadOnly)
+	UEnemyLevelDA* EnemyLevelDA; //TODO: change name! But it will cause a lot of issues regarding naming in BP:(
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Components

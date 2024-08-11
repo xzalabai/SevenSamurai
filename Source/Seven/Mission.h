@@ -9,6 +9,7 @@ class USphereComponent;
 class UMissionDA;
 class ASevenCharacter;
 class AEnemyCharacter;
+class ASevenGameMode;
 
 UENUM(BlueprintType)
 enum class EMissionType : uint8
@@ -78,6 +79,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	uint32 SevenCharactersKilledCount{ 0 };
+
+	UPROPERTY()
+	ASevenGameMode* CachedSevenGameMode{ nullptr };
 
 public:	
 	AMission();

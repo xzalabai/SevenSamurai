@@ -57,6 +57,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	ULootGenerator* AC_LootGenerator;
 
+	UPROPERTY(EditAnywhere)
+	TMap<ESevenCharacterType, TSubclassOf<AEnemyCharacter>> EnemiesCharacterMapping;
+
 public:
 	const TArray<const ASevenCharacter*> GetSevenCharacters() const;
 	void UpdateStatus(const ASevenCharacter* SevenCharacter, const ECharacterState Status = ECharacterState::None);

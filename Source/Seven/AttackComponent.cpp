@@ -4,6 +4,7 @@
 #include "SevenCharacterDA.h"
 #include "Combo.h"
 #include "SevenCharacter.h"
+#include "EnemyLevelDA.h"
 #include "AnimationsDA.h"
 #include "Weapon.h"
 #include "ThrowingKnife.h"
@@ -101,7 +102,7 @@ EAttackStrength UAttackComponent::GetAttackStrength() const
 	const EMontageType CurrentMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
 	if (CurrentMontageType == EMontageType::LightAttack)
 	{
-		return EAttackStrength::Light;
+		return CachedSevenCharacter->AttackStrength;
 	}
 	
 	if (CurrentMontageType == EMontageType::Combo)

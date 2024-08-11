@@ -418,6 +418,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		{
 			// Shield
 			AttackInfo.Attacker->AttackWasParried();
+			AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry);
 			return;
 		}
 		else
