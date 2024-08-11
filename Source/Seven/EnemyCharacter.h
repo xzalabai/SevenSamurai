@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int LightAttacksAmount{ 1 };
 
+	UPROPERTY(EditAnywhere)
+	int AcceptableAttackRadius{ 200 };
+
 	virtual ASevenCharacter* FindSevenCharacter() const;
 
 	virtual void Fire(const FInputActionValue& Value) override;
@@ -66,6 +69,8 @@ protected:
 	void SetDefendActionInProgress(const bool bInProgress) const;
 	UFUNCTION(BlueprintCallable)
 	virtual void MoveTo(bool bToSevenCharacter);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	virtual bool IsNearCharacter() const;
 	virtual const FVector GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter);
 	UFUNCTION(BlueprintCallable)
 	bool TryStealAttackToken();
@@ -82,6 +87,11 @@ protected:
 	bool DefendAgainstIncomingAttack(EMontageType DefendMontage);
 	UFUNCTION(BlueprintCallable)
 	void SetAttackStrength(EAttackStrength NewAttackStrength);
+
+	FTimerHandle MovementTimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	void SetMovemenTimertHandle(const FTimerHandle& Handle);
 	
 	bool HasAttackStarted() const;
 

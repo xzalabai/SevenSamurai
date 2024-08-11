@@ -57,6 +57,12 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 
 void AEnemyCharacter::AttackEnd()
 {
+	if (MovementTimerHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
+		MovementTimerHandle.Invalidate();
+	}
+	
 	ReturnAttackToken();
 	Super::AttackEnd();
 }
@@ -114,7 +120,7 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenC
 		//UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] OnSevenCharacterStatusUpdate: MY ID: %d, attack ID %d"), uniqueID, SevenCharacter->GetTargetedEnemyID());
 		if (SevenCharacter->GetTargetedEnemyID() == uniqueID)
 		{
-			AAIController* AIController = Cast<AAIController>(GetController());
+			AAIController* AIController = Cast<AAIController>(GetController()); // TODO Cache!
 			UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
 			BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), Status == ECharacterState::IncomingAttack ? true : false);
 		}
@@ -193,6 +199,25 @@ void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
 	AIController->MoveToLocation(FinalDestination, 100.0f);
 }
 
+bool AEnemyCharacter::IsNearCharacter() const
+{
+	const AAIController* const AIController = Cast<AAIController>(GetController());
+	const ASevenCharacter* const EnemyToAttack = FindSevenCharacter(); // TODO Cache
+
+	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle)
+	{
+		return true;
+	}
+	const float Distance = FVector::Dist(EnemyToAttack->GetActorLocation(), GetActorLocation());
+	
+	if (Distance < AcceptableAttackRadius)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 const FVector AEnemyCharacter::GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter)
 {
 	const FVector EnemyPosition = SevenCharacter->GetActorLocation();
@@ -256,6 +281,11 @@ void AEnemyCharacter::UseCombo(const EComboType ComboType)
 void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)
 {
 	AttackStrength = NewAttackStrength;
+}
+
+void AEnemyCharacter::SetMovemenTimertHandle(const FTimerHandle& Handle)
+{
+	MovementTimerHandle = Handle;
 }
 
 bool AEnemyCharacter::HasAttackStarted() const
