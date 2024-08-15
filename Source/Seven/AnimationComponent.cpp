@@ -78,6 +78,10 @@ bool UAnimationComponent::CanPlayAnimation(const EMontageType MontageType) const
 		{
 			return true;
 		}
+		if (MontageType == EMontageType::Evade && !CachedSevenCharacter->bIsEvading)
+		{
+			return true;
+		}
 		return false;
 	}
 
@@ -157,9 +161,26 @@ void UAnimationComponent::OnLayingDead()
 	CachedSevenCharacter->OnLayingDead();
 }
 
+void UAnimationComponent::RotateTowards(const AActor* Actor, const int Shift)
+{
+	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(CachedSevenCharacter->GetActorLocation(), Actor->GetActorLocation());
+	CachedSevenCharacter->RootComponent->SetWorldRotation(PlayerRot);
+
+	if (Shift != 0)
+	{
+		CachedSevenCharacter->SetActorLocation(CachedSevenCharacter->GetActorLocation() + CachedSevenCharacter->GetActorForwardVector() * Shift);
+	}
+}
+
 void UAnimationComponent::OnEvadeEnded()
 {
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnEvadeEnded"));
 	CachedSevenCharacter->bIsEvading = false;
+	if (!CachedSevenCharacter->LastAttackInfo.IsEmpty())
+	{
+		RotateTowards(CachedSevenCharacter->LastAttackInfo.Attacker);
+		CachedSevenCharacter->LastAttackInfo.Reset();
+	}
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -238,6 +259,7 @@ void UAnimationComponent::LockTarget(bool bEnable, const ASevenCharacter* EnemyT
 
 void UAnimationComponent::SwitchStances(const EStances NewStance)
 {
+	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] SwitchStances %d"), (int)NewStance);
 	if (NewStance == Stance)
 	{
 		return;
@@ -304,9 +326,10 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	if (!bInterrupted)
 	{
 		bActiveMontageRunning = false;
-		SwitchStances(CurrentMontage.LastStance);
+		// Set the stance if user made some stance request during montage
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] Stance %d"), (int) Stance);
+		SwitchStances(Stance == EStances::None ? CurrentMontage.LastStance : Stance);
 		CurrentMontage.Reset();
-		
 	}
 	LastPlayedMontage.Reset(); // TODO: Not sure where to put this :(
 }

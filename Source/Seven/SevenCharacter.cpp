@@ -398,7 +398,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].ReceivedHit %s, but Immortal"), *GetName());
 		return;
 	}
-
+	LastAttackInfo = AttackInfo;
 	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] Character %s ReceivedHitReaction: %d"), *GetName(), (int)ReceivedHitReaction);
 	
@@ -624,17 +624,6 @@ bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy) const
 		}
 	}
 	return false;
-}
-
-void ASevenCharacter::RotateTowards(const AActor* Actor, const int Shift)
-{
-	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Actor->GetActorLocation());
-	RootComponent->SetWorldRotation(PlayerRot);
-
-	if (Shift != 0)
-	{
-		SetActorLocation(GetActorLocation() + GetActorForwardVector() * Shift);
-	}
 }
 
 EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackInfo) const

@@ -165,6 +165,8 @@ protected:
 	UPROPERTY()
 	ASevenGameMode* SevenGameMode;
 
+	FAttackInfo LastAttackInfo;
+
 public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)
@@ -211,7 +213,6 @@ protected:
 	virtual void BeginPlay();
 	TArray<ASevenCharacter*> GetEnemiesInFrontOfCharacer(const int8 EnemyID = -1,const int32 StartOffset = 150, const int32 EndOffset = 200, const int32 Thickness = 100, const bool bCameraRelative = true) const;
 	ASevenCharacter* GetClosestEnemyInRange(float DotProductTreshold = 0.6);
-	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	virtual void OnAnimationEnded(const EMontageType& StoppedMontage);
 	bool CanParryAttack(const ASevenCharacter* Attacker) const;
 	void AttackWasParried();

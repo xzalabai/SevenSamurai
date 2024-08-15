@@ -77,7 +77,7 @@ public:
 	void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	void OnAnimationStarted(UAnimMontage* Montage);
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+	void RotateTowards(const AActor* Actor, const int Shift = 0);
 	bool Play(UAnimMontage* AnimMontage, const FName& SectionName, const EMontageType MontageType);
 	bool Play(UAnimMontage* AnimMontage, int SectionName, const EMontageType &MontageType);
 	bool CanPlayAnimation(const EMontageType MontageType) const;
@@ -86,7 +86,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnLayingDead();
 	UFUNCTION(BlueprintCallable)
-	void OnEvadeEnded(); // TODO: Remove bIsEvading and instead check if montage Evade is still in progress.
+	void OnEvadeEnded();
 	void NextComboTriggered(bool bEnable);
 	
 	bool Block(const bool bEnable);

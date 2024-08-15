@@ -25,7 +25,7 @@ void UCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 	}
 	// Attacker
 	// Rotate and play animation
-	AttackerCharacter->RotateTowards(VictimCharacter);
+	AttackerCharacter->GetAnimationComponent()->RotateTowards(VictimCharacter);
 	UAnimationComponent* AC_Animation = AttackerCharacter->GetAnimationComponent();
 	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::Combo);
 

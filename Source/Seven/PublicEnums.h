@@ -29,15 +29,15 @@ enum class EComboType : uint8
 UENUM(BlueprintType)
 enum class EAttackStrength : uint8
 {
-	// I feel immortal after writing this
-	CanBlock = 0b001,
-	CanParry = 0b010,
-	CanEvade = 0b100,
+	None =			0b0000,
+	CanBlock =		0b0001,
+	CanParry =		0b0010,
+	CanEvade =		0b0100,
 
-	Light = 0b111,
-	Mid = 0b110,
-	Heavy = 0b100,
-	Undefendable = 0b000,
+	Light =			0b1111,
+	Mid =			0b1110,
+	Heavy =			0b1100,
+	Undefendable =	0b1000,
 };
 
 UENUM(BlueprintType)
@@ -155,6 +155,15 @@ struct FAttackInfo
 		Attacker = nullptr;
 		ComboType = EComboType::None;
 	}
+	bool IsEmpty()
+	{
+		if (MontageType == EMontageType::None && !Attacker)
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	EMontageType MontageType{ EMontageType::None };
 	EAttackStrength AttackStrength{ EAttackStrength::Undefendable};
 	bool bAttackCanBreakBlock{ false };

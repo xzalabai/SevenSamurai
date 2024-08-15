@@ -42,7 +42,7 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 	TargetedEnemy = FindSevenCharacter();
 	if (TargetedEnemy)
 	{
-		RotateTowards(TargetedEnemy);
+		AC_Animation->RotateTowards(TargetedEnemy);
 		bool bLightAttackPlaying = AC_AttackComponent->LightAttack(TargetedEnemy);
 		if (!bLightAttackPlaying)
 		{
@@ -70,9 +70,13 @@ void AEnemyCharacter::AttackEnd()
 void AEnemyCharacter::InitiateAttack()
 {
 	LightAttacksAmount--;
-	if (LightAttacksAmount >= 0)
+	if (LightAttacksAmount >= 0 && IsNearCharacter())
 	{
 		Fire(FInputActionValue());
+	}
+	else
+	{
+		// TODO: Should be MoveTo character and then fire again
 	}
 }
 
@@ -81,30 +85,33 @@ void AEnemyCharacter::IncomingAttack()
 	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] IncomingAttack"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::IncomingAttack);
 
-	if (ASevenCharacter* EnemyToAttack = FindSevenCharacter())
+	switch (AttackStrength)
 	{
-		// Spawn emitter only if really attacking (enemy has a token)
-		if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
-		{
-			switch (AttackStrength)
-			{
-				// TODO: Reuse this: Object pool pls!
-				case EAttackStrength::Light:
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EasyAttackParticle,
-						GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
-					break;
-				case EAttackStrength::Mid:
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MidAttackParticle,
-						GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
-					break;
-				case EAttackStrength::Heavy:
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HeavyAttackParticle,
-						GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
-					break;
-			}
-
-		}
+		// TODO: Reuse this: Object pool pls!
+	case EAttackStrength::Light:
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EasyAttackParticle,
+			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+		break;
+	case EAttackStrength::Mid:
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MidAttackParticle,
+			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+		break;
+	case EAttackStrength::Heavy:
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HeavyAttackParticle,
+			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+		break;
 	}
+
+	//if (ASevenCharacter* EnemyToAttack = FindSevenCharacter())
+	//{
+	//	// Spawn emitter only if really attacking (enemy has a token)
+	//	if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
+	//	{
+			
+			// SWITCH WAS HERE
+
+	//	}
+	//}
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
