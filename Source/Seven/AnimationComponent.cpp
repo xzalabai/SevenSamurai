@@ -122,7 +122,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	bActiveMontageRunning = true;
 	LastPlayedMontage = CurrentMontage;
 	CurrentMontage = FMontage{ MontageType, AnimMontage, Stance };
-	Stance = EStances::None;
+	SwitchStances(EStances::None);
 	return true;
 }
 
@@ -176,11 +176,6 @@ void UAnimationComponent::OnEvadeEnded()
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnEvadeEnded"));
 	CachedSevenCharacter->bIsEvading = false;
-	if (!CachedSevenCharacter->LastAttackInfo.IsEmpty())
-	{
-		RotateTowards(CachedSevenCharacter->LastAttackInfo.Attacker);
-		CachedSevenCharacter->LastAttackInfo.Reset();
-	}
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -197,14 +192,6 @@ bool UAnimationComponent::Block(const bool bEnable)
 	}
 
 	bool &bAttackWasPerformed = bNextComboTriggerEnabled; // We use bNextComboTriggerEnabled also as an indicator of whether attack was already performed.
-	
-	if (bEnable && IsAnimationRunning())
-	{
-		if (!bAttackWasPerformed)
-		{
-			return false;
-		}
-	}
 
 	CachedSevenCharacter->bIsBlocking = bEnable;
 	CachedSevenCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = bEnable;
@@ -280,6 +267,7 @@ void UAnimationComponent::SwitchStances(const EStances NewStance)
 
 	if (NewStance == EStances::Block)
 	{
+		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] Blockkk %d"), (int)NewStance);
 		Block(true);
 	}
 	if (NewStance == EStances::Guard)

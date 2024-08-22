@@ -59,6 +59,7 @@ void AEnemyCharacter::AttackEnd()
 {
 	if (MovementTimerHandle.IsValid())
 	{
+		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] IsValid"));
 		GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
 		MovementTimerHandle.Invalidate();
 	}
@@ -76,6 +77,7 @@ void AEnemyCharacter::InitiateAttack()
 	}
 	else
 	{
+		AttackEnd();
 		// TODO: Should be MoveTo character and then fire again
 	}
 }
@@ -101,17 +103,6 @@ void AEnemyCharacter::IncomingAttack()
 			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
 		break;
 	}
-
-	//if (ASevenCharacter* EnemyToAttack = FindSevenCharacter())
-	//{
-	//	// Spawn emitter only if really attacking (enemy has a token)
-	//	if (EnemyToAttack->GetAttackTokenOwner() == uniqueID)
-	//	{
-			
-			// SWITCH WAS HERE
-
-	//	}
-	//}
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)

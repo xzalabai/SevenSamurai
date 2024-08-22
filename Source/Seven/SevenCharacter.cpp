@@ -241,6 +241,7 @@ void ASevenCharacter::AttackStart()
 
 void ASevenCharacter::AttackEnd()
 {
+	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] AttackEnd"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::AttackEnd); // TODO: this might not work with a lot of Characters ... race condition!!!
 	AC_AttackComponent->bAttackCanBreakBlock = false;
 	TargetedEnemy = nullptr;
@@ -398,12 +399,12 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].ReceivedHit %s, but Immortal"), *GetName());
 		return;
 	}
-	LastAttackInfo = AttackInfo;
 	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] Character %s ReceivedHitReaction: %d"), *GetName(), (int)ReceivedHitReaction);
 	
 	if (ReceivedHitReaction == EReceivedHitReaction::Parried)
 	{
+		SlowDownTime();
 		AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry);
 		AttackInfo.Attacker->AttackWasParried();
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Parried"), *GetName());
@@ -417,6 +418,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		if (SevenCharacterType == ESevenCharacterType::Lancet)
 		{
 			// Shield
+			// TODO: This behavior is weird, he looks like he is blocking every time, but not everytime we parry
 			AttackInfo.Attacker->AttackWasParried();
 			AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry);
 			return;
@@ -459,6 +461,21 @@ bool ASevenCharacter::IsSameTeam(const ASevenCharacter* Other) const
 bool ASevenCharacter::IsAlive() const
 {
 	return AC_Attribute->GetHP() > 0;
+}
+
+void ASevenCharacter::SlowDownTime()
+{
+	if (IsEnemy())
+	{
+		return;
+	}
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.4f);
+	GetWorldTimerManager().SetTimer(SlowDownTimerHandle, this, &ASevenCharacter::SetNormalTime, 2, false, 1);
+}
+
+void ASevenCharacter::SetNormalTime() const
+{
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 }
 
 void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
@@ -570,60 +587,44 @@ void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 
 bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy) const
 {
-	if (!bIsEvading)
-	{
-		return false;
-	}
-
-	EOctagonalDirection EvadeDirection = OctagonalDirection::GetOctagonalDirectionFName(AC_Animation->GetCurrentMontageSection());
-	//EOctagonalDirection EvadeDirection = EOctagonalDirection::None;
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] ReceivedHit.IsEvadingAway %d"), EvadeDirection);
-	const float Dot = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorForwardVector().GetSafeNormal());
-	const float Cross = FVector::CrossProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorForwardVector().GetSafeNormal()).Z;
-
-
-	// DEBUG
+	return (bIsEvading ? true : false);
 	
-	FVector StartLocation(0, 0, 0);
-	FVector EndLocation(100, 0, 0);
-	FColor DebugColor(255, 0, 0); // Red color
-	FColor DebugColor2(0, 255, 0); // Red color
-	float ArrowSize = 10.0f;
-	float Thickness = 2.0f;
-	float Duration = 5.0f;
-	uint8 DepthPriority = 0; // Default depth priority
-	float Length = -1.0f; // Length of the arrow shaft, -1 to use default
-	//DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector().GetSafeNormal() * 1000, ArrowSize, DebugColor, false, Duration, DepthPriority, Thickness);
-	//DrawDebugDirectionalArrow(GetWorld(), Enemy->GetActorLocation(), Enemy->GetActorLocation() + Enemy->GetActorForwardVector().GetSafeNormal() * 1000, ArrowSize, DebugColor2, false, Duration, DepthPriority, Thickness);
-	//DrawDebugPoint(GetWorld(), T.GetTranslation(), ArrowSize, DebugColor2, true, Duration, DepthPriority);
+	//if (!bIsEvading)
+	//{
+	//	return false;
+	//}
 
-	if (Cross > 0) // ^ ^ || < ^
-	{
-		if (Dot >= 0.5f) // ^ ^
-		{
-			UE_LOG(LogTemp, Warning, TEXT("^ ^"));
-			return (EvadeDirection != EOctagonalDirection::Backward && EvadeDirection != EOctagonalDirection::BackwardLeft && EvadeDirection != EOctagonalDirection::BackwardRight);
-		}
-		else // < ^
-		{
-			UE_LOG(LogTemp, Warning, TEXT("< ^"));
-			return (EvadeDirection != EOctagonalDirection::Left && EvadeDirection != EOctagonalDirection::ForwardLeft && EvadeDirection != EOctagonalDirection::BackwardLeft);
-		}
-	}
-	else if (Cross < 0) // v ^ || > ^ 
-	{
-		if (-0.7f <= Dot && Dot <= 0.7f)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("> ^ "));
-			return (EvadeDirection != EOctagonalDirection::Right && EvadeDirection != EOctagonalDirection::ForwardRight && EvadeDirection != EOctagonalDirection::BackwardRight);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("v ^ "));
-			return (EvadeDirection != EOctagonalDirection::Forward && EvadeDirection != EOctagonalDirection::ForwardLeft && EvadeDirection != EOctagonalDirection::ForwardRight);
-		}
-	}
-	return false;
+	//EOctagonalDirection EvadeDirection = OctagonalDirection::GetOctagonalDirectionFName(AC_Animation->GetCurrentMontageSection());
+	//const float Dot = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorForwardVector().GetSafeNormal());
+	//const float Cross = FVector::CrossProduct(GetActorForwardVector().GetSafeNormal(), Enemy->GetActorForwardVector().GetSafeNormal()).Z;
+
+	//if (Cross > 0) // ^ ^ || < ^
+	//{
+	//	if (Dot >= 0.5f) // ^ ^
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("^ ^"));
+	//		return (EvadeDirection != EOctagonalDirection::Backward && EvadeDirection != EOctagonalDirection::BackwardLeft && EvadeDirection != EOctagonalDirection::BackwardRight);
+	//	}
+	//	else // < ^
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("< ^"));
+	//		return (EvadeDirection != EOctagonalDirection::Left && EvadeDirection != EOctagonalDirection::ForwardLeft && EvadeDirection != EOctagonalDirection::BackwardLeft);
+	//	}
+	//}
+	//else if (Cross < 0) // v ^ || > ^ 
+	//{
+	//	if (-0.7f <= Dot && Dot <= 0.7f)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("> ^ "));
+	//		return (EvadeDirection != EOctagonalDirection::Right && EvadeDirection != EOctagonalDirection::ForwardRight && EvadeDirection != EOctagonalDirection::BackwardRight);
+	//	}
+	//	else
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("v ^ "));
+	//		return (EvadeDirection != EOctagonalDirection::Forward && EvadeDirection != EOctagonalDirection::ForwardLeft && EvadeDirection != EOctagonalDirection::ForwardRight);
+	//	}
+	//}
+	//return false;
 }
 
 EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackInfo) const
@@ -638,8 +639,11 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 		return EReceivedHitReaction::Parried;
 	}
 
-	if (IsAllowedHitReaction(AttackInfo.AttackStrength, EAttackStrength::CanBlock) && GetIsBlocking())
+	if (IsAllowedHitReaction(AttackInfo.AttackStrength, EAttackStrength::CanBlock) && GetIsBlocking()
+		&& AC_Animation->GetCurrentMontageType() != EMontageType::HitReaction)
 	{
+		// TODO: bIsBlocking is TRUE also if you attacking and hold block (montage attack is playing)
+		// FIX: in GetIsBlocking check if some animation is playing
 		if (!GetEnemiesInFrontOfCharacer(AttackInfo.Attacker->GetUniqueID()).IsEmpty())
 		{
 			if (AttackInfo.bAttackCanBreakBlock)
@@ -674,7 +678,7 @@ void ASevenCharacter::ResetAttackToken()
 
 EReceivedHitReaction ASevenCharacter::GetSuccessfulHitReaction(const uint8 Damage) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].xxxxxxxx %d %d"), AC_Attribute->GetHP(), AC_Attribute->GetHP() - Damage);
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].GetSuccessfulHitReaction %d %d"), AC_Attribute->GetHP(), AC_Attribute->GetHP() - Damage);
 	return AC_Attribute->GetHP() - Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
 }
 

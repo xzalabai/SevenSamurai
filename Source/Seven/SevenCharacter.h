@@ -165,8 +165,6 @@ protected:
 	UPROPERTY()
 	ASevenGameMode* SevenGameMode;
 
-	FAttackInfo LastAttackInfo;
-
 public:
 	ASevenCharacter();
 	UFUNCTION(BlueprintCallable)
@@ -208,6 +206,9 @@ protected:
 	virtual void AttackCanBreakBlock();
 	UFUNCTION(BlueprintCallable)
 	virtual void AI_MoveToPosition(const FVector& Position);
+	void SlowDownTime();
+	void SetNormalTime() const;
+	FTimerHandle SlowDownTimerHandle;
 
 protected:
 	virtual void BeginPlay();

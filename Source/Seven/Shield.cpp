@@ -2,6 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "Weapon.h"
 #include "AttackComponent.h"
+#include "AnimationComponent.h"
 #include "SevenCharacter.h"
 
 
@@ -41,7 +42,13 @@ void AShield::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	{
 		if (HitEnemy != CachedSevenCharacter && CachedSevenCharacter->GetAttackComponent()->GetLastUsedCombo())
 		{
-			CachedSevenCharacter->ReceivedHit(CachedSevenCharacter->GetAttackInfo());
+			if (CachedSevenCharacter->AC_Animation->GetCurrentMontageType() != EMontageType::HitReaction)
+			{
+				UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] AttackWaxxxxxxxxxxxxxxxxsParried %d"), (int) CachedSevenCharacter->AC_Animation->GetCurrentMontageType());
+				CachedSevenCharacter->ReceivedHit(CachedSevenCharacter->GetAttackInfo());
+
+			}
+				
 		}
 	}
 }
