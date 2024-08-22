@@ -79,3 +79,8 @@ void AWeapon::AttackStart()
 	AttackInfo = CachedSevenCharacter->GetAttackInfo();
 }
 
+UStaticMeshComponent* AWeapon::GetMeshComponent()
+{
+    return MeshComponent;
+}
+

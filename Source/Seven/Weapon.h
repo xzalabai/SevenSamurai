@@ -48,6 +48,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PerformTrace();
 	void AttackStart();
+	UStaticMeshComponent* GetMeshComponent();
 };	
 
 USTRUCT(BlueprintType)

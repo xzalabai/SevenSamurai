@@ -86,23 +86,23 @@ void AEnemyCharacter::IncomingAttack()
 {
 	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] IncomingAttack"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::IncomingAttack);
-
+	UParticleSystem* ParticleToSpawn = EasyAttackParticle;
 	switch (AttackStrength)
 	{
 		// TODO: Reuse this: Object pool pls!
 	case EAttackStrength::Light:
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EasyAttackParticle,
-			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+		ParticleToSpawn = EasyAttackParticle;
 		break;
 	case EAttackStrength::Mid:
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MidAttackParticle,
-			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+		ParticleToSpawn = MidAttackParticle;
 		break;
 	case EAttackStrength::Heavy:
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HeavyAttackParticle,
-			GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
+		ParticleToSpawn = HeavyAttackParticle;
 		break;
 	}
+	UGameplayStatics::SpawnEmitterAttached(ParticleToSpawn, EquippedWeapon->GetMeshComponent(), NAME_None, FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::SnapToTarget);
+	//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleToSpawn,
+	//	GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
