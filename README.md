@@ -34,6 +34,7 @@ Ghost of Tsushima battle style, where player defends against different attacks:
 - easy (can be defended any way)
 - mid (can be defended by parry)
 - heavy (must be evaded)
+
 ![bandicam2024-08-2216-49-47-902-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/fbef09ad-63cd-4ed0-8f0e-686eaa9bde97)
 
 ![c1-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/9e3fb36e-029b-4207-be2a-3cd994cf6c8b)
