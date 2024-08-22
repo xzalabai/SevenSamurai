@@ -13,6 +13,9 @@ Enemies walk upon this land, camp, pillage roads and player can interfiere them.
 ## Village view
 Every village offers different set of facilities, where player can use & trade resources for new abilitie, upgrades, skins or combos. Each village has uniquely generated set of those products in offer.
 
+## Enemies
+There are multiple types of enemies (sword-master, halbert, enemies with shields, archers), where every one of them has unique level, set of skills and attack strength.
+
 ## Battles
 Player plays for 1 character at the time and once the character is defeated, it is being replaced with a next character in a queue.
 Thus each character has a unique set of abilities which he can use, based on their earned XP for battle.
