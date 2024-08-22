@@ -59,9 +59,8 @@ void AEnemyCharacter::AttackEnd()
 {
 	if (MovementTimerHandle.IsValid())
 	{
-		UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] IsValid"));
-		GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
-		MovementTimerHandle.Invalidate();
+		//GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
+		//MovementTimerHandle.Invalidate();
 	}
 	
 	ReturnAttackToken();
@@ -201,7 +200,7 @@ bool AEnemyCharacter::IsNearCharacter() const
 {
 	const AAIController* const AIController = Cast<AAIController>(GetController());
 	const ASevenCharacter* const EnemyToAttack = FindSevenCharacter(); // TODO Cache
-
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] IsNearCharacter"));
 	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle)
 	{
 		return true;

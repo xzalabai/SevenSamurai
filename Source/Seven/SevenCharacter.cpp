@@ -179,7 +179,18 @@ void ASevenCharacter::Guard(bool bEnable)
 
 void ASevenCharacter::Run(bool bEnable)
 {
-	AC_Animation->SwitchStances(bEnable ? EStances::Run : EStances::Guard);
+	if (!bEnable)
+	{
+		if (AC_Animation->Stance == EStances::Run)
+		{
+			AC_Animation->SwitchStances(EStances::Guard);
+		}
+	}
+	else
+	{
+		AC_Animation->SwitchStances(bEnable ? EStances::Run : EStances::Guard);
+	}
+	
 }
 
 void ASevenCharacter::Move(const FInputActionValue& Value)
