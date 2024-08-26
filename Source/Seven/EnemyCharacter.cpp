@@ -27,7 +27,7 @@ void AEnemyCharacter::BeginPlay()
 		AC_AttackComponent->AddComboToCharacter(Combo);
 	}
 
-	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);
+	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);	
 	check(MissionType != EMissionType::NotProvided);
 }
 
@@ -233,7 +233,8 @@ bool AEnemyCharacter::TryStealAttackToken()
 {
 	if (ASevenCharacter* const EnemyToAttack = FindSevenCharacter())
 	{
-		if (EnemyToAttack->CanStealAttackToken())
+		UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter].TryStealAttackToken %d"), EnemyToAttack->GetAttackTokenOwner());
+		if (EnemyToAttack->CanStealAttackToken() || EnemyToAttack->GetAttackTokenOwner() == uniqueID)
 		{
 			EnemyToAttack->StealAttackToken(uniqueID);
 			TargetedEnemy = EnemyToAttack;
