@@ -93,7 +93,7 @@ void ASevenCharacter::BeginPlay()
 
 	SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this);
-	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] BeginPlay for %s"), *GetName());
+	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] BeginPlay for %s, uniqueID: %d"), *GetName(), uniqueID);
 	AC_Animation->SwitchStances(EStances::Guard);
 	
 }
@@ -252,7 +252,6 @@ void ASevenCharacter::AttackStart()
 
 void ASevenCharacter::AttackEnd()
 {
-	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] AttackEnd"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::AttackEnd); // TODO: this might not work with a lot of Characters ... race condition!!!
 	AC_AttackComponent->bAttackCanBreakBlock = false;
 	TargetedEnemy = nullptr;
@@ -389,12 +388,6 @@ void ASevenCharacter::Suicide()
 
 void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
-	if (bDebugIsImmortal)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].ReceivedHit %s, but bDebugIsImmortal"), *GetName());
-		return;
-	}
-
 	if (!IsAlive())
 	{
 		return;
@@ -457,6 +450,15 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		return;
 	}
 
+	if (bDebugIsImmortal)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].ReceivedHit %s, but bDebugIsImmortal"), *GetName());
+		UAnimMontage* MontageToPlay = GetVictimMontageToPlay(false, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
+		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
+		return;
+	}
+
 	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
 	bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
 	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
@@ -498,7 +500,6 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
 	if (AC_Animation->Play(Animations->Montages[EMontageType::Evade], (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade))
 	{
-		bIsEvading = true;
 		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
 	}
 }
@@ -598,7 +599,7 @@ void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 
 bool ASevenCharacter::IsEvadingAway(const ASevenCharacter* Enemy) const
 {
-	return (bIsEvading ? true : false);
+	return (AC_Animation->GetCurrentMontageType() == EMontageType::Evade);
 	
 	//if (!bIsEvading)
 	//{
@@ -678,18 +679,27 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 
 void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].StealAttackToken from: %d "), enemyUniqueID);
 	AttackToken = enemyUniqueID;
+}
+
+void ASevenCharacter::SetFreeAttackToken()
+{
+	AttackToken = 0;
+	CooldownTimerHandle.Invalidate();
 }
 
 void ASevenCharacter::ResetAttackToken()
 {
-	AttackToken = 0;
+	AttackToken = -1;
+	if (!CooldownTimerHandle.IsValid())
+	{
+		GetWorldTimerManager().SetTimer(CooldownTimerHandle, this, &ASevenCharacter::SetFreeAttackToken, 2, false, 1);
+	}
+	
 }
 
 EReceivedHitReaction ASevenCharacter::GetSuccessfulHitReaction(const uint8 Damage) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].GetSuccessfulHitReaction %d %d"), AC_Attribute->GetHP(), AC_Attribute->GetHP() - Damage);
 	return AC_Attribute->GetHP() - Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
 }
 

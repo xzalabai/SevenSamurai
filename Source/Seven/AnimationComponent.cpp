@@ -78,10 +78,6 @@ bool UAnimationComponent::CanPlayAnimation(const EMontageType MontageType) const
 		{
 			return true;
 		}
-		if (MontageType == EMontageType::Evade && !CachedSevenCharacter->bIsEvading)
-		{
-			return true;
-		}
 		return false;
 	}
 
@@ -175,7 +171,7 @@ void UAnimationComponent::RotateTowards(const AActor* Actor, const int Shift)
 void UAnimationComponent::OnEvadeEnded()
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnEvadeEnded"));
-	CachedSevenCharacter->bIsEvading = false;
+	CurrentMontage.Reset();
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -246,7 +242,6 @@ void UAnimationComponent::LockTarget(bool bEnable, const ASevenCharacter* EnemyT
 
 void UAnimationComponent::SwitchStances(const EStances NewStance)
 {
-	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] SwitchStances %d"), (int)NewStance);
 	if (NewStance == Stance)
 	{
 		return;
@@ -267,7 +262,6 @@ void UAnimationComponent::SwitchStances(const EStances NewStance)
 
 	if (NewStance == EStances::Block)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] Blockkk %d"), (int)NewStance);
 		Block(true);
 	}
 	if (NewStance == EStances::Guard)
@@ -293,13 +287,15 @@ FName UAnimationComponent::GetCurrentMontageSection()
 
 void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %d, Character: %s, Interrupted: %d"),
-		*Montage->GetName(), (int)CurrentMontage.MontageType, *CachedSevenCharacter->GetName(), bInterrupted ? 1 :0);
-
-	CachedSevenCharacter->OnAnimationEnded(LastPlayedMontage.MontageType);
-	CachedSevenCharacter->AC_AttackComponent->OnAnimationEnded(LastPlayedMontage.MontageType);
+	const FMontage& EndedMontage = bInterrupted ? LastPlayedMontage : CurrentMontage;
 	
-	if (LastPlayedMontage.MontageType == EMontageType::LightAttack)
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnAnimationEnded Animation: %s, CurrentMontageType: %s, Character: %s, Interrupted: %d"),
+		*Montage->GetName(), *UEnum::GetValueAsString(EndedMontage.MontageType), *CachedSevenCharacter->GetName(), bInterrupted ? 1 :0);
+
+	CachedSevenCharacter->OnAnimationEnded(EndedMontage.MontageType);
+	CachedSevenCharacter->AC_AttackComponent->OnAnimationEnded(EndedMontage.MontageType);
+	
+	if (EndedMontage.MontageType == EMontageType::LightAttack)
 	{
 		if (!bInterrupted)
 		{
@@ -315,7 +311,6 @@ void UAnimationComponent::OnAnimationEnded(UAnimMontage* Montage, bool bInterrup
 	{
 		bActiveMontageRunning = false;
 		// Set the stance if user made some stance request during montage
-		UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] Stance %d"), (int) Stance);
 		SwitchStances(Stance == EStances::None ? CurrentMontage.LastStance : Stance);
 		CurrentMontage.Reset();
 	}

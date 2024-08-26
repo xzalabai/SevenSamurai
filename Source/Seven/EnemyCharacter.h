@@ -43,7 +43,7 @@ protected:
 	int LightAttacksAmount{ 1 };
 
 	UPROPERTY(EditAnywhere)
-	int AcceptableAttackRadius{ 200 };
+	float AcceptableAttackRadius{ 150.0f };
 
 	virtual ASevenCharacter* FindSevenCharacter() const;
 
@@ -87,6 +87,7 @@ protected:
 	bool DefendAgainstIncomingAttack(EMontageType DefendMontage);
 	UFUNCTION(BlueprintCallable)
 	void SetAttackStrength(EAttackStrength NewAttackStrength);
+	void SpawnParticles(EAttackStrength NewAttackStrength) const;
 
 	FTimerHandle MovementTimerHandle;
 

@@ -114,13 +114,13 @@ protected:
 	bool bIsGuarding{ false };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bDebugIsImmortal{ false };
+	bool bDebugIsImmortal{ true };
 
 	UPROPERTY()
 	uint8 uniqueID = 0;
 
 	UPROPERTY()
-	uint8 AttackToken = 0;
+	int8 AttackToken = -1; // [-1] unable to Attack, [0] free to grab, [>0] -> enemy has token
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimationsDA* Animations;
@@ -209,6 +209,7 @@ protected:
 	void SlowDownTime();
 	void SetNormalTime() const;
 	FTimerHandle SlowDownTimerHandle;
+	FTimerHandle CooldownTimerHandle;
 
 protected:
 	virtual void BeginPlay();
@@ -254,12 +255,12 @@ public:
 	virtual bool IsAlive() const;
 	bool IsSameTeam(const ASevenCharacter* Other) const;
 	ASevenPlayerController* GetSevenPlayerController() const;
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool CanStealAttackToken() const { return AttackToken == 0; }
-	UFUNCTION(BlueprintCallable) // just for BP Seven Game Mode
+	bool CanStealAttackToken() const { return AttackToken == 0; }
 	void StealAttackToken(const uint8 enemyUniqueID);
 	UFUNCTION(BlueprintCallable)
 	void ResetAttackToken();
+	UFUNCTION(BlueprintCallable)
+	void SetFreeAttackToken();
 	FORCEINLINE uint8 GetAttackTokenOwner() const { return AttackToken; }
 };
 

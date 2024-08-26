@@ -47,7 +47,10 @@ void AEnemyCharacter::Fire(const FInputActionValue& Value)
 		if (!bLightAttackPlaying)
 		{
 			AttackEnd();
+			return;
 		}
+
+		
 	}
 	else
 	{
@@ -85,23 +88,10 @@ void AEnemyCharacter::IncomingAttack()
 {
 	UE_LOG(LogTemp, Error, TEXT("[AEnemyCharacter] IncomingAttack"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::IncomingAttack);
-	UParticleSystem* ParticleToSpawn = EasyAttackParticle;
-	switch (AttackStrength)
+	if (AC_Animation->CanPlayAnimation(EMontageType::LightAttack))
 	{
-		// TODO: Reuse this: Object pool pls!
-	case EAttackStrength::Light:
-		ParticleToSpawn = EasyAttackParticle;
-		break;
-	case EAttackStrength::Mid:
-		ParticleToSpawn = MidAttackParticle;
-		break;
-	case EAttackStrength::Heavy:
-		ParticleToSpawn = HeavyAttackParticle;
-		break;
+		SpawnParticles(AttackStrength);
 	}
-	UGameplayStatics::SpawnEmitterAttached(ParticleToSpawn, EquippedWeapon->GetMeshComponent(), NAME_None, FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::SnapToTarget);
-	//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleToSpawn,
-	//	GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);
 }
 
 void AEnemyCharacter::ParryAvailable(bool bEnable)
@@ -173,7 +163,18 @@ void AEnemyCharacter::SetDefendActionInProgress(const bool bInProgress) const
 {
 	//UE_LOG(LogTemp, Display, TEXT("[AEnemyCharacter] SetDefendActionInProgress %d"), bInProgress ? 1 : 0);
 	AAIController* AIController = Cast<AAIController>(GetController());
+
+	if (!AIController)
+	{
+		return;
+	}
+
 	UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+
+	if (!BlackBoardComponent)
+	{
+		return;
+	}
 
 	const FName BBValue{ TEXT("bDefendReactionInProgress") };
 	bool const bPreviousValue = BlackBoardComponent->GetValueAsBool(BBValue);
@@ -184,35 +185,31 @@ void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
 {	
 	AAIController* AIController = Cast<AAIController>(GetController());
 	ASevenCharacter* EnemyToAttack = FindSevenCharacter();
-
+	if (bToSevenCharacter)
+	{
+		bool bVa = MovementTimerHandle.IsValid();
+	}
 	if (!AIController || !EnemyToAttack)
 	{
 		return;
 	}
 
-	FVector FinalDestination = bToSevenCharacter ? EnemyToAttack->GetActorLocation() : GetRandomPointAroundCharacter(EnemyToAttack);
+	const FVector FinalDestination = bToSevenCharacter ? EnemyToAttack->GetActorLocation() : GetRandomPointAroundCharacter(EnemyToAttack);
 	AIController->SetFocus(EnemyToAttack);
 	AIController->SetMoveBlockDetection(false);
-	AIController->MoveToLocation(FinalDestination, 100.0f);
+	AIController->MoveToLocation(FinalDestination, 40);
 }
 
 bool AEnemyCharacter::IsNearCharacter() const
 {
-	const AAIController* const AIController = Cast<AAIController>(GetController());
 	const ASevenCharacter* const EnemyToAttack = FindSevenCharacter(); // TODO Cache
-	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] IsNearCharacter"));
-	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle)
+	if (!EnemyToAttack)
 	{
-		return true;
-	}
-	const float Distance = FVector::Dist(EnemyToAttack->GetActorLocation(), GetActorLocation());
-	
-	if (Distance < AcceptableAttackRadius)
-	{
-		return true;
+		return false;
 	}
 
-	return false;
+	const float Distance = FVector::Dist(EnemyToAttack->GetActorLocation(), GetActorLocation());
+	return (Distance < AcceptableAttackRadius);
 }
 
 const FVector AEnemyCharacter::GetRandomPointAroundCharacter(const ASevenCharacter* const SevenCharacter)
@@ -236,7 +233,7 @@ bool AEnemyCharacter::TryStealAttackToken()
 {
 	if (ASevenCharacter* const EnemyToAttack = FindSevenCharacter())
 	{
-		if (EnemyToAttack->CanStealAttackToken() || EnemyToAttack->GetAttackTokenOwner() == uniqueID)
+		if (EnemyToAttack->CanStealAttackToken())
 		{
 			EnemyToAttack->StealAttackToken(uniqueID);
 			TargetedEnemy = EnemyToAttack;
@@ -280,9 +277,35 @@ void AEnemyCharacter::SetAttackStrength(EAttackStrength NewAttackStrength)
 	AttackStrength = NewAttackStrength;
 }
 
+void AEnemyCharacter::SpawnParticles(EAttackStrength NewAttackStrength) const
+{
+	UParticleSystem* ParticleToSpawn = EasyAttackParticle;
+	switch (AttackStrength)
+	{
+		// TODO: Reuse this: Object pool pls!
+	case EAttackStrength::Light:
+		ParticleToSpawn = EasyAttackParticle;
+		break;
+	case EAttackStrength::Mid:
+		ParticleToSpawn = MidAttackParticle;
+		break;
+	case EAttackStrength::Heavy:
+		ParticleToSpawn = HeavyAttackParticle;
+		break;
+	}
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleToSpawn,
+		GetActorLocation(), FRotator(0, 0, 0), FVector(1, 1, 1), true, EPSCPoolMethod::None, true);;
+	//UGameplayStatics::SpawnEmitterAttached(ParticleToSpawn, EquippedWeapon->GetMeshComponent(), NAME_None, FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::SnapToTarget);
+
+}
+
 void AEnemyCharacter::SetMovemenTimertHandle(const FTimerHandle& Handle)
 {
-	MovementTimerHandle = Handle;
+	//if (MovementTimerHandle.IsValid())
+	//{
+	//	MovementTimerHandle.Invalidate();
+	//}
+	//MovementTimerHandle = Handle;
 }
 
 bool AEnemyCharacter::HasAttackStarted() const
