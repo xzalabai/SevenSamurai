@@ -1,5 +1,5 @@
 # Seven Samurai
-
+(wait for GIFs to be loaded)
 ![bandicam2024-08-2216-56-58-482-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/63931a75-8c1f-41ee-bbe1-1bb4ed930e1c)
 
 Indie roguelite game which is situated in Edo period of imperialistic Japan, where the land is twisted in chaos, pillaging and wars.
