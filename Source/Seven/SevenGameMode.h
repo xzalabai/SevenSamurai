@@ -70,6 +70,7 @@ public:
 	TMap<int8, ECharacterState> GetSevenCharactersStatus() const;
 	TArray<const ASevenCharacter*> GetAIControlledAllies() const;
 	bool HasAnyEnemyStatus(const ECharacterState& Status) const;
+	bool HasAnyEnemyStatus(const TArray<ECharacterState>& Status) const;
 	const ECharacterState GetEnemyStatus(const int8 CharacterID) const;
 	void MissionEnd(bool bWin);
 	void UpdateMissionParameters(AMission* Mission);

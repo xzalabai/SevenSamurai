@@ -18,10 +18,12 @@ class SEVEN_API UAttributesComponent : public UActorComponent
 
 private:
 	TMap<EItemType, uint16> AttributesMap;
-
+	TMap<EItemType, uint16> MaxAttributesMap;
+	
 public:	
 	UAttributesComponent();	
 	FORCEINLINE uint16 GetHP() const { return AttributesMap[EItemType::HP]; }
+	FORCEINLINE uint16 GetXP() const { return AttributesMap[EItemType::XP]; }
 	void Set(const EItemType ItemType, const uint16 Amount);
 	void Add(const EItemType ItemType, const uint16 Amount);
 	const uint16& Decrease(const EItemType ItemType, const int32 Decrease);

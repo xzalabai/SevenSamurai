@@ -1,5 +1,6 @@
 #include "AttackComponent.h"
 #include "AnimationComponent.h"
+#include "AttributesComponent.h"
 #include "MotionWarpingComponent.h"
 #include "SevenCharacterDA.h"
 #include "Combo.h"
@@ -34,6 +35,8 @@ void UAttackComponent::BeginPlay()
 	}
 	CombosMapping.Reserve(5);
 	CachedSevenCharacter = GetOwnerCharacter();
+	AC_Animation = CachedSevenCharacter->AC_Animation;
+	AC_Attribute = CachedSevenCharacter->AC_Attribute;
 }
 
 const TPair<UAnimMontage*, FName> UAttackComponent::GetLightAttackMontageToBePlayed()
@@ -51,10 +54,10 @@ const TPair<UAnimMontage*, FName> UAttackComponent::GetLightAttackMontageToBePla
 		CurrentSection = 1;
 	}
 
-	if (CachedSevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
+	if (AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
 	{
 		// Attack animation is in progress
-		CurrentSection = CustomMath::FNameToInt(CachedSevenCharacter->AC_Animation->GetCurrentMontageSection());
+		CurrentSection = CustomMath::FNameToInt(AC_Animation->GetCurrentMontageSection());
 		if (CurrentSection < MontageToBePlayed->CompositeSections.Num())
 		{
 			// We can still iterate
@@ -82,7 +85,7 @@ void UAttackComponent::OnAnimationEnded(const EMontageType &StoppedMontage)
 FAttackInfo UAttackComponent::GetAttackInfo() const
 {
 	const int DamageToBeDealt = GetDamage();
-	const EMontageType AttackerMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+	const EMontageType AttackerMontageType = AC_Animation->CurrentMontage.MontageType;
 	const EAttackStrength AttackStrength = GetAttackStrength();
 	const EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
 	const bool bbreakBlock = GetAttackCanBreakBlock();
@@ -99,7 +102,7 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 
 EAttackStrength UAttackComponent::GetAttackStrength() const
 {
-	const EMontageType CurrentMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+	const EMontageType CurrentMontageType = AC_Animation->CurrentMontage.MontageType;
 	if (CurrentMontageType == EMontageType::LightAttack)
 	{
 		return CachedSevenCharacter->AttackStrength;
@@ -144,7 +147,7 @@ EAttackStrength UAttackComponent::GetAttackStrength() const
 
 uint8 UAttackComponent::GetDamage() const
 {
-	const EMontageType CurrentMontageType = CachedSevenCharacter->AC_Animation->CurrentMontage.MontageType;
+	const EMontageType CurrentMontageType = AC_Animation->CurrentMontage.MontageType;
 
 	if (CurrentMontageType == EMontageType::LightAttack)
 	{
@@ -179,7 +182,7 @@ bool UAttackComponent::GetAttackCanBreakBlock() const
 {
 	return false;
 
-	/*if (CachedSevenCharacter->IsEnemy() && CachedSevenCharacter->AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
+	/*if (CachedSevenCharacter->IsEnemy() && AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
 	{
 		return false;
 	}
@@ -189,9 +192,9 @@ bool UAttackComponent::GetAttackCanBreakBlock() const
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	// TODO: Find a better place for turning off block!
-	CachedSevenCharacter->AC_Animation->SwitchStances(EStances::Guard);
+	AC_Animation->SwitchStances(EStances::Guard);
 	const TPair<UAnimMontage*, FName> NextAttack = GetLightAttackMontageToBePlayed();
-	bool bAnimationIsPlaying = CachedSevenCharacter->AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack);
+	bool bAnimationIsPlaying = AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack);
 	return bAnimationIsPlaying;
 }
 
@@ -199,7 +202,7 @@ bool UAttackComponent::ComboAttack()
 {
 	if (CanUseCombo())
 	{
-		UseCombo(ComboActivated); // TODO can combo interrupt everything???
+		UseCombo(ComboActivated);
 		return true;
 	}
 	return false;
@@ -212,12 +215,16 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 
 bool UAttackComponent::CanUseCombo() const
 {
+	if (AC_Attribute->GetXP() < 35)
+	{
+
+	}
 	if (CombosMapping.Num() == 0 || !CombosMapping.Contains((int)ComboActivated))
 	{
 		return false;
 	}
 
-	if (ComboActivated != ECombo::ES_None && CachedSevenCharacter->AC_Animation->CanPlayAnimation(EMontageType::Combo))
+	if (ComboActivated != ECombo::ES_None && AC_Animation->CanPlayAnimation(EMontageType::Combo))
 	{
 		return true;
 	}
@@ -231,7 +238,7 @@ int UAttackComponent::GetWeaponDamage() const
 
 bool UAttackComponent::CanPlayRandomAttackMontage() const
 {
-	if (!CachedSevenCharacter->IsEnemy() || CachedSevenCharacter->AC_Animation->GetCurrentMontageSection() != NAME_None)
+	if (!CachedSevenCharacter->IsEnemy() || AC_Animation->GetCurrentMontageSection() != NAME_None)
 	{
 		return false;
 	}

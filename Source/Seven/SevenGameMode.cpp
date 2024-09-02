@@ -122,6 +122,18 @@ bool ASevenGameMode::HasAnyEnemyStatus(const ECharacterState& Status) const
 	return false;
 }
 
+bool ASevenGameMode::HasAnyEnemyStatus(const TArray<ECharacterState>& Status) const
+{
+	for (const ECharacterState& State : Status)
+	{
+		if (HasAnyEnemyStatus(State))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 const ECharacterState ASevenGameMode::GetEnemyStatus(const int8 CharacterID) const
 {
 	return (EnemiesStatus.Contains(CharacterID) ? EnemiesStatus[CharacterID] : SevenCharactersStatus[CharacterID]);

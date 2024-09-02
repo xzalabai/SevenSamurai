@@ -10,6 +10,8 @@
 class UCombo;
 class ASevenCharacter;
 class UAnimInstance;
+class UAnimationComponent;
+class UAttributesComponent;
 class AThrowingKnife;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -27,6 +29,8 @@ private:
 	const ASevenCharacter* GetOwnerCharacter() const;
 
 	ASevenCharacter* CachedSevenCharacter{ nullptr };
+	UAnimationComponent* AC_Animation{ nullptr };
+	UAttributesComponent* AC_Attribute{ nullptr };
 
 	UPROPERTY(VisibleAnywhere)
 	FWeaponDetail WeaponDetail;

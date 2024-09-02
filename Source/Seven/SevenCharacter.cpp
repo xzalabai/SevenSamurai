@@ -446,7 +446,6 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Evaded"));
 		bIsImmortal = true;
-		AC_Attribute->Add(EItemType::XP, 10);
 		return;
 	}
 
@@ -460,9 +459,10 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	}
 
 	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
-	bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
+	AC_Attribute->Decrease(EItemType::XP, 35);
+	const bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
 	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
-	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+	const int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
 	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
 }
 
@@ -500,7 +500,11 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
 	if (AC_Animation->Play(Animations->Montages[EMontageType::Evade], (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade))
 	{
-		UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Evade"));
+		const TArray<ECharacterState> AttackingStates{ ECharacterState::IncomingAttack, ECharacterState::ParryAvailable };
+		if (SevenGameMode->HasAnyEnemyStatus(AttackingStates))
+		{
+			AC_Attribute->Add(EItemType::XP, 10);
+		}
 	}
 }
 
