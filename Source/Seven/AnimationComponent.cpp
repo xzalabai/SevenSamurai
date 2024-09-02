@@ -171,7 +171,7 @@ void UAnimationComponent::RotateTowards(const AActor* Actor, const int Shift)
 void UAnimationComponent::OnEvadeEnded()
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent] OnEvadeEnded"));
-	CurrentMontage.Reset();
+	CurrentMontage.Reset(false);
 }
 
 void UAnimationComponent::NextComboTriggered(bool bEnable)
@@ -242,6 +242,9 @@ void UAnimationComponent::LockTarget(bool bEnable, const ASevenCharacter* EnemyT
 
 void UAnimationComponent::SwitchStances(const EStances NewStance)
 {
+	UE_LOG(LogTemp, Display, TEXT("[UAnimationComponent].SwitchStances %s"),
+		*UEnum::GetValueAsString(NewStance));
+
 	if (NewStance == Stance)
 	{
 		return;

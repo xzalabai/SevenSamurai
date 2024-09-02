@@ -27,11 +27,14 @@ struct FMontage
 	UAnimMontage* AnimMontage{ nullptr };
 	EStances LastStance{ EStances::None };
 
-	void Reset()
+	void Reset(bool bResetLastStance=true)
 	{
 		MontageType = EMontageType::None;
 		AnimMontage = nullptr;
-		LastStance = EStances::None;
+		if (bResetLastStance){
+			LastStance = EStances::None;
+		}
+		
 	}
 };
 
