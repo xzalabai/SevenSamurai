@@ -88,21 +88,23 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 	const EMontageType AttackerMontageType = AC_Animation->CurrentMontage.MontageType;
 	const EAttackStrength AttackStrength = GetAttackStrength();
 	const EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
-	const bool bbreakBlock = GetAttackCanBreakBlock();
-	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].GetAttackInfo:\nAttackerMontageType: %s \n, AttackStrength: %s \n, ComboType: %s \n DamageToBeDealth %d\n CanBreakBlock: %d"),
+	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].GetAttackInfo:\nAttackerMontageType: %s \n, AttackStrength: %s \n, ComboType: %s \n DamageToBeDealth %d\n"),
 		*UEnum::GetValueAsString(AttackerMontageType),
 		*UEnum::GetValueAsString(AttackStrength),
 		*UEnum::GetValueAsString(ComboType),
-		DamageToBeDealt,
-		bbreakBlock ? 1 : 0
+		DamageToBeDealt
 		);
 
-	return FAttackInfo(AttackerMontageType, AttackStrength, bbreakBlock, DamageToBeDealt, CachedSevenCharacter, ComboType);
+	return FAttackInfo(AttackerMontageType, AttackStrength, DamageToBeDealt, CachedSevenCharacter, ComboType);
 }
 
 EAttackStrength UAttackComponent::GetAttackStrength() const
 {
 	const EMontageType CurrentMontageType = AC_Animation->CurrentMontage.MontageType;
+	if (!CachedSevenCharacter->IsEnemy())
+	{
+		return EAttackStrength::Undefendable;
+	}
 	if (CurrentMontageType == EMontageType::LightAttack)
 	{
 		return CachedSevenCharacter->AttackStrength;
@@ -178,17 +180,6 @@ uint8 UAttackComponent::GetDamage() const
 	}
 }
 
-bool UAttackComponent::GetAttackCanBreakBlock() const
-{
-	return false;
-
-	/*if (CachedSevenCharacter->IsEnemy() && AC_Animation->GetCurrentMontageType() == EMontageType::LightAttack)
-	{
-		return false;
-	}
-	return bAttackCanBreakBlock;*/
-}
-
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	// TODO: Find a better place for turning off block!
@@ -258,8 +249,8 @@ void UAttackComponent::UseCombo(const ECombo& Special)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UAttackComponent].UseCombo %d"), (uint8)Special);
 	IComboInterface* Combo = Cast<IComboInterface>(CombosMapping[(uint8)Special]);
-	Combo->Use(CachedSevenCharacter, CachedSevenCharacter->TargetedEnemy);
 	LastUsedCombo = Combo;
+	Combo->Use(CachedSevenCharacter, CachedSevenCharacter->TargetedEnemy);
 	ComboActivated = ECombo::ES_None;
 }
 

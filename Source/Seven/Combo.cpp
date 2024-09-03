@@ -29,12 +29,7 @@ void UCombo::Use(AActor* AttackerActor, AActor* VictimActor)
 	UAnimationComponent* AC_Animation = AttackerCharacter->GetAnimationComponent();
 	AC_Animation->Play(AttackerAnimation, "Default", EMontageType::Combo);
 
-	// Victim
-	// Rotate and play animation
-	//VictimCharacter->RotateTowards(AttackerCharacter);
-	AC_Animation = VictimCharacter->GetAnimationComponent();
-	AC_Animation->Play(VictimAnimation, "Default", EMontageType::HitReaction);
-	
+	VictimCharacter->ReceivedHit(AttackerCharacter->GetAttackInfo());
 	VictimCharacter->AC_MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("MW_LightAttackComboVictim", AttackerCharacter->VictimDesiredPosition->GetComponentTransform());
 }
 

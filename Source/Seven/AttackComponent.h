@@ -44,8 +44,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<IComboInterface> LastUsedCombo = nullptr;
 
-	bool bAttackCanBreakBlock{ false };
-
 public:	
 	UAttackComponent();
 	const TPair<UAnimMontage*, FName> GetLightAttackMontageToBePlayed();
@@ -53,7 +51,6 @@ public:
 	FAttackInfo GetAttackInfo() const;
 	EAttackStrength GetAttackStrength() const;
 	uint8 GetDamage() const;
-	bool GetAttackCanBreakBlock() const;
 	bool LightAttack(ASevenCharacter* TargetedEnemy);
 	bool ComboAttack();
 	void HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bReleased);

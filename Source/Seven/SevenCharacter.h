@@ -203,8 +203,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void NextAttackAvailable();
 	UFUNCTION(BlueprintCallable)
-	virtual void AttackCanBreakBlock();
-	UFUNCTION(BlueprintCallable)
 	virtual void AI_MoveToPosition(const FVector& Position);
 	void SlowDownTime();
 	void SetNormalTime() const;

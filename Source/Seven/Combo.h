@@ -21,9 +21,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackerAnimation;
 
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* VictimAnimation;
-
 public:
 	virtual void Use(AActor* AttackerActor, AActor* VictimActor) override;
 	virtual void ComboAttackStart() override;

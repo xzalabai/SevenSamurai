@@ -253,7 +253,6 @@ void ASevenCharacter::AttackStart()
 void ASevenCharacter::AttackEnd()
 {
 	SevenGameMode->UpdateStatus(this, ECharacterState::AttackEnd); // TODO: this might not work with a lot of Characters ... race condition!!!
-	AC_AttackComponent->bAttackCanBreakBlock = false;
 	TargetedEnemy = nullptr;
 	bIsImmortal = false;
 	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
@@ -281,11 +280,6 @@ void ASevenCharacter::AttackWasParried()
 void ASevenCharacter::PerformWeaponTrace()
 {
 	EquippedWeapon->PerformTrace();
-}
-
-void ASevenCharacter::AttackCanBreakBlock()
-{
-	//AC_AttackComponent->bAttackCanBreakBlock = true;
 }
 
 /// Callbacks from ABP
@@ -329,6 +323,7 @@ bool ASevenCharacter::CanParryAttack(const ASevenCharacter* Attacker) const
 
 void ASevenCharacter::OnLayingDead()
 {
+	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] OnLayingDead"));
 	SevenGameMode->UpdateStatus(this, ECharacterState::Dead);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -461,6 +456,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 
 	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
 	AC_Attribute->Decrease(EItemType::XP, 35);
+
 	const bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
 	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
 	const int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
@@ -663,14 +659,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 		// FIX: in GetIsBlocking check if some animation is playing
 		if (!GetEnemiesInFrontOfCharacer(AttackInfo.Attacker->GetUniqueID()).IsEmpty())
 		{
-			if (AttackInfo.bAttackCanBreakBlock)
-			{
-				return EReceivedHitReaction::BlockBroken;
-			}
-			else
-			{
-				return EReceivedHitReaction::Blocked;
-			}
+			return EReceivedHitReaction::Blocked;
 		}
 	}
 

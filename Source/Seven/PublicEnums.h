@@ -138,10 +138,9 @@ enum class EOctagonalDirection
 struct FAttackInfo
 {
 	FAttackInfo() = default;
-	FAttackInfo(const EMontageType MontageType, const EAttackStrength AttackStrength, const bool bAttackCanBreakBlock, const uint8 Damage, ASevenCharacter* Attacker, EComboType ComboType = EComboType::None)
+	FAttackInfo(const EMontageType MontageType, const EAttackStrength AttackStrength, const uint8 Damage, ASevenCharacter* Attacker, EComboType ComboType = EComboType::None)
 		: MontageType(MontageType),
 		AttackStrength(AttackStrength),
-		bAttackCanBreakBlock(bAttackCanBreakBlock),
 		Damage(Damage),
 		Attacker(Attacker),
 		ComboType(ComboType)
@@ -150,7 +149,6 @@ struct FAttackInfo
 	{
 		MontageType = EMontageType::None;
 		AttackStrength = EAttackStrength::Undefendable;
-		bAttackCanBreakBlock = false;
 		Damage = 0;
 		Attacker = nullptr;
 		ComboType = EComboType::None;
@@ -166,7 +164,6 @@ struct FAttackInfo
 	
 	EMontageType MontageType{ EMontageType::None };
 	EAttackStrength AttackStrength{ EAttackStrength::Undefendable};
-	bool bAttackCanBreakBlock{ false };
 	uint8 Damage{ 0 };
 	ASevenCharacter* Attacker{ nullptr };
 	EComboType ComboType{ EComboType::None };
