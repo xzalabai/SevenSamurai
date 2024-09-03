@@ -256,6 +256,7 @@ void ASevenCharacter::AttackEnd()
 	AC_AttackComponent->bAttackCanBreakBlock = false;
 	TargetedEnemy = nullptr;
 	bIsImmortal = false;
+	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
 	OnAttackEnd.Broadcast();
 }
 
@@ -596,7 +597,7 @@ EOctagonalDirection ASevenCharacter::GetDirection(const FVector2D& Vector) const
 
 void ASevenCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 {
-	AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
+	//AC_MotionWarpingComponent->RemoveWarpTarget("MW_LightAttackAttacker");
 	bIsImmortal = false;
 	bIsBlockingBeforeAttack = true;
 }

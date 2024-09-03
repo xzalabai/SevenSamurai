@@ -203,6 +203,7 @@ bool UAttackComponent::ComboAttack()
 	if (CanUseCombo())
 	{
 		UseCombo(ComboActivated);
+		AC_Attribute->Decrease(EItemType::XP, 35);
 		return true;
 	}
 	return false;
@@ -215,10 +216,11 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 
 bool UAttackComponent::CanUseCombo() const
 {
-	if (AC_Attribute->GetXP() < 35)
+	if (!CachedSevenCharacter->IsEnemy() && AC_Attribute->GetXP() < 35)
 	{
-
+		return false;
 	}
+
 	if (CombosMapping.Num() == 0 || !CombosMapping.Contains((int)ComboActivated))
 	{
 		return false;

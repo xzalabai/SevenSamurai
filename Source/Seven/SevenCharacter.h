@@ -114,7 +114,7 @@ protected:
 	bool bIsGuarding{ false };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bDebugIsImmortal{ true };
+	bool bDebugIsImmortal{ false };
 
 	UPROPERTY()
 	uint8 uniqueID = 0;
