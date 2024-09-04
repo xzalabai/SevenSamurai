@@ -101,10 +101,10 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 EAttackStrength UAttackComponent::GetAttackStrength() const
 {
 	const EMontageType CurrentMontageType = AC_Animation->CurrentMontage.MontageType;
-	if (!CachedSevenCharacter->IsEnemy())
-	{
-		return EAttackStrength::Undefendable;
-	}
+	//if (!CachedSevenCharacter->IsEnemy())
+	//{
+	//	return EAttackStrength::Undefendable;
+	//}
 	if (CurrentMontageType == EMontageType::LightAttack)
 	{
 		return CachedSevenCharacter->AttackStrength;
@@ -150,33 +150,28 @@ EAttackStrength UAttackComponent::GetAttackStrength() const
 uint8 UAttackComponent::GetDamage() const
 {
 	const EMontageType CurrentMontageType = AC_Animation->CurrentMontage.MontageType;
+	const EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
 
-	if (CurrentMontageType == EMontageType::LightAttack)
+	switch (CurrentMontageType)
 	{
-		return 50;
-	}
-	else if (CurrentMontageType == EMontageType::Combo)
-	{
-		if (!LastUsedCombo)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int)CurrentMontageType);
+		case EMontageType::LightAttack:
 			return 1;
-		}
-		EComboType ComboType = LastUsedCombo->GetComboType();
-
-		if (ComboType == EComboType::Throw)
-		{
-			return 10;
-		}
-		else
-		{
-			return 50;
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetDamage Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int)CurrentMontageType);
-		return 0;
+			break;
+		case EMontageType::Combo:
+			switch (ComboType)
+			{
+				case EComboType::None:
+					UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetDamage LastUsedCombo is nullptr"));
+					return 1;
+				case EComboType::Throw:
+					return 1;
+				default:
+					return 2;
+			}
+			return 1;
+		default:
+			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetDamage CurrentMontageType != [LightAttack, CurrentMontageType], MontageType: %d"), (int)CurrentMontageType);
+			return 1;
 	}
 }
 
@@ -194,7 +189,7 @@ bool UAttackComponent::ComboAttack()
 	if (CanUseCombo())
 	{
 		UseCombo(ComboActivated);
-		AC_Attribute->Decrease(EItemType::XP, 35);
+		AC_Attribute->Decrease(EItemType::XP, 1);
 		return true;
 	}
 	return false;
@@ -207,7 +202,7 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 
 bool UAttackComponent::CanUseCombo() const
 {
-	if (!CachedSevenCharacter->IsEnemy() && AC_Attribute->GetXP() < 35)
+	if (!CachedSevenCharacter->IsEnemy() && AC_Attribute->GetXP() < 1)
 	{
 		return false;
 	}

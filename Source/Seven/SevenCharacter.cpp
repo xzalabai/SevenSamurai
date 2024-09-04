@@ -409,7 +409,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		AttackInfo.Attacker->AttackWasParried();
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Parried"), *GetName());
 		bIsImmortal = true;
-		AC_Attribute->Add(EItemType::XP, 10);
+		AC_Attribute->Add(EItemType::XP, 0.5);
 		return;
 	}
 
@@ -455,7 +455,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	}
 
 	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
-	AC_Attribute->Decrease(EItemType::XP, 35);
+	AC_Attribute->Decrease(EItemType::XP, 1);
 
 	const bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
 	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
@@ -500,7 +500,7 @@ void ASevenCharacter::Evade(const FInputActionValue& Value)
 		const TArray<ECharacterState> AttackingStates{ ECharacterState::IncomingAttack, ECharacterState::ParryAvailable };
 		if (SevenGameMode->HasAnyEnemyStatus(AttackingStates))
 		{
-			AC_Attribute->Add(EItemType::XP, 10);
+			AC_Attribute->Add(EItemType::XP, 0.5);
 		}
 	}
 }

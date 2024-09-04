@@ -17,16 +17,16 @@ class SEVEN_API UAttributesComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	TMap<EItemType, uint16> AttributesMap;
-	TMap<EItemType, uint16> MaxAttributesMap;
+	TMap<EItemType, float> AttributesMap;
+	TMap<EItemType, float> MaxAttributesMap;
 	
 public:	
 	UAttributesComponent();	
-	FORCEINLINE uint16 GetHP() const { return AttributesMap[EItemType::HP]; }
-	FORCEINLINE uint16 GetXP() const { return AttributesMap[EItemType::XP]; }
-	void Set(const EItemType ItemType, const uint16 Amount);
-	void Add(const EItemType ItemType, const uint16 Amount);
-	const uint16& Decrease(const EItemType ItemType, const int32 Decrease);
+	FORCEINLINE float GetHP() const { return AttributesMap[EItemType::HP]; }
+	FORCEINLINE float GetXP() const { return AttributesMap[EItemType::XP]; }
+	void Set(const EItemType ItemType, const float Amount);
+	void Add(const EItemType ItemType, const float Amount);
+	uint16 Decrease(const EItemType ItemType, const float Decrease);
 protected:
 	virtual void BeginPlay() override;
 private:

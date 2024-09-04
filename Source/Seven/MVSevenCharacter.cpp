@@ -54,8 +54,9 @@ void AMVSevenCharacter::Tick(float DeltaTime)
 
 void AMVSevenCharacter::UpdateSevenCharactersHP()
 {
-	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	GameController->UpdateSevenCharactersHP(AccumulatedHPGained);
+	//UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	//GameController->UpdateSevenCharactersHP(AccumulatedHPGained);
+	// TODO: Do we still update their HP ??
 	AccumulatedHPGained = 0;
 }
 
