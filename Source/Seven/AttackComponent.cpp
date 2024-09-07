@@ -101,49 +101,32 @@ FAttackInfo UAttackComponent::GetAttackInfo() const
 EAttackStrength UAttackComponent::GetAttackStrength() const
 {
 	const EMontageType CurrentMontageType = AC_Animation->CurrentMontage.MontageType;
-	//if (!CachedSevenCharacter->IsEnemy())
-	//{
-	//	return EAttackStrength::Undefendable;
-	//}
-	if (CurrentMontageType == EMontageType::LightAttack)
+	const EComboType ComboType = LastUsedCombo ? LastUsedCombo->GetComboType() : EComboType::None;
+
+	switch (CurrentMontageType)
 	{
-		return CachedSevenCharacter->AttackStrength;
-	}
-	
-	if (CurrentMontageType == EMontageType::Combo)
-	{
-		if (!LastUsedCombo)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int)CurrentMontageType);
+		case EMontageType::LightAttack:
+			return CachedSevenCharacter->AttackStrength;
+		case EMontageType::Combo:
+			if (!CachedSevenCharacter->IsEnemy())
+			{
+				return EAttackStrength::Undefendable;
+			}
+			switch (ComboType)
+			{
+				case EComboType::Throw:
+					return EAttackStrength::Light;
+				case EComboType::LancetAttack2:
+					return EAttackStrength::Light;
+				case EComboType::None:
+					UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetDamage LastUsedCombo is nullptr"), (int)CurrentMontageType);
+					return EAttackStrength::Light;
+				default:
+					return EAttackStrength::Heavy;
+			}
+		default:
+			UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetDamage CurrentMontageType != [LightAttack, CurrentMontageType], MontageType: %d"), (int)CurrentMontageType);
 			return EAttackStrength::Light;
-		}
-		EComboType ComboType = LastUsedCombo->GetComboType();
-		if (CachedSevenCharacter->IsEnemy())
-		{
-			// TODO:DO Mapping for these strength
-			if (ComboType == EComboType::Throw)
-			{
-				// Only exception. If enemy shoots arrow, it should be defendable (althought it is a combo)
-				return EAttackStrength::Light;
-			}
-			if (ComboType == EComboType::LancetAttack2)
-			{
-				return EAttackStrength::Light;
-			}
-			else
-			{
-				return EAttackStrength::Heavy;
-			}
-		}
-		else
-		{
-			return EAttackStrength::Undefendable;
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAttackComponent]GetAttackStrength Current Attack Montage is not LightAttack or Combo !!! MontageType: %d"), (int) CurrentMontageType);
-		return EAttackStrength::Light;
 	}
 }
 
@@ -202,7 +185,7 @@ void UAttackComponent::HeavyAttack(ASevenCharacter* TargetedEnemy, const bool bR
 
 bool UAttackComponent::CanUseCombo() const
 {
-	if (!CachedSevenCharacter->IsEnemy() && AC_Attribute->GetXP() < 1)
+	if (AC_Attribute->GetXP() < 1)
 	{
 		return false;
 	}

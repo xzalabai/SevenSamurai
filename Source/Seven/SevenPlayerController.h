@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* Special3Action;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UUserWidget* HealthWidget;
+
 	void Space(const FInputActionValue& Value);
 	void StopSpace(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -74,8 +77,14 @@ public:
 	void Switch(const FInputActionValue& Value);
 	void Evade(const FInputActionValue& Value);
 	void Special(const FInputActionValue& Value, const int8 Number);
-	void BlockStart(const FInputActionValue& Value);
-	void BlockEnd(const FInputActionValue& Value);
+	
+	void UpdateUI(const EItemType ItemType, const float NewHP);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateHPWidget(const float NewHP);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateXPWidget(const float NewHP);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);

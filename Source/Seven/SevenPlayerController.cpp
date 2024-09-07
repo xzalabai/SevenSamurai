@@ -4,6 +4,7 @@
 #include "SevenCharacter.h"
 #include "AttributesComponent.h"
 #include "Kismet\GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 #include "SevenGameMode.h"
 
 void ASevenPlayerController::BeginPlay()
@@ -17,25 +18,8 @@ void ASevenPlayerController::BeginPlay()
 
 	//Switch(FInputActionValue{});
 	// TODO: INITIAL Posses (should be moved to function!!
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASevenCharacter::StaticClass(), FoundActors);
-	if (FoundActors.Num() > 0)
-	{
-		for (AActor* Act : FoundActors)
-		{
-			if (ASevenCharacter* Char = Cast<ASevenCharacter>(Act))
-			{
-				if (Char->CanBePossessed())
-				{
-					UE_LOG(LogTemp, Warning, TEXT("[ASevenPlayerController] Switch() Posses Player"));
-					Possess(Char);
-					SetViewTargetWithBlend(Char);
-					break;
-				}
-
-			}
-		}
-	}
+	const ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SwitchSevenCharacter(SevenGameMode->GetSevenCharacters()[0]);
 }
 
 void ASevenPlayerController::SetupInputComponent()
@@ -171,6 +155,23 @@ void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
 {
 	//ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
 	//ControllerCharacter->Block(false);
+}
+
+void ASevenPlayerController::UpdateUI(const EItemType ItemType, const float NewHP)
+{
+	if (ItemType == EItemType::HP)
+	{
+		float ValueForUI = NewHP / 3;
+		UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter].UpdateHP: %f"), (float)ValueForUI);
+		UpdateHPWidget(ValueForUI);
+	}
+	else if (ItemType == EItemType::XP)
+	{
+		float ValueForUI = NewHP / 3;
+		UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter].UpdateHP: %f"), (float)ValueForUI);
+		UpdateXPWidget(ValueForUI);
+	}
+	
 }
 
 ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()

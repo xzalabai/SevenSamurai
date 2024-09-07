@@ -12,10 +12,6 @@ ASevenGameMode::ASevenGameMode()
 	AC_LootGenerator = CreateDefaultSubobject<ULootGenerator>(TEXT("LootGenerator"));
 	CachedSevenPlayerController = nullptr;
 }
-const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
-{
-	return SevenCharacters;
-}
 
 void ASevenGameMode::UpdateStatus(const ASevenCharacter* SevenCharacter, const ECharacterState Status)
 {
@@ -108,6 +104,11 @@ TArray<const ASevenCharacter*> ASevenGameMode::GetAIControlledAllies() const
 	}
 
 	return AIControlledAllies;
+}
+
+const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
+{
+	return SevenCharacters;
 }
 
 bool ASevenGameMode::HasAnyEnemyStatus(const ECharacterState& Status) const

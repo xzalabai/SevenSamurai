@@ -259,6 +259,8 @@ public:
 	void ResetAttackToken();
 	UFUNCTION(BlueprintCallable)
 	void SetFreeAttackToken();
+	UFUNCTION(BlueprintCallable)
+	void OnPossessed();
 	FORCEINLINE uint8 GetAttackTokenOwner() const { return AttackToken; }
 };
 

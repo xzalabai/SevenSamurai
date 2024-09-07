@@ -8,6 +8,7 @@
 #include "AttributesComponent.generated.h"
 
 class ASevenCharacter;
+class ASevenPlayerController;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SEVEN_API UAttributesComponent : public UActorComponent
@@ -19,6 +20,8 @@ class SEVEN_API UAttributesComponent : public UActorComponent
 private:
 	TMap<EItemType, float> AttributesMap;
 	TMap<EItemType, float> MaxAttributesMap;
+	ASevenPlayerController* SevenPlayerController{ nullptr };
+	bool bIsPlayer{ false };
 	
 public:	
 	UAttributesComponent();	
@@ -27,8 +30,10 @@ public:
 	void Set(const EItemType ItemType, const float Amount);
 	void Add(const EItemType ItemType, const float Amount);
 	uint16 Decrease(const EItemType ItemType, const float Decrease);
+	void OnPossessed() const;
 protected:
 	virtual void BeginPlay() override;
 private:
 	ASevenCharacter* GetOwnerCharacter();
+	void NotifyUI(const EItemType ChangedItemType) const;
 };
