@@ -79,9 +79,16 @@ public:
 	void Special(const FInputActionValue& Value, const int8 Number);
 	
 	void UpdateUI(const EItemType ItemType, const float NewHP);
+	void UpdateUpdateCharactersUI(const FName& Name, bool bDead);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateHPWidget(const float NewHP);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateDeadCharacter(const FName& Name);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateSelectedCharacter(const FName& Name);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateXPWidget(const float NewHP);

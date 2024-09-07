@@ -1,5 +1,6 @@
 #include "SevenGameMode.h"
 #include "SevenCharacter.h"
+#include "SevenCharacterDA.h"
 #include "GameController.h"
 #include "SevenPlayerController.h"
 #include "LootGenerator.h"
@@ -53,6 +54,7 @@ void ASevenGameMode::UpdateStatus(const ASevenCharacter* SevenCharacter, const E
 	if (SevenCharacter == GetPossessedCharacter() && Status == ECharacterState::Dead)
 	{
 		ASevenPlayerController* SevenPlayerController = Cast<ASevenPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		SevenPlayerController->UpdateDeadCharacter(SevenCharacter->SevenCharacterDA->Name);
 		SevenPlayerController->Switch(FInputActionValue());
 	}
 }

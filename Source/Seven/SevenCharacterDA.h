@@ -10,24 +10,24 @@
 
 class ASevenCharacter;
 
-UCLASS()
+UCLASS(BlueprintType)
 class SEVEN_API USevenCharacterDA : public UDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName Name;
 
-	UPROPERTY(EditAnywhere)
-	uint16 HP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 HP;
 
 	UPROPERTY(EditAnywhere)
-	uint16 MaxHP{ 3 };
+	uint8 MaxHP{ 3 };
 
 	UPROPERTY(EditAnywhere)
 	FName Description;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Image;
 
 	UPROPERTY(EditAnywhere)

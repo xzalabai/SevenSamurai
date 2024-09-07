@@ -263,7 +263,7 @@ void UGameController::UpdateSevenCharactersHP(const uint16 Amount)
 {
 	for (USevenCharacterDA* SevenCharacterDA : SelectedCharacters)
 	{
-		uint16 NewHP = Amount + SevenCharacterDA->HP;
+		uint8 NewHP = Amount + SevenCharacterDA->HP;
 		SevenCharacterDA->HP = FMath::Min(NewHP, SevenCharacterDA->MaxHP);
 	}
 }

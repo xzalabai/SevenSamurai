@@ -28,7 +28,7 @@ void UAttributesComponent::BeginPlay()
 	{
 		const USevenCharacterDA* const SevenCharacterDA = SevenCharacter->SevenCharacterDA;
 		check(SevenCharacterDA->HP != 0);
-		Set(EItemType::HP, SevenCharacterDA->HP);
+		Set(EItemType::HP, SevenCharacterDA->HP - SevenCharacterDA->CombosObj.Num());
 		Set(EItemType::XP, 0);
 		SevenPlayerController = GetOwnerCharacter()->GetSevenPlayerController();
 	}

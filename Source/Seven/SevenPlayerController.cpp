@@ -156,7 +156,21 @@ void ASevenPlayerController::UpdateUI(const EItemType ItemType, const float NewH
 		UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter].UpdateHP: %f"), (float)ValueForUI);
 		UpdateXPWidget(ValueForUI);
 	}
-	
+}
+
+void ASevenPlayerController::UpdateUpdateCharactersUI(const FName& Name, bool bDead)
+{
+	if (bDead)
+	{
+		// Add ,,X" cross
+		UpdateDeadCharacter(Name);
+	}
+	else
+	{
+		// Highlight Selected Character
+		UpdateSelectedCharacter(Name);
+	}
+
 }
 
 ASevenCharacter* ASevenPlayerController::GetPossessedCharacter()
