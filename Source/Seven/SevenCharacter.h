@@ -260,7 +260,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetFreeAttackToken();
 	UFUNCTION(BlueprintCallable)
-	void OnPossessed();
+	void OnPossessed(const bool bFirstCharacter);
 	FORCEINLINE uint8 GetAttackTokenOwner() const { return AttackToken; }
 };
 

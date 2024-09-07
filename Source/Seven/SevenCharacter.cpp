@@ -682,9 +682,12 @@ void ASevenCharacter::SetFreeAttackToken()
 	CooldownTimerHandle.Invalidate();
 }
 
-void ASevenCharacter::OnPossessed()
+void ASevenCharacter::OnPossessed(const bool bFirstCharacter)
 {
+	// Only for Playable characters
+	check(CanBePossessed() == true);
 	AC_Attribute->OnPossessed();
+	ResetAttackToken();
 }
 
 void ASevenCharacter::ResetAttackToken()

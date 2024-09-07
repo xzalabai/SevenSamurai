@@ -112,6 +112,10 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenC
 			BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), Status == ECharacterState::IncomingAttack ? true : false);
 		}
 	}
+	/*if (Status == ECharacterState::Dead)
+	{
+		AttackEnd
+	}*/
 }
 
 void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)

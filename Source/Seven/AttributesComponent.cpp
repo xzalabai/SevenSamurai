@@ -35,7 +35,7 @@ void UAttributesComponent::BeginPlay()
 	else
 	{
 		Set(EItemType::HP, 3);
-		Set(EItemType::HP, 100);
+		Set(EItemType::XP, 100);
 	}
 }
 

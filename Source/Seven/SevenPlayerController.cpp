@@ -16,10 +16,7 @@ void ASevenPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
 
-	//Switch(FInputActionValue{});
-	// TODO: INITIAL Posses (should be moved to function!!
-	const ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	SwitchSevenCharacter(SevenGameMode->GetSevenCharacters()[0]);
+	Switch(FInputActionValue());
 }
 
 void ASevenPlayerController::SetupInputComponent()
@@ -143,18 +140,6 @@ void ASevenPlayerController::Special(const FInputActionValue& Value, const int8 
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
 	ControllerCharacter->Special(Number);
-}
-
-void ASevenPlayerController::BlockStart(const FInputActionValue& Value)
-{
-	//ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	//ControllerCharacter->Block(true);
-}
-
-void ASevenPlayerController::BlockEnd(const FInputActionValue& Value)
-{
-	//ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	//ControllerCharacter->Block(false);
 }
 
 void ASevenPlayerController::UpdateUI(const EItemType ItemType, const float NewHP)
