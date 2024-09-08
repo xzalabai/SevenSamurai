@@ -66,9 +66,15 @@ void AThrowingKnife::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 		{
 			return;
 		}
-		SevenCharacter->ReceivedHit(AttackInfo);
+		if (SevenCharacter->ReceivedHit(AttackInfo))
+		{
+			Destroy();
+		}
 	}
-	Destroy();
+	else
+	{
+		Destroy();
+	}
 }
 
 void AThrowingKnife::Tick(float DeltaTime)

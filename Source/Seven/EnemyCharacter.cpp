@@ -39,7 +39,6 @@ ASevenCharacter* AEnemyCharacter::FindSevenCharacter() const
 void AEnemyCharacter::Fire(const FInputActionValue& Value)
 {
 	//Attack
-	TargetedEnemy = FindSevenCharacter();
 	if (TargetedEnemy)
 	{
 		AC_Animation->RotateTowards(TargetedEnemy);
@@ -124,9 +123,9 @@ void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 	SetDefendActionInProgress(false); // In case of Evade
 }
 
-void AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
+bool AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
-	Super::ReceivedHit(AttackInfo);
+	return Super::ReceivedHit(AttackInfo);
 }
 
 bool AEnemyCharacter::DefendAgainstIncomingAttack(EMontageType DefendMontage)
@@ -189,10 +188,6 @@ void AEnemyCharacter::MoveTo(bool bToSevenCharacter)
 {	
 	AAIController* AIController = Cast<AAIController>(GetController());
 	ASevenCharacter* EnemyToAttack = FindSevenCharacter();
-	if (bToSevenCharacter)
-	{
-		bool bVa = MovementTimerHandle.IsValid();
-	}
 	if (!AIController || !EnemyToAttack)
 	{
 		return;
@@ -229,6 +224,23 @@ const FVector AEnemyCharacter::GetRandomPointAroundCharacter(const ASevenCharact
 	const FVector EnemyForwardVectorOffset = FVector(EnemyForwardVector.X + RandomOffsetX, EnemyForwardVector.Y + RandomOffsetY, EnemyForwardVector.Z);
 
 	const FVector FinalDestination = FVector(EnemyPosition.X + EnemyForwardVectorOffset.X, EnemyPosition.Y + EnemyForwardVectorOffset.Y, EnemyPosition.Z);
+
+	FVector SphereLocation = FinalDestination; // Example location
+	float SphereRadius = 50.0f; // Radius of the sphere
+	float xx = uniqueID * uniqueID * uniqueID;
+	FColor SphereColor = FColor(xx, xx, xx); // Example color
+	float SphereLifeTime = 5.0f; // Lifetime of 5 seconds
+	DrawDebugSphere(
+		GetWorld(),                    // The world context
+		SphereLocation,           // Center of the sphere
+		SphereRadius,             // Radius of the sphere
+		12,                       // Number of segments (more segments = smoother sphere)
+		SphereColor,              // Color of the sphere
+		true,                    // Whether the sphere is persistent (doesn't disappear)
+		SphereLifeTime,           // Lifetime before the sphere disappears (if not persistent)
+		0,                        // Depth priority (0 = default)
+		1.0f                      // Line thickness
+	);
 
 	return FinalDestination;
 }
@@ -304,6 +316,21 @@ void AEnemyCharacter::SpawnParticles(EAttackStrength NewAttackStrength) const
 
 }
 
+void AEnemyCharacter::OnLayingDead()
+{
+	ReturnAttackToken();
+	Super::OnLayingDead();
+}
+
+void AEnemyCharacter::Block(bool bEnable)
+{
+	AAIController* AIController = Cast<AAIController>(GetController());
+	TargetedEnemy = TargetedEnemy ? TargetedEnemy : FindSevenCharacter();
+	AIController->SetFocus(TargetedEnemy);
+
+	Super::Block(bEnable);
+}
+
 void AEnemyCharacter::SetMovemenTimertHandle(const FTimerHandle& Handle)
 {
 	//if (MovementTimerHandle.IsValid())
@@ -330,7 +357,7 @@ bool AEnemyCharacter::HasAttackStarted() const
 
 void AEnemyCharacter::ReturnAttackToken()
 {
-	if (TargetedEnemy)
+	if (TargetedEnemy && TargetedEnemy->GetAttackTokenOwner() == uniqueID)
 	{
 		TargetedEnemy->ResetAttackToken();
 		TargetedEnemy = nullptr;

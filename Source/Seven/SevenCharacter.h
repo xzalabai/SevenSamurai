@@ -248,7 +248,7 @@ public:
 	FORCEINLINE uint8 GetUniqueID() const { return uniqueID; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }
-	virtual void ReceivedHit(const FAttackInfo &AttackInfo);
+	virtual bool ReceivedHit(const FAttackInfo &AttackInfo);
 	virtual EReceivedHitReaction GetSuccessfulHitReaction(const uint8 Damage) const;
 	UFUNCTION(BlueprintCallable)
 	void Suicide();

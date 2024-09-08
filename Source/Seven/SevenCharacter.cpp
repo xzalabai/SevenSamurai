@@ -103,12 +103,12 @@ void ASevenCharacter::BeginPlay()
 
 void ASevenCharacter::Space(const FInputActionValue& Value)
 {
-	Jump();
+	//Jump();
 }
 
 void ASevenCharacter::StopSpace(const FInputActionValue& Value)
 {
-	StopJumping();
+	//StopJumping();
 }
 
 void ASevenCharacter::LockTarget(const bool bEnable, const ASevenCharacter* EnemyToLock)
@@ -382,22 +382,22 @@ void ASevenCharacter::Suicide()
 	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction);
 }
 
-void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
+bool ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 {
 	if (!IsAlive())
 	{
-		return;
+		return false;
 	}
 	
 	if (IsSameTeam(AttackInfo.Attacker))
 	{
-		return;
+		return false;
 	}
 
 	if (IsImmortal())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].ReceivedHit %s, but Immortal"), *GetName());
-		return;
+		return false;
 	}
 	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] Character %s ReceivedHitReaction: %d"), *GetName(), (int)ReceivedHitReaction);
@@ -410,7 +410,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Parried"), *GetName());
 		bIsImmortal = true;
 		AC_Attribute->Add(EItemType::XP, 0.5);
-		return;
+		return false;
 	}
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Blocked)
@@ -421,13 +421,13 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 			// TODO: This behavior is weird, he looks like he is blocking every time, but not everytime we parry
 			AttackInfo.Attacker->AttackWasParried();
 			AC_Animation->Play(Animations->Montages[EMontageType::Parry], "0", EMontageType::Parry);
-			return;
+			return false;
 		}
 		else
 		{
 			const FName RandomMontageStr = CustomMath::GetRandomNumber_FName(0, Animations->Montages[EMontageType::Block]->CompositeSections.Num() - 1);
 			AC_Animation->Play(Animations->Montages[EMontageType::Block], RandomMontageStr, EMontageType::Block);
-			return;
+			return false;
 		}
 	}
 
@@ -435,14 +435,14 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	{
 		AC_Animation->SwitchStances(EStances::Guard);
 		AC_Animation->Play(Animations->Montages[EMontageType::BlockBroken], "1", EMontageType::BlockBroken);
-		return;
+		return false;
 	}
 
 	if (ReceivedHitReaction == EReceivedHitReaction::Evaded)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter]. Attack Evaded"));
 		bIsImmortal = true;
-		return;
+		return false;
 	}
 
 	if (bDebugIsImmortal)
@@ -451,7 +451,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		UAnimMontage* MontageToPlay = GetVictimMontageToPlay(false, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
 		int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
 		AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
-		return;
+		return true;
 	}
 
 	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
@@ -461,6 +461,7 @@ void ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
 	const int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
 	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
+	return true;
 }
 
 bool ASevenCharacter::IsSameTeam(const ASevenCharacter* Other) const
@@ -495,6 +496,38 @@ void ASevenCharacter::AI_MoveToPosition(const FVector& Position)
 
 void ASevenCharacter::Evade(const FInputActionValue& Value)
 {
+
+	//EOctagonalDirection EvadeDirection = OctagonalDirection::GetOctagonalDirectionFName(AC_Animation->GetCurrentMontageSection());
+	//const float Dot = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(), FollowCamera->GetForwardVector().GetSafeNormal());
+	//float Cross = FVector::CrossProduct(GetActorForwardVector().GetSafeNormal(), FollowCamera->GetForwardVector().GetSafeNormal()).Z;
+	//if (FMath::Abs(Cross) < 0.01f)
+	//{
+	//	Cross = 0.0f;
+	//}
+	//UE_LOG(LogTemp, Warning, TEXT("Dot %f, Cross: %f"), Dot, Cross);
+	//if (Cross > 0.0f) // ^ ^ || < ^
+	//{
+	//	if (Dot >= 0.5f) // ^ ^
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("^ ^"));
+	//	}
+	//	else // < ^
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("< ^"));
+	//	}
+	//}
+	//else if (Cross < -0.0f) // v ^ || > ^ 
+	//{
+	//	if (-0.7f <= Dot && Dot <= 0.7f)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("> ^ "));
+	//	}
+	//	else
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("v ^ "));
+	//	}
+	//}
+
 	if (AC_Animation->Play(Animations->Montages[EMontageType::Evade], (int)GetDirection(Value.Get<FVector2D>()), EMontageType::Evade))
 	{
 		const TArray<ECharacterState> AttackingStates{ ECharacterState::IncomingAttack, ECharacterState::ParryAvailable };

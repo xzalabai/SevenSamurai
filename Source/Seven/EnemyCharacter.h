@@ -46,9 +46,7 @@ protected:
 	float AcceptableAttackRadius{ 150.0f };
 
 	virtual ASevenCharacter* FindSevenCharacter() const;
-
 	virtual void Fire(const FInputActionValue& Value) override;
-
 	virtual void AttackEnd() override;
 
 public:
@@ -65,7 +63,7 @@ protected:
 	void ParryAvailable(bool bEnable);
 	void OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status);
 	virtual void OnAnimationEnded(const EMontageType& StoppedMontage) override;
-	virtual void ReceivedHit(const FAttackInfo& AttackInfo) override;
+	virtual bool ReceivedHit(const FAttackInfo& AttackInfo) override;
 	void SetDefendActionInProgress(const bool bInProgress) const;
 	UFUNCTION(BlueprintCallable)
 	virtual void MoveTo(bool bToSevenCharacter);
@@ -88,6 +86,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetAttackStrength(EAttackStrength NewAttackStrength);
 	void SpawnParticles(EAttackStrength NewAttackStrength) const;
+	virtual void OnLayingDead();
+	virtual void Block(bool bEnable);
 
 	FTimerHandle MovementTimerHandle;
 
