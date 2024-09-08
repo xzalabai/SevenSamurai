@@ -49,7 +49,7 @@ const TArray<FComboWithPrice>& AVV_CharacterUpgrade::GenerateAvailableCombos(con
 	const int ComboAmount = FMath::RandRange(1, 4);
 	bool bSuitableCombo = false;
 	int SafetyCheck = 0;
-	while (1)
+	for (int i = 0; i < 150; ++i)
 	{
 		const int ComboIndex = FMath::RandRange(0, AllCombos->CombosList.Num() - 1);
 
@@ -75,13 +75,6 @@ const TArray<FComboWithPrice>& AVV_CharacterUpgrade::GenerateAvailableCombos(con
 		}
 
 		AvailableCombos.Add(AllCombos->CombosList[ComboIndex]);
-
-		++SafetyCheck;
-		if (SafetyCheck > 150)
-		{
-			UE_LOG(LogTemp, Fatal, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos Too many iterations during generation %d"), SafetyCheck);
-			break;
-		}
 	}
 
 	UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos Generated %d combos for the shop (with %d tries)"), ComboAmount, SafetyCheck);

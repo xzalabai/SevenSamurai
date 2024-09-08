@@ -61,6 +61,13 @@ enum class ESevenCharacterType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EUIWindow : uint8
+{
+	CharacterShop = 0,
+	ComboShop = 1,
+};
+
+UENUM(BlueprintType)
 enum class EItemType : uint8
 {
 	Gold UMETA(DisplayName = "Gold"), // KEEP this First!

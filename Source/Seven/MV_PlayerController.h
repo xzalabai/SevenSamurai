@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "PublicEnums.h"
 #include "InputActionValue.h"
 #include "GameFramework/PlayerController.h"
 #include "MV_PlayerController.generated.h"
@@ -34,6 +35,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* WSADAction;
 
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayCharacterShop();
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateCharacterShop();
 
 ///// FUNCTIONS
 public:
@@ -43,5 +50,7 @@ public:
 	void Move(const FInputActionValue& Value);
 	UFUNCTION(BlueprintCallable)
 	void PerformTraceToMap() const;
+	void DisplayUIWindow(EUIWindow UIWindow, bool bDisplay);
+	void UpdateUIWindow(EUIWindow UIWindow);
 	
 };

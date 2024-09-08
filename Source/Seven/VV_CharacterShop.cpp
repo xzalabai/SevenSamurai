@@ -1,6 +1,10 @@
 #include "VV_CharacterShop.h"
 #include "GameController.h"
+#include "SevenPlayerController.h"
 #include "SevenCharacterDA.h"
+#include <Kismet\GameplayStatics.h>
+#include "AttributesComponent.h"
+#include "MV_PlayerController.h"
 
 
 void AVV_CharacterShop::BeginPlay()
@@ -11,14 +15,22 @@ void AVV_CharacterShop::BeginPlay()
 
 const TArray<USevenCharacterDA*>& AVV_CharacterShop::GenerateAvailableCharacters()
 {
-	int AmountOfAvailableCharacters = FMath::RandRange(1, 3);
-	int SafetyCheck{ 100 };
-	while (1)
+	int AmountOfAvailableCharacters = FMath::RandRange(1, 5);
+	int SafetyCheck{ 0 };
+	for (int i = 0; i < 150; ++i)
 	{
+		++SafetyCheck;
+		if (SafetyCheck > 150)
+		{
+			// No more saved character? Back luck amigo
+			UE_LOG(LogTemp, Error, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos Too many iterations during generation %d"), SafetyCheck);
+			break;
+		}
+
 		const int ComboIndex = FMath::RandRange(0, AllCharacters.Num() - 1);
 		USevenCharacterDA* SevenCharacterDA = AllCharacters[ComboIndex];
 
-		if (SevenCharacterDA->bWasUsed && AvailableCharacters.Find(SevenCharacterDA) != INDEX_NONE)
+		if (SevenCharacterDA->bWasUsed || AvailableCharacters.Find(SevenCharacterDA) != INDEX_NONE)
 		{
 			continue;
 		}
@@ -29,23 +41,49 @@ const TArray<USevenCharacterDA*>& AVV_CharacterShop::GenerateAvailableCharacters
 		}
 
 		AvailableCharacters.Add(SevenCharacterDA);
+	}
 
-		++SafetyCheck;
-		if (SafetyCheck > 150)
-		{
-			// No more saved character? Back luck amigo
-			UE_LOG(LogTemp, Fatal, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos Too many iterations during generation %d"), SafetyCheck);
-			return AvailableCharacters;
-		}
+	UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterShop].GenerateAvailableCharacters!"));
+	for (USevenCharacterDA* SevenCharacterDA : AvailableCharacters)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterShop].GenerateAvailableCharacters for the Shop: %s"), *SevenCharacterDA->Name.ToString());
 	}
 	return AvailableCharacters;
+}
+
+void AVV_CharacterShop::RemoveFromPlayersCharacters(USevenCharacterDA* SevenCharacterDA)
+{
+	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	GameController->SelectedCharacters.Remove(SevenCharacterDA);
+	AvailableCharacters.Add(SevenCharacterDA);
+	
+	AMV_PlayerController* MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	MV_PlayerController->UpdateUIWindow(EUIWindow::CharacterShop);
+}
+
+void AVV_CharacterShop::RemoveFromShopCharacters(USevenCharacterDA* SevenCharacterDA)
+{
+	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	if (GameController->SelectedCharacters.Num() == 3)
+	{
+		// Maximum 3 sevenCharacters!
+		return;
+	}
+
+	GameController->SelectedCharacters.Add(SevenCharacterDA);
+	AvailableCharacters.Remove(SevenCharacterDA);
+
+	AMV_PlayerController* MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	MV_PlayerController->UpdateUIWindow(EUIWindow::CharacterShop);
 }
 
 
 void AVV_CharacterShop::OnOverlapAction()
 {
+	AMV_PlayerController* MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	MV_PlayerController->DisplayUIWindow(EUIWindow::CharacterShop, true);
 	// UI
-	PickCharacter(0);
+	//PickCharacter(0);
 }
 
 void AVV_CharacterShop::PickCharacter(const int Index)

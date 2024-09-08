@@ -92,7 +92,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateXPWidget(const float NewHP);
-	
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwitchSevenCharacter(const ASevenCharacter* SevenCharacter);
 

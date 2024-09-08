@@ -67,3 +67,19 @@ void AMV_PlayerController::PerformTraceToMap() const
 		MV_AISevenCharacterController->MoveCharacterTo(HitResult.ImpactPoint);
 	}
 }
+
+void AMV_PlayerController::DisplayUIWindow(EUIWindow UIWindow, bool bDisplay)
+{
+	if (UIWindow == EUIWindow::CharacterShop)
+	{
+		DisplayCharacterShop();
+	}
+}
+
+void AMV_PlayerController::UpdateUIWindow(EUIWindow UIWindow)
+{
+	if (UIWindow == EUIWindow::CharacterShop)
+	{
+		UpdateCharacterShop();
+	}
+}
