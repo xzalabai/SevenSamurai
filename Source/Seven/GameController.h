@@ -131,7 +131,7 @@ class SEVEN_API UGameController : public UGameInstanceSubsystem
 
 public:
 	UPROPERTY()
-	TArray<USevenCharacterDA*> SelectedCharacters{};
+	mutable TArray<USevenCharacterDA*> SelectedCharacters{};
 
 private:
 	UPROPERTY()
@@ -180,11 +180,11 @@ public:
 	void UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters);
 	void UpdateSevenCharactersHP(const uint16 Amount);
 	UFUNCTION(BlueprintCallable)
-	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA);
+	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA) const;
 	UFUNCTION(BlueprintCallable)
 	const TArray<USevenCharacterDA*> GetSelectedCharacters() const;
 	FORCEINLINE const FPlayerStats& GetPlayerStats() const { return PlayerStats; }
-	FORCEINLINE const int& GetVisitedVillageID() const { return VisitedVillageID; }
+	FORCEINLINE const int GetVisitedVillageID() const { return VisitedVillageID; }
 
 private:
 	FAMV_EntityBaseInfo GetStartedEntity();

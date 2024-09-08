@@ -23,6 +23,7 @@ void UAttackComponent::BeginPlay()
 	// TODO: Doesn't apply for ENEMY!!!!
 	if (USevenCharacterDA* SevenCharacterDA = GetOwnerCharacter()->SevenCharacterDA)
 	{
+		check(SevenCharacterDA->CombosObj.Num() < 3);
 		for (TSubclassOf<UObject> UObjectSubclass : SevenCharacterDA->CombosObj)
 		{
 			AddComboToCharacter(UObjectSubclass);

@@ -49,8 +49,8 @@ class ASevenCharacter : public ACharacter
 	friend class UThrowKnife;
 	friend class UShieldDodgeCombo;
 	friend class UCallbackCombo;
+	friend class AMission;
 	friend class UKnifeThrowCombo;
-	friend class ACharacterPicker;
 
 	friend class ASevenGameMode;
 	friend class UGameController;
@@ -97,6 +97,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bEnemy;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bIsPossessed{ false };
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsBlocking{ false };
@@ -249,7 +252,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ESevenCharacterType GetSevenCharacterType() const { return SevenCharacterType; }
 	virtual bool ReceivedHit(const FAttackInfo &AttackInfo);
-	virtual EReceivedHitReaction GetSuccessfulHitReaction(const uint8 Damage) const;
+	void ReceiveDamage(const FAttackInfo& AttackInfo, const EReceivedHitReaction ReceivedHitReaction);
 	UFUNCTION(BlueprintCallable)
 	void Suicide();
 	UAnimMontage* GetVictimMontageToPlay(bool bDeath, const ESevenCharacterType& AttackerCharacterType, const EMontageType& AttackerMontageType, const EComboType& ComboType = EComboType::None) const;

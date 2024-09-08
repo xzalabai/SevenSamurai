@@ -263,14 +263,20 @@ void UGameController::UpdateSevenCharactersHP(const uint16 Amount)
 {
 	for (USevenCharacterDA* SevenCharacterDA : SelectedCharacters)
 	{
-		uint8 NewHP = Amount + SevenCharacterDA->HP;
-		SevenCharacterDA->HP = FMath::Min(NewHP, SevenCharacterDA->MaxHP);
+		//uint8 NewHP = Amount + SevenCharacterDA->HP;
+		//SevenCharacterDA->HP = FMath::Min(NewHP, SevenCharacterDA->MaxHP);
 	}
 }
 
-void UGameController::AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA)
+void UGameController::AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA) const
 {
+	UE_LOG(LogTemp, Display, TEXT("[UGameController].AddToSelectedCharacter New character added!"));
 	SelectedCharacters.Add(SevenCharacterDA);
+	SevenCharacterDA->bWasUsed = true;
+	for (USevenCharacterDA* SelectedCharacter : SelectedCharacters)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[UGameController].AddToSelectedCharacter Character: %s is in selectedCharacter"), *SelectedCharacter->Name.ToString());
+	}
 }
 
 const TArray<USevenCharacterDA*> UGameController::GetSelectedCharacters() const

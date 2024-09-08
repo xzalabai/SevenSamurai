@@ -102,7 +102,7 @@ public:
 	TObjectPtr<UPaperSprite> MissionCompleteImage;
 
 	UPROPERTY(EditAnywhere)
-	EMissionType MissionType;
+	EMissionType MissionType; //TODO unused
 
 	UPROPERTY(EditAnywhere)
 	TArray<FEnemyToSpawn> EnemiesToSpawn;

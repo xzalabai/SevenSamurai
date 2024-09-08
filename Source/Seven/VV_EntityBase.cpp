@@ -27,4 +27,3 @@ void AVV_EntityBase::OnOverlapAction()
 {
 	UE_LOG(LogTemp, Error, TEXT("[AVV_EntityBase] OnOverlapAction THIS SHOULD NOT BE TRIGGERED"));
 }
-

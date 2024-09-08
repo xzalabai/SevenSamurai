@@ -5,22 +5,7 @@
 void AVV_CharacterUpgrade::BeginPlay()
 {
 	Super::BeginPlay();
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	const FName VillageID = CustomMath::IntToFName(GameController->GetVisitedVillageID());
-
-	const FString ContextString;
-	FAvailableCombosInVillages* RetrievedCombosInVillage = AvailableCombosInVillages->FindRow<FAvailableCombosInVillages>(VillageID, ContextString, true);
-
-	if (RetrievedCombosInVillage)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[AVV_CharacterUpgrade].BeginPlay Retrieving Combos!"));
-		AvailableCombos = RetrievedCombosInVillage->CombosWithPrice;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[AVV_CharacterUpgrade].BeginPlay FIRST VILLAGE VISIT! Generating Combos"));
-		GenerateAvailableCombos();
-	}
+	UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].BeginPlay"));
 }
 
 void AVV_CharacterUpgrade::OnOverlapAction()
@@ -41,30 +26,71 @@ void AVV_CharacterUpgrade::OnOverlapAction()
 void AVV_CharacterUpgrade::BuyCombo(USevenCharacterDA* SevenCharacterDA, int Index) const
 {
 	const FComboWithPrice& ComboToBePurchased = AvailableCombos[Index];
-	SevenCharacterDA->CombosObj.Add(ComboToBePurchased.Combo.UObject);
+
+	if (SevenCharacterDA->CombosObj.Num() > 2)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].BuyCombo Unable to buy combo, Character %s already has 2 combos"), *SevenCharacterDA->Name.ToString());
+		return;
+	}
+
+	SevenCharacterDA->CombosObj.Add(ComboToBePurchased.UObject);
 }
 
-void AVV_CharacterUpgrade::GenerateAvailableCombos()
+const TArray<FComboWithPrice>& AVV_CharacterUpgrade::GenerateAvailableCombos(const TArray<USevenCharacterDA*> SevenCharactersDA)
 {
-	int RandomNumber1 = 1;
-	int RandomNumber2 = 3;
+	TArray<ESevenCharacterType> SevenCharactersTypes;
+	SevenCharactersTypes.Reserve(3);
 
-	int RandomPrice1 = 10;
-	int RandomPrice2 = 30;
+	for (const USevenCharacterDA* SevenCharacterDA : SevenCharactersDA)
+	{
+		SevenCharactersTypes.Add(SevenCharacterDA->SevenCharacterType);
+	}
 
-	FComboWithPrice ComboWithPrice1 = FComboWithPrice(AllCombos->CombosList[RandomNumber1], RandomPrice1);
-	FComboWithPrice ComboWithPrice2 = FComboWithPrice(AllCombos->CombosList[RandomNumber2], RandomPrice2);
+	const int ComboAmount = FMath::RandRange(1, 4);
+	bool bSuitableCombo = false;
+	int SafetyCheck = 0;
+	while (1)
+	{
+		const int ComboIndex = FMath::RandRange(0, AllCombos->CombosList.Num() - 1);
 
-	AvailableCombos.Add(ComboWithPrice1);
-	AvailableCombos.Add(ComboWithPrice2);
+		if (!bSuitableCombo)
+		{
+			// First satisfy the condition that shop must have combo suitable for any of the characters
+			if (SevenCharactersTypes.Find(AllCombos->CombosList[ComboIndex].SevenCharacterType) != INDEX_NONE)
+			{
+				AvailableCombos.Add(AllCombos->CombosList[ComboIndex]);
+				bSuitableCombo = true;
+			}
+			continue;
+		}
 
-	// Write to DataTable
-	FAvailableCombosInVillages AvailableCombosInVillage;
-	AvailableCombosInVillage.CombosWithPrice = AvailableCombos;
-	
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>()); // nice cheat haha
-	const FName VillageID = CustomMath::IntToFName(GameController->GetVisitedVillageID());
-	AvailableCombosInVillages->AddRow(VillageID, AvailableCombosInVillage);
+		if (ComboAmount == AvailableCombos.Num())
+		{
+			break;
+		}
+
+		if (AvailableCombos.Find(AllCombos->CombosList[ComboIndex]) != INDEX_NONE)
+		{
+			continue;
+		}
+
+		AvailableCombos.Add(AllCombos->CombosList[ComboIndex]);
+
+		++SafetyCheck;
+		if (SafetyCheck > 150)
+		{
+			UE_LOG(LogTemp, Fatal, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos Too many iterations during generation %d"), SafetyCheck);
+			break;
+		}
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos Generated %d combos for the shop (with %d tries)"), ComboAmount, SafetyCheck);
+	for (const FComboWithPrice& ComboWithPrice : AvailableCombos)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].GenerateAvailableCombos GeneratedCombos: %s"), *UEnum::GetValueAsString(ComboWithPrice.Type));
+	}
+
+	return AvailableCombos;
 }
 
 

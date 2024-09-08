@@ -3,6 +3,7 @@
 #include <Kismet\GameplayStatics.h>
 #include "SevenCharacter.h"
 #include "EnemyCharacter.h"
+#include "SevenCharacterDA.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "SevenGameMode.h"
 #include "GameController.h"
@@ -65,9 +66,14 @@ void AMission::MissionStarted()
 {
 	Area->SetGenerateOverlapEvents(false);
 
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	SevenCharacterCount = GameController->SelectedCharacters.Num();
+	SpawnSevenCharacter();
+	SpawnEnemies();
 
+	MoveAlliesToPlace();
+}
+
+void AMission::SpawnEnemies() const
+{
 	for (const FEnemyToSpawn& EnemyToSpawn : MissionDA->EnemiesToSpawn)
 	{
 		check(EnemyToSpawn.EnemyLevelDA);
@@ -78,14 +84,44 @@ void AMission::MissionStarted()
 		for (int i = 0; i < EnemyToSpawn.Amount; ++i)
 		{
 			const FTransform T(EnemySpawns[i % EnemySpawns.Num()]->GetComponentRotation(), EnemySpawns[i % EnemySpawns.Num()]->GetComponentLocation());
-			AEnemyCharacter* const Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(EnemyClass, T, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+			AEnemyCharacter* const Enemy = GetWorld()->SpawnActorDeferred<AEnemyCharacter>(
+				EnemyClass,
+				T,
+				nullptr,
+				nullptr,
+				ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
+			);
 			Enemy->MissionType = MissionDA->MissionType;
 			Enemy->EnemyLevelDA = EnemyToSpawn.EnemyLevelDA;
 			Enemy->FinishSpawning(T);
 			++EnemyCount;
 		}
 	}
-	MoveAlliesToPlace();
+}
+
+void AMission::SpawnSevenCharacter() const
+{
+	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	const TArray<USevenCharacterDA*>& SelectedCharacters = GameController->GetSelectedCharacters();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	for (USevenCharacterDA* SevenCharacterDA : SelectedCharacters)
+	{
+		check(SevenCharacterDA->HP > 0);
+		FTransform T{ SevenCharactersPosition->GetComponentLocation() }; // Todo create something like Enemies
+		ASevenCharacter* SevenCharacter = GetWorld()->SpawnActorDeferred<ASevenCharacter>(
+			SevenCharacterDA->RepresentingClass,
+			T,
+			nullptr,
+			nullptr,
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
+		);
+
+		SevenCharacter->SevenCharacterDA = SevenCharacterDA;
+		SevenCharacter->FinishSpawning(T);
+	}
 }
 
 void AMission::MoveAlliesToPlace()

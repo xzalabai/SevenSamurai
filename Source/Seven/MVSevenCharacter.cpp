@@ -70,7 +70,7 @@ void AMVSevenCharacter::Camp(bool bEnable)
 	else
 	{
 		UpdateImage(CharacterImage);
-		UpdateSevenCharactersHP();
+		//UpdateSevenCharactersHP();
 	}
 	bIsCamp = bEnable;
 	OnCamp(bEnable);
@@ -85,7 +85,7 @@ void AMVSevenCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 {
 	UE_LOG(LogTemp, Error, TEXT("[AMVSevenCharacter] OnComponentBeginOverlap %s, %d"), *OtherActor->GetName(), bFromSweep ? 1 :0);
 
-	UpdateSevenCharactersHP();
+	//UpdateSevenCharactersHP();
 
 	if (IMV_OverlapInterface* OtherEntity = Cast<IMV_OverlapInterface>(OtherActor))
 	{

@@ -19,10 +19,10 @@ public:
 	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 HP;
+	float HP;
 
 	UPROPERTY(EditAnywhere)
-	uint8 MaxHP{ 3 };
+	float MaxHP{ 3 };
 
 	UPROPERTY(EditAnywhere)
 	FName Description;
@@ -41,4 +41,7 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (MustImplement = "ComboInterface"))
 	TArray<TSubclassOf<UObject>> CombosObj;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bWasUsed{ false };
 };

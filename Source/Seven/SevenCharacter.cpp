@@ -93,9 +93,8 @@ void ASevenCharacter::BeginPlay()
 
 	SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	SevenGameMode->UpdateStatus(this);
-	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] BeginPlay for %s, uniqueID: %d"), *GetName(), uniqueID);
 	AC_Animation->SwitchStances(EStances::Guard);
-	
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -374,12 +373,8 @@ UAnimMontage* ASevenCharacter::GetVictimMontageToPlay(bool bDeath, const ESevenC
 
 void ASevenCharacter::Suicide()
 {
-	UE_LOG(LogTemp, Display, TEXT("[ASevenCharacter] Suicide CHEAT"));
-	UAnimMontage* MontageToPlay = Animations->Reactions[SevenCharacterType].AnimationMapping[EMontageType::LightAttackHitReactionDeath];
-
-	// TODO: For now, random receivedHit animation is being played
-	int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::LightAttackHitReaction);
+	FAttackInfo FakeAttackInfo = FAttackInfo(EMontageType::LightAttack, EAttackStrength::Heavy, 10, this, EComboType::None);
+	ReceiveDamage(FakeAttackInfo, EReceivedHitReaction::Dead);
 }
 
 bool ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
@@ -399,6 +394,12 @@ bool ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].ReceivedHit %s, but Immortal"), *GetName());
 		return false;
 	}
+
+	if (CanBePossessed() && !bIsPossessed)
+	{
+		return false;
+	}
+
 	const EReceivedHitReaction ReceivedHitReaction = GetHitReaction(AttackInfo);
 	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter] Character %s ReceivedHitReaction: %d"), *GetName(), (int)ReceivedHitReaction);
 	
@@ -454,13 +455,8 @@ bool ASevenCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
 		return true;
 	}
 
-	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
-	AC_Attribute->Decrease(EItemType::XP, 1);
+	ReceiveDamage(AttackInfo, ReceivedHitReaction);
 
-	const bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
-	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
-	const int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
-	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
 	return true;
 }
 
@@ -677,7 +673,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 {
 	if (AttackInfo.AttackStrength == EAttackStrength::Undefendable)
 	{
-		return GetSuccessfulHitReaction(AttackInfo.Damage);
+		return AC_Attribute->GetHP() - AttackInfo.Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
 	}
 	
 	if (IsAllowedHitReaction(AttackInfo.AttackStrength, EAttackStrength::CanParry) && CanParryAttack(AttackInfo.Attacker))
@@ -701,7 +697,7 @@ EReceivedHitReaction ASevenCharacter::GetHitReaction(const FAttackInfo& AttackIn
 		return EReceivedHitReaction::Evaded;
 	}
 
-	return GetSuccessfulHitReaction(AttackInfo.Damage);
+	return AC_Attribute->GetHP() - AttackInfo.Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
 }
 
 void ASevenCharacter::StealAttackToken(const uint8 enemyUniqueID)
@@ -717,8 +713,10 @@ void ASevenCharacter::SetFreeAttackToken()
 
 void ASevenCharacter::OnPossessed(const bool bFirstCharacter)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[ASevenCharacter].OnPossessed"));
 	// Only for Playable characters
 	check(CanBePossessed() == true);
+	bIsPossessed = true;
 	AC_Attribute->OnPossessed();
 	ResetAttackToken();
 }
@@ -733,9 +731,15 @@ void ASevenCharacter::ResetAttackToken()
 	
 }
 
-EReceivedHitReaction ASevenCharacter::GetSuccessfulHitReaction(const uint8 Damage) const
+void ASevenCharacter::ReceiveDamage(const FAttackInfo& AttackInfo, const EReceivedHitReaction ReceivedHitReaction)
 {
-	return AC_Attribute->GetHP() - Damage > 0 ? EReceivedHitReaction::Hit : EReceivedHitReaction::Dead;
+	AC_Attribute->Decrease(EItemType::HP, AttackInfo.Damage);
+	AC_Attribute->Decrease(EItemType::XP, 1);
+
+	const bool bDead = ReceivedHitReaction == EReceivedHitReaction::Dead ? true : false;
+	UAnimMontage* MontageToPlay = GetVictimMontageToPlay(bDead, AttackInfo.Attacker->GetSevenCharacterType(), AttackInfo.MontageType, AttackInfo.ComboType);
+	const int RandomMontage = FMath::RandRange(1, MontageToPlay->CompositeSections.Num());
+	AC_Animation->Play(MontageToPlay, CustomMath::IntToFName(RandomMontage), EMontageType::HitReaction);
 }
 
 ASevenPlayerController* ASevenCharacter::GetSevenPlayerController() const

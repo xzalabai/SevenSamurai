@@ -123,11 +123,6 @@ void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
 	SetDefendActionInProgress(false); // In case of Evade
 }
 
-bool AEnemyCharacter::ReceivedHit(const FAttackInfo& AttackInfo)
-{
-	return Super::ReceivedHit(AttackInfo);
-}
-
 bool AEnemyCharacter::DefendAgainstIncomingAttack(EMontageType DefendMontage)
 {
 	SetDefendActionInProgress(true);

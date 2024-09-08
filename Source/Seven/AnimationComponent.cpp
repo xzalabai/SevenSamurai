@@ -36,7 +36,6 @@ void UAnimationComponent::BeginPlay()
 	EndDelegate.BindUObject(this, &UAnimationComponent::OnAnimationEnded);
 	UAnimInstance* AnimInstance = CachedSevenCharacter->GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_SetEndDelegate(EndDelegate);
-	UE_LOG(LogTemp, Error, TEXT("[UAnimationComponent] BeginPlay for %s"), *GetName());
 	
 	if (CachedSevenCharacter->CanBePossessed())
 	{

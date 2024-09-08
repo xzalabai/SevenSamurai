@@ -69,7 +69,7 @@ public:
 	USceneComponent* RootSceneComponent{ nullptr };
 
 	UPROPERTY(EditAnywhere)
-	uint32 EnemyCount{ 0 };
+	mutable uint32 EnemyCount{ 0 };
 
 	UPROPERTY(EditAnywhere)
 	uint32 SevenCharacterCount{ 0 };
@@ -90,6 +90,8 @@ public:
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	void ActivateMission(bool bEnable);
 	void MissionStarted();
+	void SpawnSevenCharacter() const;
+	void SpawnEnemies() const;
 	void MoveAlliesToPlace();
 	void OnStatusUpdate(const ASevenCharacter* SevenCharacter, const ECharacterState Status);
 protected:
