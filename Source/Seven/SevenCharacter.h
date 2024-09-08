@@ -125,6 +125,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimationsDA* Animations;
 
+	//UPROPERTY(BlueprintReadOnly)
+	//int Turning { 0 }; // [0] None, [1] Left, [2] Right
+
 public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnAttackEndDelegate OnAttackEnd;

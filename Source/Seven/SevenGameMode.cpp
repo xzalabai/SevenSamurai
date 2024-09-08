@@ -115,7 +115,7 @@ const TArray<const ASevenCharacter*> ASevenGameMode::GetSevenCharacters() const
 
 bool ASevenGameMode::HasAnyEnemyStatus(const ECharacterState& Status) const
 {
-	for (auto& Enemy : EnemiesStatus)
+	for (const auto& Enemy : EnemiesStatus)
 	{
 		if (Enemy.Value == Status)
 		{

@@ -117,7 +117,7 @@ bool UAnimationComponent::Play(UAnimMontage* AnimMontage, const FName& SectionNa
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, AnimMontage);
 	bActiveMontageRunning = true;
 	LastPlayedMontage = CurrentMontage;
-	CurrentMontage = FMontage{ MontageType, AnimMontage, Stance };
+	CurrentMontage = FMontage{ MontageType, AnimMontage, Stance == EStances::None ? CurrentMontage.LastStance : Stance };
 	SwitchStances(EStances::None);
 	return true;
 }
