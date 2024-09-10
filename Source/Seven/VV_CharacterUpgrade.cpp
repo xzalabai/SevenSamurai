@@ -1,6 +1,8 @@
 #include "VV_CharacterUpgrade.h"
 #include "GameController.h"
 #include "SevenCharacterDA.h"
+#include "MV_PlayerController.h"
+#include <Kismet\GameplayStatics.h>
 
 void AVV_CharacterUpgrade::BeginPlay()
 {
@@ -16,24 +18,61 @@ void AVV_CharacterUpgrade::OnOverlapAction()
 
 	UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].OnOverlapAction Adding Combo"));
 
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	const TArray<USevenCharacterDA*> SevenCharactersDA = GameController->GetSelectedCharacters();
 	USevenCharacterDA* SevenCharacterDA = SevenCharactersDA[0];
 
-	OnShopOverlapped(SevenCharacterDA);
+	MV_PlayerController->DisplayUIWindow(EUIWindow::ComboShop, true);
+
+	//OnShopOverlapped(SevenCharacterDA);
+	//BuyCombo(SevenCharacterDA, 0);
 }
 
-void AVV_CharacterUpgrade::BuyCombo(USevenCharacterDA* SevenCharacterDA, int Index) const
+void AVV_CharacterUpgrade::BuyCombo(const EComboType ComboType) const
 {
-	const FComboWithPrice& ComboToBePurchased = AvailableCombos[Index];
-
-	if (SevenCharacterDA->CombosObj.Num() > 2)
+	const FComboWithPrice* ComboToBePurchased{ nullptr };
+	int Index = 0;
+	for (Index = 0; Index < AvailableCombos.Num(); ++Index)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].BuyCombo Unable to buy combo, Character %s already has 2 combos"), *SevenCharacterDA->Name.ToString());
+		if (AvailableCombos[Index].Type == ComboType)
+		{
+			ComboToBePurchased = &AvailableCombos[Index];
+			break;
+		}
+	}
+
+	if (!ComboToBePurchased)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[AVV_CharacterUpgrade].BuyCombo Unable to find combo %d"), (int)ComboType);
 		return;
 	}
 
-	SevenCharacterDA->CombosObj.Add(ComboToBePurchased.UObject);
+	TArray<USevenCharacterDA*> SelectedSevenCharacters = GameController->GetSelectedCharacters();
+	const USevenCharacterDA* CharacterToUpgrade{ nullptr };
+	for (const USevenCharacterDA* SevenCharacterDA : SelectedSevenCharacters)
+	{
+		if (SevenCharacterDA->SevenCharacterType == ComboToBePurchased->SevenCharacterType)
+		{
+			CharacterToUpgrade = SevenCharacterDA;
+			break;
+		}
+	}
+	if (!CharacterToUpgrade)
+	{
+		// TODO: Here should be some callback to UI (notify player that he has no suitable character for it)
+		UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].BuyCombo Unable to find suitable character to put combo to %d"), (int)ComboType);
+		return;
+	}
+ 
+	if (CharacterToUpgrade->CombosObj.Num() > 2)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[AVV_CharacterUpgrade].BuyCombo Unable to buy combo, Character %s already has 2 combos"), *CharacterToUpgrade->Name.ToString());
+		return;
+	}
+
+	CharacterToUpgrade->CombosObj.Add((*ComboToBePurchased).UObject);
+	CharacterToUpgrade->Combos.Add(*ComboToBePurchased);
+	AvailableCombos.RemoveAt(Index);
+	MV_PlayerController->UpdateUIWindow(EUIWindow::ComboShop);
 }
 
 const TArray<FComboWithPrice>& AVV_CharacterUpgrade::GenerateAvailableCombos(const TArray<USevenCharacterDA*> SevenCharactersDA)

@@ -15,7 +15,7 @@ struct FComboWithPrice
 	UPROPERTY(EditAnywhere)
 	ESevenCharacterType SevenCharacterType;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EComboType Type;
 
 	UPROPERTY(EditAnywhere)
@@ -24,8 +24,8 @@ struct FComboWithPrice
 	UPROPERTY(EditAnywhere)
 	FName Name;
 
-	UPROPERTY(EditAnywhere)
-	int Price;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Image;
 };
 
 FORCEINLINE bool operator==(const FComboWithPrice& lhs, const FComboWithPrice& rhs)
@@ -75,15 +75,15 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UAllCombos* AllCombos;
 
-	UPROPERTY()
-	TArray<FComboWithPrice> AvailableCombos;
+	UPROPERTY(BlueprintReadOnly)
+	mutable TArray<FComboWithPrice> AvailableCombos;
 
 public:
 	virtual void OnOverlapAction() override;
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnShopOverlapped(USevenCharacterDA* SevenCharacterDA);
 	UFUNCTION(BlueprintCallable)
-	void BuyCombo(USevenCharacterDA* SevenCharacterDA, int Index) const;
+	void BuyCombo(const EComboType ComboType) const;
 	const TArray<FComboWithPrice>& GenerateAvailableCombos(const TArray<USevenCharacterDA*> SevenCharactersDA);
 
 protected:

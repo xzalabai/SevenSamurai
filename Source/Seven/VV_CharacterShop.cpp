@@ -15,7 +15,7 @@ void AVV_CharacterShop::BeginPlay()
 
 const TArray<USevenCharacterDA*>& AVV_CharacterShop::GenerateAvailableCharacters()
 {
-	int AmountOfAvailableCharacters = FMath::RandRange(1, 5);
+	const int AmountOfAvailableCharacters = FMath::RandRange(1, 2);
 	int SafetyCheck{ 0 };
 	for (int i = 0; i < 150; ++i)
 	{
@@ -53,17 +53,19 @@ const TArray<USevenCharacterDA*>& AVV_CharacterShop::GenerateAvailableCharacters
 
 void AVV_CharacterShop::RemoveFromPlayersCharacters(USevenCharacterDA* SevenCharacterDA)
 {
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	GameController->SelectedCharacters.Remove(SevenCharacterDA);
+	if (GameController->SelectedCharacters.Num() == 1)
+	{
+		// Minimum 1 character
+		return;
+	}
 	AvailableCharacters.Add(SevenCharacterDA);
 	
-	AMV_PlayerController* MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	MV_PlayerController->UpdateUIWindow(EUIWindow::CharacterShop);
 }
 
 void AVV_CharacterShop::RemoveFromShopCharacters(USevenCharacterDA* SevenCharacterDA)
 {
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	if (GameController->SelectedCharacters.Num() == 3)
 	{
 		// Maximum 3 sevenCharacters!
@@ -73,14 +75,12 @@ void AVV_CharacterShop::RemoveFromShopCharacters(USevenCharacterDA* SevenCharact
 	GameController->SelectedCharacters.Add(SevenCharacterDA);
 	AvailableCharacters.Remove(SevenCharacterDA);
 
-	AMV_PlayerController* MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	MV_PlayerController->UpdateUIWindow(EUIWindow::CharacterShop);
 }
 
 
 void AVV_CharacterShop::OnOverlapAction()
 {
-	AMV_PlayerController* MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	MV_PlayerController->DisplayUIWindow(EUIWindow::CharacterShop, true);
 	// UI
 	//PickCharacter(0);
@@ -88,7 +88,6 @@ void AVV_CharacterShop::OnOverlapAction()
 
 void AVV_CharacterShop::PickCharacter(const int Index)
 {
-	const UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 	USevenCharacterDA* PickedCharacter = AvailableCharacters[Index];
 	PickedCharacter->bWasUsed = true;
 	GameController->AddToSelectedCharacter(PickedCharacter);

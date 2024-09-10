@@ -1,6 +1,9 @@
 #include "VV_EntityBase.h"
 #include "PaperSpriteComponent.h"
+#include "MV_PlayerController.h"
 #include "Components/CapsuleComponent.h"
+#include <Kismet\GameplayStatics.h>
+#include "GameController.h"
 
 
 AVV_EntityBase::AVV_EntityBase()
@@ -20,7 +23,8 @@ AVV_EntityBase::AVV_EntityBase()
 void AVV_EntityBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	MV_PlayerController = Cast<AMV_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 }
 
 void AVV_EntityBase::OnOverlapAction()

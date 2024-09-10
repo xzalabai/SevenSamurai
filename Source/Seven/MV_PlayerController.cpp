@@ -70,16 +70,26 @@ void AMV_PlayerController::PerformTraceToMap() const
 
 void AMV_PlayerController::DisplayUIWindow(EUIWindow UIWindow, bool bDisplay)
 {
-	if (UIWindow == EUIWindow::CharacterShop)
+	switch (UIWindow)
 	{
+	case EUIWindow::CharacterShop:
 		DisplayCharacterShop();
+		break;
+	case EUIWindow::ComboShop:
+		DisplayComboShop();
+		break;
 	}
 }
 
 void AMV_PlayerController::UpdateUIWindow(EUIWindow UIWindow)
 {
-	if (UIWindow == EUIWindow::CharacterShop)
+	switch (UIWindow)
 	{
+	case EUIWindow::CharacterShop:
 		UpdateCharacterShop();
+		break;
+	case EUIWindow::ComboShop:
+		UpdateComboShop();
+		break;
 	}
 }

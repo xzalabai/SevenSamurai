@@ -6,6 +6,8 @@
 #include "VV_EntityBase.generated.h"
 
 class UCapsuleComponent;
+class AMV_PlayerController;
+class UGameController;
 
 UCLASS()
 class SEVEN_API AVV_EntityBase : public AActor, public IMV_OverlapInterface
@@ -18,6 +20,10 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	UCapsuleComponent* CapsuleComponent;
+
+	AMV_PlayerController* MV_PlayerController{ nullptr };
+	UGameController* GameController{ nullptr };
+
 	
 public:	
 	AVV_EntityBase();

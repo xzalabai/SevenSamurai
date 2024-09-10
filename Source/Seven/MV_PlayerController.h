@@ -41,6 +41,10 @@ protected:
 	void DisplayCharacterShop();
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateCharacterShop();
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayComboShop();
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateComboShop();
 
 ///// FUNCTIONS
 public:
