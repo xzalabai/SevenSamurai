@@ -241,7 +241,7 @@ void UGameController::UpdateSevenCharactersState(const TArray<const ASevenCharac
 	{
 		if (SevenCharacter->IsAlive())
 		{
-			int32 Index = SelectedCharacters.Find(SevenCharacter->SevenCharacterDA);
+			const int32 Index = SelectedCharacters.Find(SevenCharacter->SevenCharacterDA);
 			if (Index == INDEX_NONE)
 			{
 				UE_LOG(LogTemp, Error, TEXT("[UGameController].UpdateSevenCharactersState Unable to find SevenCharacterDA amongst player's SelectedCharacters!\n Might be just debug player"));

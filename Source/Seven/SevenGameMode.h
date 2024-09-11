@@ -11,6 +11,7 @@
 class ULootGenerator;
 class AMission;
 class ASevenCharacter;
+class ARollDice;
 class ASevenPlayerController;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatusUpdate, const ASevenCharacter* SevenCharacter, const ECharacterState Status);
@@ -35,6 +36,9 @@ private:
 
 	UPROPERTY()
 	mutable ASevenPlayerController* CachedSevenPlayerController{ nullptr };
+
+	UPROPERTY(EditAnywhere)
+	ARollDice* RollDice;
 	 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ASevenCharacter> SevenToSpawn; // TODO Remove for final - this is only for DEBUG! when u start game in combat 
@@ -74,6 +78,7 @@ public:
 	const ECharacterState GetEnemyStatus(const int8 CharacterID) const;
 	void MissionEnd(bool bWin);
 	void UpdateMissionParameters(AMission* Mission);
+	void OnRolledDice(bool bKeepCharacter);
 };
 
 

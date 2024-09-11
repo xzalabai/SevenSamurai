@@ -2,7 +2,9 @@
 #include "SevenCharacter.h"
 #include "SevenCharacterDA.h"
 #include "GameController.h"
+#include "RollDice.h"
 #include "SevenPlayerController.h"
+#include "AttributesComponent.h"
 #include "LootGenerator.h"
 #include "Kismet\GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
@@ -144,10 +146,34 @@ const ECharacterState ASevenGameMode::GetEnemyStatus(const int8 CharacterID) con
 
 void ASevenGameMode::MissionEnd(bool bWin)
 {
-	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-	if (!bIsDebugBattle)
+	if (bWin)
 	{
+		// Return to map view
+		UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
 		GameController->MissionEnd(SevenCharacters, bWin);
+	}
+	else
+	{
+		// Roll a dice
+		RollDice = Cast<ARollDice>(UGameplayStatics::GetActorOfClass(this, ARollDice::StaticClass()));
+		RollDice->Activate();
+	}
+}
+
+void ASevenGameMode::OnRolledDice(bool bKeepCharacter)
+{
+	if (bKeepCharacter)
+	{
+		// We update 1 random character 1 HP to keep him alive
+		const int RandomCharacterIndex = FMath::RandRange(0, SevenCharacters.Num() - 1);
+		SevenCharacters[RandomCharacterIndex]->AC_Attribute->Set(EItemType::HP, 1);
+
+		UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+		GameController->MissionEnd(SevenCharacters, false);
+	}
+	else
+	{
+		// UI - end game
 	}
 }
 

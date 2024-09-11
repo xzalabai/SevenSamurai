@@ -73,10 +73,10 @@ class SEVEN_API AVV_CharacterUpgrade : public AVV_EntityBase
 
 protected:
 	UPROPERTY(EditAnywhere)
-	UAllCombos* AllCombos;
+	UAllCombos* AllCombos; // All combos in the game
 
-	UPROPERTY(BlueprintReadOnly)
-	mutable TArray<FComboWithPrice> AvailableCombos;
+	UPROPERTY(BlueprintReadOnly) 
+	mutable TArray<FComboWithPrice> AvailableCombos; // Combos available in this shop
 
 public:
 	virtual void OnOverlapAction() override;

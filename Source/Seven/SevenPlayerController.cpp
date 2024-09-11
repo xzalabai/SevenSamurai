@@ -59,20 +59,29 @@ void ASevenPlayerController::SetupInputComponent()
 
 void ASevenPlayerController::Space(const FInputActionValue& Value)
 {
-	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Space(Value);
+	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn()); // TODO: For all classes, stop casting every tick!!! cache it!!!
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Space(Value);
+	}
 }
 
 void ASevenPlayerController::StopSpace(const FInputActionValue& Value)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->StopSpace(Value);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->StopSpace(Value);
+	}
 }
 
 void ASevenPlayerController::Move(const FInputActionValue& Value)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Move(Value);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Move(Value);
+	}
 }
 
 void ASevenPlayerController::Run(const FInputActionValue& Value, const ETriggerEvent TriggerEvent)
@@ -80,32 +89,49 @@ void ASevenPlayerController::Run(const FInputActionValue& Value, const ETriggerE
 	UE_LOG(LogTemp, Error, TEXT("[ASevenCharacter] Run %d"), (int) TriggerEvent);
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
 	//ControllerCharacter->FireRMB(TriggerEvent);
-	ControllerCharacter->Run(TriggerEvent == ETriggerEvent::Started ? true : false);
+	
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Run(TriggerEvent == ETriggerEvent::Started ? true : false);
+	}
 }
 
 void ASevenPlayerController::Fire(const FInputActionValue& Value)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Fire(Value);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Fire(Value);
+	}
 }
 
 void ASevenPlayerController::LockTarget(const FInputActionValue& Value)
 {
 	bLockTarget = !bLockTarget;
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->LockTarget(bLockTarget);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->LockTarget(bLockTarget);
+	}
 }
 
 void ASevenPlayerController::Look(const FInputActionValue& Value)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Look(Value);
+	
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Look(Value);
+	}
 }
 
 void ASevenPlayerController::FireRMB(const FInputActionValue& Value, const ETriggerEvent TriggerEvent)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Block(TriggerEvent == ETriggerEvent::Started ? true : false);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Block(TriggerEvent == ETriggerEvent::Started ? true : false);
+	}
 }
 
 void ASevenPlayerController::Switch(const FInputActionValue& Value)
@@ -131,13 +157,19 @@ void ASevenPlayerController::Switch(const FInputActionValue& Value)
 void ASevenPlayerController::Evade(const FInputActionValue& Value)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Evade(Value);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Evade(Value);
+	}
 }
 
 void ASevenPlayerController::Special(const FInputActionValue& Value, const int8 Number)
 {
 	ASevenCharacter* ControllerCharacter = Cast<ASevenCharacter>(GetPawn());
-	ControllerCharacter->Special(Number);
+	if (ControllerCharacter)
+	{
+		ControllerCharacter->Special(Number);
+	}
 }
 
 void ASevenPlayerController::UpdateUI(const EItemType ItemType, const float NewHP)
