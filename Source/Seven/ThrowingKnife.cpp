@@ -22,17 +22,24 @@ AThrowingKnife::AThrowingKnife()
 	ProjectileMovementComponent->SetUpdatedComponent(TriggerCollider);
 	ProjectileMovementComponent->InitialSpeed = 2500;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+	TriggerCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void AThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 	TriggerCollider->OnComponentHit.AddUniqueDynamic(this, &AThrowingKnife::OnHit);
+	GetWorldTimerManager().SetTimer(CollissionsTimerHandle, this, &AThrowingKnife::EnableCollissions, 0.3, false, 0.3);
 }
 
 void AThrowingKnife::DestroyActor()
 {
 	Destroy();
+}
+
+void AThrowingKnife::EnableCollissions()
+{
+	TriggerCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void AThrowingKnife::FireInDirection(const FVector& ShootDirection)
@@ -60,26 +67,20 @@ void AThrowingKnife::FireInDirection(const FVector& ShootDirection)
 
 void AThrowingKnife::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Display, TEXT("[AThrowingKnife] OnHit"));
 	if (ASevenCharacter* SevenCharacter = Cast<ASevenCharacter>(OtherActor))
 	{
-		if (SevenCharacter == GetOwner())
-		{
-			return;
-		}
 		if (SevenCharacter->ReceivedHit(AttackInfo))
 		{
 			Destroy();
+			return;
 		}
 	}
-	else
-	{
-		Destroy();
-	}
+	Destroy();
 }
 
 void AThrowingKnife::Tick(float DeltaTime)
 {
-	UE_LOG(LogTemp, Display, TEXT("[AThrowingKnife] FireInDirection"));
 	Super::Tick(DeltaTime);
 }
 
