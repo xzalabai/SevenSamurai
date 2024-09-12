@@ -85,8 +85,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetAttackStrength(EAttackStrength NewAttackStrength);
 	void SpawnParticles(EAttackStrength NewAttackStrength) const;
-	virtual void OnLayingDead();
-	virtual void Block(bool bEnable);
+	virtual void OnLayingDead() override;
+	virtual void Block(bool bEnable) override;
 
 	FTimerHandle MovementTimerHandle;
 

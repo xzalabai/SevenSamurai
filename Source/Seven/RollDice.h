@@ -32,6 +32,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* LowerBound;
 
+private:
+	FTimerHandle TimerHandle;
+	bool bSuccessfulRoll{ false };
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -40,6 +44,9 @@ public:
 	void Activate();
 	void Roll();
 
+private:
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void ShowResultOfRoll();
+
 };

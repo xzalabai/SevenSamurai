@@ -70,10 +70,14 @@ void ARollDice::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent
 {
 	if (UBoxComponent* BoxComponent = Cast<UBoxComponent>(OtherComp))
 	{
-		const bool bKeepPlayer = BoxComponent == UpperBound ? true : false;
-		UE_LOG(LogTemp, Display, TEXT("[ARollDice] Keep one player alive - %d"), bKeepPlayer ? 1 : 0);
-		ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-		SevenGameMode->OnRolledDice(bKeepPlayer);
+		bSuccessfulRoll = (BoxComponent == UpperBound) ? true : false;
+		GetWorldTimerManager().SetTimer(TimerHandle, this, &ARollDice::ShowResultOfRoll, 2, false, -1);
 	}	
+}
+
+void ARollDice::ShowResultOfRoll()
+{
+	ASevenGameMode* SevenGameMode = Cast<ASevenGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	SevenGameMode->OnRolledDice(bSuccessfulRoll);
 }
 

@@ -162,19 +162,29 @@ void ASevenGameMode::MissionEnd(bool bWin)
 
 void ASevenGameMode::OnRolledDice(bool bKeepCharacter)
 {
+	UE_LOG(LogTemp, Display, TEXT("[ARollDice] Keep one player alive - %d"), bKeepCharacter ? 1 : 0);
+
 	if (bKeepCharacter)
 	{
 		// We update 1 random character 1 HP to keep him alive
 		const int RandomCharacterIndex = FMath::RandRange(0, SevenCharacters.Num() - 1);
 		SevenCharacters[RandomCharacterIndex]->AC_Attribute->Set(EItemType::HP, 1);
-
-		UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
-		GameController->MissionEnd(SevenCharacters, false);
 	}
 	else
 	{
-		// UI - end game
+		// Game ends
 	}
+
+	// UI TODO: Display pop-up informing that if random character magically survived or not.
+	// Pop-up will have 1 option [Understand] and get's player either to Main Menu (if he lost) or to MapView (via ExitMission())
+	// For now, we just exit the mission directly.
+	ExitMission();
+}
+
+void ASevenGameMode::ExitMission() const
+{
+	UGameController* GameController = Cast<UGameController>(Cast<UGameInstance>(GetWorld()->GetGameInstance())->GetSubsystem<UGameController>());
+	GameController->MissionEnd(SevenCharacters, false);
 }
 
 void ASevenGameMode::UpdateMissionParameters(AMission* Mission)

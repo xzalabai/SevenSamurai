@@ -79,6 +79,9 @@ public:
 	void MissionEnd(bool bWin);
 	void UpdateMissionParameters(AMission* Mission);
 	void OnRolledDice(bool bKeepCharacter);
+
+private:
+	void ExitMission() const;
 };
 
 

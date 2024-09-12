@@ -111,10 +111,11 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenC
 			BlackBoardComponent->SetValueAsBool(TEXT("bPlayerIncomingAttack"), Status == ECharacterState::IncomingAttack ? true : false);
 		}
 	}
-	/*if (Status == ECharacterState::Dead)
+	else if (!SevenCharacter->IsEnemy() && Status == ECharacterState::Dead)
 	{
-		AttackEnd
-	}*/
+		AAIController* AIController = Cast<AAIController>(GetController()); // TODO Cache!
+		AIController->SetFocus(FindSevenCharacter());
+	}
 }
 
 void AEnemyCharacter::OnAnimationEnded(const EMontageType& StoppedMontage)
