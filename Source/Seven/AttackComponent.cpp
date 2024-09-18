@@ -176,6 +176,7 @@ bool UAttackComponent::ComboAttack()
 		AC_Attribute->Decrease(EItemType::XP, 1);
 		return true;
 	}
+	ComboActivated = ECombo::ES_None;
 	return false;
 }
 

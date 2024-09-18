@@ -27,7 +27,7 @@ void AEnemyCharacter::BeginPlay()
 		AC_AttackComponent->AddComboToCharacter(Combo);
 	}
 
-	SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);	
+	StatusUpdateHandler = SevenGameMode->OnSevenCharacterStatusUpdate.AddUObject(this, &AEnemyCharacter::OnSevenCharacterStatusUpdate);
 	check(MissionType != EMissionType::NotProvided);
 }
 
@@ -115,6 +115,10 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenC
 	{
 		AAIController* AIController = Cast<AAIController>(GetController()); // TODO Cache!
 		AIController->SetFocus(FindSevenCharacter());
+		if (SevenCharacter->GetAttackTokenOwner() == uniqueID)
+		{
+			AttackEnd();
+		}
 	}
 }
 
@@ -314,6 +318,7 @@ void AEnemyCharacter::SpawnParticles(EAttackStrength NewAttackStrength) const
 
 void AEnemyCharacter::OnLayingDead()
 {
+	SevenGameMode->OnSevenCharacterStatusUpdate.Remove(StatusUpdateHandler);
 	ReturnAttackToken();
 	Super::OnLayingDead();
 }
@@ -353,9 +358,12 @@ bool AEnemyCharacter::HasAttackStarted() const
 
 void AEnemyCharacter::ReturnAttackToken()
 {
-	if (TargetedEnemy && TargetedEnemy->GetAttackTokenOwner() == uniqueID)
+	if (TargetedEnemy)
 	{
-		TargetedEnemy->ResetAttackToken();
+		if (TargetedEnemy->GetAttackTokenOwner() == uniqueID)
+		{
+			TargetedEnemy->ResetAttackToken();
+		}
 		TargetedEnemy = nullptr;
 	}
 }

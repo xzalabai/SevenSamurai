@@ -47,7 +47,7 @@ struct SEVEN_API FUMissionDT : public FTableRowBase
 	int UniqueID;
 
 	UPROPERTY(EditAnywhere)
-	FName Name;
+	FName Name; // TODO: can we remove it? it's just a name
 
 	UPROPERTY(EditAnywhere)
 	FName Description;

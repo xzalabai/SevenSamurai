@@ -26,7 +26,7 @@ struct FPlayerStats
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TMap<EItemType, int32> Reward;
+	TMap<EItemType, int32> Reward; //TODO: remove
 
 	UPROPERTY()
 	FVector Position{ FVector(0,0,0) };

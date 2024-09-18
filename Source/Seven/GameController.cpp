@@ -55,6 +55,7 @@ void UGameController::SaveMVSevenCharacter(const TObjectPtr<AMVSevenCharacter> M
 
 void UGameController::ProcessRewards(const bool bWin, const UMissionDA* const MissionDA)
 {
+	// TODO: remove this: except adding a new character
 	if (bWin)
 	{
 		if (MissionDA->SpecialCharacter)

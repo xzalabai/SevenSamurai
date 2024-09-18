@@ -65,6 +65,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	TArray<AMV_Area*> Areas;
 
+	FTimerHandle RandomQuestSpawnerHandle;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -76,7 +78,7 @@ public:
 
 private:
 	const AMV_EntityBase* GenerateEntity(const int8 Index = -1, const EMissionType MissionType = EMissionType::NotProvided);
-	void GenerateQuestGiver(const int8 Index = -1);
+	void GenerateQuestGiver(const int8 Index = -1, const EMissionType MissionType = EMissionType::AbandonedRuins);
 	void GenerateEntites();
 	void SpawnQuestGiver(const FAMV_QuestInfo& QuestGiverToSpawn = FAMV_QuestInfo());
 	const AMV_EntityBase* SpawnEntity(const FAMV_EntityBaseInfo& EntityToSpawn = FAMV_EntityBaseInfo());
@@ -87,4 +89,5 @@ private:
 	bool GotAreaLiberated(const AMV_Area* const Area) const;
 	bool IsOverlappingAnyEntity(const FVector& Vector1, const int32 OverlapRadius) const;
 	int32 GetActiveEnemies() const;
+	void CheckSevenCharacterStatus(const TArray<USevenCharacterDA*> SelectedCharacters);
 };

@@ -45,6 +45,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float AcceptableAttackRadius{ 150.0f };
 
+	FDelegateHandle StatusUpdateHandler;
+
 	virtual ASevenCharacter* FindSevenCharacter() const;
 	virtual void Fire(const FInputActionValue& Value) override;
 	virtual void AttackEnd() override;

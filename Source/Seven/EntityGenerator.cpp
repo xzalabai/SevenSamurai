@@ -17,10 +17,9 @@ void UEntityGenerator::BeginPlay()
 	if (GameController->MissionTypeCounts.IsEmpty())
 	{
 		// TODO: Do this EARLIER -> and not here, performance is going to be shit!
-		const FString ContextString;
-		
 		TArray<const FUMissionDT*> AllMissions;
-		MissionsDT->GetAllRows(ContextString, AllMissions);
+		check(MissionsDT);
+		MissionsDT->GetAllRows(FString(), AllMissions);
 
 		for (const FUMissionDT* Mission : AllMissions)
 		{
@@ -45,20 +44,27 @@ UMissionDA* UEntityGenerator::GenerateMission(const uint8 AreaIndex, EMissionTyp
 		MissionType = static_cast<EMissionType>(RandomMission);
 	}
 
+	if (!GameController->MissionTypeCounts.Find(MissionType))
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("[AMVSevenCharacter] Cannot find Mission: %s amongst missions."),
+			*UEnum::GetValueAsString(MissionType));
+		return nullptr;
+	}
+
 	const uint16 LastMissionNumber = GameController->MissionTypeCounts[MissionType];
 	check(LastMissionNumber != 0);
 	const int RandomNumber = FMath::RandRange(1, LastMissionNumber);
 	const FName NameToFind = CustomMath::ConcatFNameAndInt(MissionTypeToFName(MissionType), RandomNumber);
-	
-	if (NameToFind == NAME_None)
+	const FUMissionDT* Mission = MissionsDT->FindRow<FUMissionDT>(NameToFind, FString(), true);
+
+	if (!Mission)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[AMVSevenCharacter] Wrong name for MissionType: %d"), (int)MissionType);
+		UE_LOG(LogTemp, Fatal, TEXT("[AMVSevenCharacter] Cannot find Mission: %s, searching for name %s"),
+			*UEnum::GetValueAsString(MissionType), *NameToFind.ToString());
 		return nullptr;
 	}
 
 	UMissionDA* NewMissionDA = NewObject<UMissionDA>();
-
-	const FUMissionDT* Mission = MissionsDT->FindRow<FUMissionDT>(NameToFind, FString(), true);
 	ConvertMissionToMissionDA(Mission, NewMissionDA);
 	NewMissionDA->AreaIndex = AreaIndex;
 

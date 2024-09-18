@@ -38,6 +38,7 @@ void AMV_Map::BeginPlay()
 	const TArray<FAMV_EntityBaseInfo>& EntitiesToSpawn = GameController->RetrieveActiveEntities();
 	const TArray<FAMV_QuestInfo>& QuestGiversToSoawn = GameController->RetrieveActiveQuests();
 	const TArray<FAMV_Area>& AreasInfo = GameController->RetrieveAreasInfo();
+	
 	Time = GameController->RetrieveTime();
 	MVSevenCharacter = Cast<AMVSevenCharacter>(UGameplayStatics::GetActorOfClass(this, AMVSevenCharacter::StaticClass()));
 
@@ -53,6 +54,7 @@ void AMV_Map::BeginPlay()
 		LoadSavedQuests(QuestGiversToSoawn);
 		LoadSevenCharacter(GameController->GetPlayerStats());
 		LoadAreasInfo(AreasInfo);
+		CheckSevenCharacterStatus(GameController->GetSelectedCharacters());
 	}
 }
 
@@ -163,12 +165,12 @@ const AMV_EntityBase* AMV_Map::GenerateEntity(const int8 Index, const EMissionTy
 	return SpawnEntity(FAMV_EntityBaseInfo(RandomPoint, NewMission));
 }
 
-void AMV_Map::GenerateQuestGiver(const int8 Index)
+void AMV_Map::GenerateQuestGiver(const int8 Index, const EMissionType MissionType)
 {
 	// Creates new Quest (alongside with a new Mission - goal of the Quest).
 
 	const FVector RandomPoint = GetRandomPointOnMap(Index, true, 100);
-	const AMV_EntityBase* NewEntity = GenerateEntity(Index, EMissionType::AbandonedRuins);
+	const AMV_EntityBase* NewEntity = GenerateEntity(Index, MissionType);
 	if (!NewEntity)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[AMV_Map].GenerateQuestGiver NewEntity is nullptr"));
@@ -321,4 +323,17 @@ int32 AMV_Map::GetActiveEnemies() const
 	}
 
 	return Amount;
+}
+
+void AMV_Map::CheckSevenCharacterStatus(const TArray<USevenCharacterDA*> SelectedCharacters)
+{
+	if (SelectedCharacters.Num() == 1)
+	{
+		// Spawn new Quest for character (who is having just 1 character)
+		const bool bSpawnNewQuest = FMath::RandRange(0, 10) > 7;
+		if (bSpawnNewQuest)
+		{
+			GenerateQuestGiver(MVSevenCharacter->CurrentAreaID, EMissionType::EasyQuest);
+		}
+	}
 }

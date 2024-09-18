@@ -14,33 +14,21 @@ class ASevenGameMode;
 UENUM(BlueprintType)
 enum class EMissionType : uint8
 {
-	NotProvided,
-	LiberatePlace,
-	TakeAmbush,
-	ReceiveAmbush,
-	EnemyCamp,
-	Enemy,
-	AbandonedRuins, // KEEP THIS LAST!
+	NotProvided UMETA(DisplayName = "NotProvided"),
+	LiberatePlace UMETA(DisplayName = "LiberatePlace"),
+	TakeAmbush UMETA(DisplayName = "TakeAmbush"),
+	ReceiveAmbush UMETA(DisplayName = "ReceiveAmbush"),
+	EnemyCamp UMETA(DisplayName = "EnemyCamp"),
+	Enemy UMETA(DisplayName = "Enemy"),
+	EasyQuest UMETA(DisplayName = "EasyQuest"), 
+	AbandonedRuins UMETA(DisplayName = "AbandonedRuins"), // KEEP THIS LAST!
 };
 
 static FName MissionTypeToFName(EMissionType MissionType)
 {
-	FName Name;
-	switch (MissionType) {
-	case EMissionType::AbandonedRuins:
-		Name = TEXT("AbandonedRuins");
-		break;
-	case EMissionType::Enemy:
-		Name = TEXT("Enemy");
-		break;
-	case EMissionType::LiberatePlace:
-		Name = TEXT("LiberatePlace");
-		break;
-	default:
-		Name = NAME_None;
-	}
-	return Name;
+	return *UEnum::GetDisplayValueAsText(MissionType).ToString();
 }
+
 
 UCLASS()
 class SEVEN_API AMission : public AActor
