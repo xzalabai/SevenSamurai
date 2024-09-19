@@ -63,7 +63,7 @@ private:
 	FMontage CurrentMontage{};
 	UPROPERTY()
 	FMontage LastPlayedMontage{};
-	ASevenCharacter* CachedSevenCharacter{ nullptr };
+	ASevenCharacter* SevenCharacter{ nullptr };
 	AController* CachedPlayerController{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -92,11 +92,11 @@ public:
 	void OnEvadeEnded();
 	void NextComboTriggered(bool bEnable);
 	
-	bool Block(const bool bEnable);
-	bool Guard(const bool bEnable);
+	bool Block(const bool bEnable, const bool bAffectAnimation = true);
+	bool Guard(const bool bEnable, const bool bAffectAnimation = true);
 	bool Run(const bool bEnable);
 	void LockTarget(bool bEnable, const ASevenCharacter* EnemyToLock = nullptr);
-	void SwitchStances(const EStances NewStance);
+	void SwitchStances(const EStances NewStance, const bool bAffectAnimation = true);
 	FORCEINLINE bool IsAnimationRunning() const { return bActiveMontageRunning; }
 	FORCEINLINE bool IsAttackAnimationRunning() const { return (bActiveMontageRunning && AttackMontages.Contains(CurrentMontage.MontageType)); }
 	FORCEINLINE EMontageType GetCurrentMontageType() const { return CurrentMontage.MontageType; }
@@ -106,8 +106,6 @@ public:
 
 private:
 	UAnimInstance* GetOwnerAnimInstance();
-	ASevenCharacter* GetOwnerCharacter();
-
 };
 
 

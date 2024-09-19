@@ -162,7 +162,6 @@ uint8 UAttackComponent::GetDamage() const
 bool UAttackComponent::LightAttack(ASevenCharacter* TargetedEnemy)
 {
 	// TODO: Find a better place for turning off block!
-	AC_Animation->SwitchStances(EStances::Guard);
 	const TPair<UAnimMontage*, FName> NextAttack = GetLightAttackMontageToBePlayed();
 	bool bAnimationIsPlaying = AC_Animation->Play(NextAttack.Key, NextAttack.Value, EMontageType::LightAttack);
 	return bAnimationIsPlaying;

@@ -105,6 +105,14 @@ protected:
 	bool bIsBlocking{ false };
 
 	UPROPERTY(BlueprintReadOnly)
+	bool bIsGuarding{ false };
+
+	bool bPlayBlockingAnimation{ false };
+
+	bool bPlayGuardingAnimation{ false };
+
+
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsBlockingBeforeAttack{ false };
 
 	UPROPERTY(BlueprintReadOnly)
@@ -112,9 +120,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsEvading{ false };
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsGuarding{ false };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bDebugIsImmortal{ false };
@@ -241,7 +246,8 @@ public:
 	FORCEINLINE class UAttackComponent* GetAttackComponent() const { return AC_AttackComponent; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAICharacter* GetAICharacter() const { return AC_AICharacter; }
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable) FORCEINLINE bool PlayBlockingAnimation() const { return bPlayBlockingAnimation; };
+	UFUNCTION(BlueprintCallable) FORCEINLINE bool PlayGuardingAnimation() const { return bPlayGuardingAnimation; };
 	FORCEINLINE bool GetIsBlocking() const { return bIsBlocking; }
 	FORCEINLINE bool IsAllowedHitReaction(const EAttackStrength Mask, const EAttackStrength UsedAttackStrength) const { return static_cast<uint8>(Mask) & static_cast<uint8>(UsedAttackStrength); }
 	FORCEINLINE bool IsImmortal() const { return bIsImmortal; }
