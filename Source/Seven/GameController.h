@@ -6,6 +6,7 @@
 #include "MV_Area.h"
 #include "Templates/UniquePtr.h"
 #include "MissionDA.h"
+#include "SevenCharacterData.h"
 #include "GameController.generated.h"
 
 class ASevenCharacter;
@@ -158,6 +159,9 @@ private:
 	UPROPERTY()
 	int VisitedVillageID{ -1 };
 
+	UPROPERTY()
+	TArray<USevenCharacterData*> SevenCharactersData;
+
 	void SaveActiveEntities(const TArray<const AMV_EntityBase*>& ActiveEntities);
 	void SaveActiveQuests(const TArray<const AMV_QuestGiver*>& ActiveQuestGivers);
 	void SaveTime(const FTime& Time);
@@ -180,7 +184,7 @@ public:
 	void UpdateSevenCharactersState(const TArray<const ASevenCharacter*>& SevenCharacters);
 	void UpdateSevenCharactersHP(const uint16 Amount);
 	UFUNCTION(BlueprintCallable)
-	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA) const;
+	void AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA);
 	UFUNCTION(BlueprintCallable)
 	const TArray<USevenCharacterDA*> GetSelectedCharacters() const;
 	FORCEINLINE const FPlayerStats& GetPlayerStats() const { return PlayerStats; }

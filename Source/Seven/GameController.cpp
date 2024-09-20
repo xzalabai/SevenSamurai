@@ -269,15 +269,18 @@ void UGameController::UpdateSevenCharactersHP(const uint16 Amount)
 	}
 }
 
-void UGameController::AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA) const
+void UGameController::AddToSelectedCharacter(USevenCharacterDA* SevenCharacterDA)
 {
 	UE_LOG(LogTemp, Display, TEXT("[UGameController].AddToSelectedCharacter New character added!"));
 	SelectedCharacters.Add(SevenCharacterDA);
-	SevenCharacterDA->bWasUsed = true;
+	//SevenCharacterDA->bWasUsed = true;
 	for (USevenCharacterDA* SelectedCharacter : SelectedCharacters)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[UGameController].AddToSelectedCharacter Character: %s is in selectedCharacter"), *SelectedCharacter->Name.ToString());
 	}
+	
+	const int32_t Idx = SevenCharactersData.Add(NewObject<USevenCharacterData>());
+	SevenCharactersData[Idx]->SevenCharacterDA = SevenCharacterDA;
 }
 
 const TArray<USevenCharacterDA*> UGameController::GetSelectedCharacters() const

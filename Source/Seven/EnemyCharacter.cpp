@@ -114,6 +114,9 @@ void AEnemyCharacter::OnSevenCharacterStatusUpdate(const ASevenCharacter* SevenC
 	else if (!SevenCharacter->IsEnemy() && Status == ECharacterState::Dead)
 	{
 		AAIController* AIController = Cast<AAIController>(GetController()); // TODO Cache!
+		UBlackboardComponent* BlackBoardComponent = AIController->GetBlackboardComponent();
+		BlackBoardComponent->SetValueAsBool(TEXT("bRefreshTree"), false);
+		
 		AIController->SetFocus(FindSevenCharacter());
 		if (SevenCharacter->GetAttackTokenOwner() == uniqueID)
 		{
